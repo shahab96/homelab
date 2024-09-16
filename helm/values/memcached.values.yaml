@@ -1,0 +1,14 @@
+architecture: high-availability
+replicaCount: 3
+containerSecurityContext:
+  readOnlyRootFilesystem: false
+service:
+  type: LoadBalancer
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: memcached.home
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 10s
+    scrapeTimeout: 10s

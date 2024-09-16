@@ -65,7 +65,9 @@ releases:
   - name: memcached
     namespace: memcached-system
     chart: bitnami/memcached
-    version: 7.4.11
+    version: 7.4.16
+    values:
+      - ./values/memcached.values.yaml
 
   # Gitea
   - name: gitea
