@@ -1,17 +1,8 @@
-service:
-  http:
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: git.dogar.dev
-      metallb.universe.tf/allow-shared-ip: gitea
-  ssh:
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: git.dogar.dev
-      metallb.universe.tf/allow-shared-ip: gitea
 ingress:
   enabled: true
   className: nginx-internal
   annotations:
-    cert-manager.io/cluster-issuer: cluster-issuer
+    cert-manager.io/cluster-issuer: cloudflare-issuer
   hosts:
     - host: git.dogar.dev
       paths:

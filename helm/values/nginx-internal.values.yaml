@@ -11,4 +11,4 @@ controller:
       external-dns.alpha.kubernetes.io/hostname: postgres.home
 tcp:
   5432: "postgres-system/postgres-cluster-rw:5432"
-  2222: "gitea-system/gitea-ssh:22"
+  22: "gitea-system/gitea-ssh:22"
