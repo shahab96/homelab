@@ -36,6 +36,7 @@ gitea:
       ENABLE_PPROF: true
       ENABLE_GZIP: true
       LFS_START_SERVER: true
+      SSH_DOMAIN: git.dogar.dev
     database:
       DB_TYPE: postgres
       HOST: postgres-cluster-rw.postgres-system.svc.cluster.local:5432
