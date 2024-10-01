@@ -5,7 +5,7 @@ metadata:
   name: cloudflare-domains-config
   namespace: cloudflare-system
 data:
-  DOMAINS: "postgres.dogar.dev,git.dogar.dev"
+  DOMAINS: "postgres.dogar.dev,git.dogar.dev,memcached.dogar.dev"
   PROXIED: "false"
 ---
 apiVersion: apps/v1
