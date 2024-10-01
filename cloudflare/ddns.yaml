@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflare-domains-config
+  namespace: cloudflare-system
+data:
+  DOMAINS: "postgres.dogar.dev,git.dogar.dev"
+  PROXIED: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflare-ddns
+  namespace: cloudflare-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflare-ddns
+  template:
+    metadata:
+      labels:
+        app: cloudflare-ddns
+    spec:
+      containers:
+      - name: cloudflare-ddns
+        image: favonia/cloudflare-ddns:latest
+        env:
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare-token
+              key: credential
+        - name: DOMAINS
+          valueFrom:
+            configMapKeyRef:
+              name: cloudflare-domains-config
+              key: DOMAINS
+        - name: PROXIED
+          valueFrom:
+            configMapKeyRef:
+              name: cloudflare-domains-config
+              key: PROXIED
