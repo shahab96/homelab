@@ -11,9 +11,7 @@ spec:
   primaryUpdateStrategy: unsupervised
   certificates:
     serverAltDNSNames:
-      - postgres.home
-      - dogar.dev
-      - localhost
+      - postgres.dogar.dev
   postgresql:
     pg_hba:
       - hostssl all      shahab   all          cert
