@@ -1,11 +1,11 @@
 service:
   http:
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: "gitea.home,git.dogar.dev"
+      external-dns.alpha.kubernetes.io/hostname: git.dogar.dev
       metallb.universe.tf/allow-shared-ip: gitea
   ssh:
     annotations:
-      external-dns.alpha.kubernetes.io/hostname: "gitea.home,git.dogar.dev"
+      external-dns.alpha.kubernetes.io/hostname: git.dogar.dev
       metallb.universe.tf/allow-shared-ip: gitea
 ingress:
   enabled: true
@@ -13,10 +13,6 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: cluster-issuer
   hosts:
-    - host: gitea.home
-      paths:
-        - path: /
-          pathType: Prefix
     - host: git.dogar.dev
       paths:
         - path: /
@@ -24,7 +20,7 @@ ingress:
   tls:
     - secretName: gitea-tls
       hosts:
-        - gitea.home
+        - git.dogar.dev
 gitea:
   podAnnotations:
     prometheus.io/scrape: "true"
@@ -40,7 +36,6 @@ gitea:
       ENABLE_PPROF: true
       ENABLE_GZIP: true
       LFS_START_SERVER: true
-      ROOT_URL: https://git.dogar.dev
     database:
       DB_TYPE: postgres
       HOST: postgres-cluster-rw.postgres-system.svc.cluster.local:5432
