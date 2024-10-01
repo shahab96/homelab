@@ -4,10 +4,10 @@ grafana:
     enabled: true
     ingressClassName: nginx-internal
     annotations:
-      cert-manager.io/cluster-issuer: cluster-issuer
+      cert-manager.io/cluster-issuer: cloudflare-issuer
     hosts:
-      - grafana.home
+      - grafana.dogar.dev
     tls:
       - secretName: grafana-tls
         hosts:
-          - grafana.home
+          - grafana.dogar.dev
