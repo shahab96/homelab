@@ -6,12 +6,13 @@ metadata:
   namespace: postgres-system
 spec:
   instances: 3
-  minSyncReplicas: 1
-  maxSyncReplicas: 1
+  minSyncReplicas: 0
+  maxSyncReplicas: 0
   primaryUpdateStrategy: unsupervised
   certificates:
     serverAltDNSNames:
       - postgres.home
+      - dogar.dev
       - localhost
   postgresql:
     pg_hba:
@@ -26,7 +27,6 @@ spec:
       secret:
         name: postgres-password
       postInitSQL:
-        - 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
         - 'CREATE USER shahab SUPERUSER;'
         - 'CREATE USER dogar SUPERUSER;'
         - 'CREATE USER leviathan;'
