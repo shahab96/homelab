@@ -1,5 +1,3 @@
-architecture: high-availability
-replicaCount: 3
 containerSecurityContext:
   readOnlyRootFilesystem: false
 service:
