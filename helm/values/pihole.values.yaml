@@ -7,6 +7,8 @@ admin:
   passwordKey: password
 persistentVolumeClaim:
   enabled: true
+  accessModes:
+    - ReadWriteMany
 ingress:
   enabled: true
   annotations:
