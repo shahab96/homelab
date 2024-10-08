@@ -12,11 +12,11 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: cluster-issuer
   hosts:
-    - pihole.home
+    - pihole.dogar.dev
   tls:
     - secretName: pihole-tls
       hosts:
-        - pihole.home
+        - pihole.dogar.dev
 serviceWeb:
   loadBalancerIP: 192.168.0.250
   annotations:
