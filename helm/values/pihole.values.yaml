@@ -15,6 +15,10 @@ ingress:
   enabled: true
   annotations:
     cert-manager.io/cluster-issuer: cluster-issuer
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "http-cookie"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
   hosts:
     - pihole.dogar.dev
   tls:
