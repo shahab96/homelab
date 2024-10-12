@@ -1,4 +1,23 @@
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: elasticsearch-cert
+  namespace: elastic-system
+spec:
+  secretName: elasticsearch-cert
+  privateKey:
+    algorithm: ECDSA
+    size: 384
+  usages:
+    - server auth
+  dnsNames:
+    - elastic.dogar.dev
+  issuerRef:
+    name: cloudflare-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
@@ -14,9 +33,8 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: elastic.dogar.dev
     tls:
-      selfSignedCertificate:
-        subjectAltNames:
-        - dns: elastic.dogar.dev
+      certificate:
+        secretName: elasticsearch-cert
   nodeSets:
   - name: master
     count: 1
