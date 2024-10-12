@@ -50,6 +50,8 @@ gitea:
     session:
       PROVIDER: db
       PROVIDER_CONFIG: ""
+    queue:
+      TYPE: redis
     lfs:
       STORAGE_TYPE: local
     service:
@@ -68,6 +70,11 @@ gitea:
       valueFrom:
         secretKeyRef:
           name: gitea-postgres
+          key: password
+    - name: GITEA__QUEUE__CONN_STR
+      valueFrom:
+        secretKeyRef:
+          name: gitea-redis
           key: password
 persistence:
   enabled: true
