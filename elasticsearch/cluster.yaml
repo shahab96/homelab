@@ -1,0 +1,28 @@
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  namespace: elastic-system
+spec:
+  version: 8.15.2
+  http:
+    service:
+      spec:
+        type: LoadBalancer
+      metadata:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: elastic.dogar.dev
+    tls:
+      selfSignedCertificate:
+        subjectAltNames:
+        - dns: elastic.dogar.dev
+  nodeSets:
+  - name: master
+    count: 1
+    config:
+      node.roles: ["master"]
+  - name: data
+    count: 1
+    config:
+      node.roles: ["data"]
