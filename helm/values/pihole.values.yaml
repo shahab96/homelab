@@ -10,7 +10,7 @@ admin:
 persistentVolumeClaim:
   enabled: true
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
 ingress:
   enabled: true
   annotations:
@@ -35,7 +35,6 @@ serviceDns:
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
-replicaCount: 3
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "9617"

@@ -1,0 +1,63 @@
+global:
+  addPrometheusAnnotations: true
+
+authentik:
+  secret_key: "c8cc2e4a498c697a0443d96b31fe042c69c2158dc8bfb3da3878d1dbfbe6128e"
+  error_reporting:
+    enabled: false
+  postgresql:
+    host: postgres-cluster-rw.postgres-system.svc.cluster.local
+    user: file:///postgres-creds/username
+    password: file:///postgres-creds/password
+  redis:
+    host: redis-master.redis-system.svc.cluster.local
+    password: file:///redis-creds/password
+
+server:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: cloudflare-issuer
+      cert-manager.io/acme-challenge-type: dns01
+      cert-manager.io/private-key-size: "4096"
+    ingressClassName: nginx-internal
+    hosts:
+      - auth.dogar.dev
+    tls:
+      - secretName: authentik-tls
+        hosts:
+          - auth.dogar.dev
+  volumes:
+    - name: postgres-creds
+      secret:
+        secretName: authentik-postgres
+    - name: redis-creds
+      secret:
+        secretName: authentik-redis
+  volumeMounts:
+    - name: postgres-creds
+      mountPath: /postgres-creds
+      readOnly: true
+    - name: redis-creds
+      mountPath: /redis-creds
+      readOnly: true
+worker:
+  volumes:
+    - name: postgres-creds
+      secret:
+        secretName: authentik-postgres
+    - name: redis-creds
+      secret:
+        secretName: authentik-redis
+  volumeMounts:
+    - name: postgres-creds
+      mountPath: /postgres-creds
+      readOnly: true
+    - name: redis-creds
+      mountPath: /redis-creds
+      readOnly: true
+    
+postgresql:
+    enabled: false
+redis:
+    enabled: false

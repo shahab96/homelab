@@ -17,6 +17,8 @@ repositories:
     url: https://charts.jetstack.io
   - name: prometheus-community
     url: https://prometheus-community.github.io/helm-charts
+  - name: authentik
+    url: https://charts.goauthentik.io
 ---
 releases:
   # Distributed Storage
@@ -92,3 +94,19 @@ releases:
     version: 62.3.0
     values:
       - ./values/prometheus.values.yaml
+
+  # Redis
+  - name: redis
+    namespace: redis-system
+    chart: bitnami/redis
+    version: 20.2.0
+    values:
+      - ./values/redis.values.yaml
+
+  # Authentik
+  - name: authentik
+    namespace: authentik-system
+    chart: authentik/authentik
+    version: 2024.8.3
+    values:
+      - ./values/authentik.values.yaml

@@ -13,6 +13,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: cloudflare-issuer
     cert-manager.io/private-key-algorithm: ED25519
+    cert-manager.io/acme-challenge-type: dns01
   hosts:
     - host: git.dogar.dev
       paths:
@@ -53,6 +54,15 @@ gitea:
       STORAGE_TYPE: local
     service:
       DISABLE_REGISTRATION: true
+    oauth2_client:
+      ENABLE_AUTO_REGISTRATION: true
+  oauth:
+    - name: "authentik"
+      provider: "openidConnect"
+      existingSecret: gitea-oauth
+      autoDiscoverUrl: "https://auth.dogar.dev/application/o/gitea/.well-known/openid-configuration"
+      iconUrl: "https://goauthentik.io/img/icon.png"
+      scopes: "email profile"
   additionalConfigFromEnvs:
     - name: GITEA__DATABASE__PASSWD
       valueFrom:
