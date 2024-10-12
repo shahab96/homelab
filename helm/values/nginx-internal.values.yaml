@@ -7,5 +7,7 @@ controller:
     parameters: {}
   ingressClass: nginx-internal
 tcp:
-  22:   "gitea-system/gitea-ssh:22"
-  5432: "postgres-system/postgres-cluster-rw:5432"
+  22:    "gitea-system/gitea-ssh:22"
+  5432:  "postgres-system/postgres-cluster-rw:5432"
+  6379:  "redis-system/redis-master-0:6379"
+  11211: "memcached-system/memcached:11211"

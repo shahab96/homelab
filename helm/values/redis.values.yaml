@@ -10,7 +10,6 @@ master:
   persistence:
     enabled: false
   service:
-    type: LoadBalancer
     annotations:
       external-dns.alpha.kubernetes.io/hostname: redis.dogar.dev
 

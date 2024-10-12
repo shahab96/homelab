@@ -1,7 +1,6 @@
 grafana:
   enabled: true
   service:
-    type: LoadBalancer
     annotations:
       external-dns.alpha.kubernetes.io/hostname: grafana.dogar.dev
   ingress:

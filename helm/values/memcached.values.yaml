@@ -1,7 +1,6 @@
 containerSecurityContext:
   readOnlyRootFilesystem: false
 service:
-  type: LoadBalancer
   annotations:
     external-dns.alpha.kubernetes.io/hostname: memcached.dogar.dev
 metrics:
