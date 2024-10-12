@@ -58,6 +58,11 @@ gitea:
       DISABLE_REGISTRATION: true
     oauth2_client:
       ENABLE_AUTO_REGISTRATION: true
+    mailer:
+      ENABLED: true
+      PROTOCOL: smtp+starttls
+      SMTP_ADDR: smtp.protonmail.ch
+      SMTP_PORT: 587
   oauth:
     - name: "authentik"
       provider: "openidConnect"
@@ -75,6 +80,11 @@ gitea:
       valueFrom:
         secretKeyRef:
           name: gitea-redis
+          key: password
+    - name: GITEA__MAILER__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: smtp-token
           key: password
 persistence:
   enabled: true
