@@ -1,3 +1,4 @@
+interval: 10s
 provider: pihole
 policy: upsert-only
 txtOwnerId: "homelab"

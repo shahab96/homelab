@@ -12,7 +12,6 @@ ingress:
   className: nginx-internal
   annotations:
     cert-manager.io/cluster-issuer: cloudflare-issuer
-    cert-manager.io/private-key-algorithm: ED25519
     cert-manager.io/acme-challenge-type: dns01
     cert-manager.io/private-key-size: "4096"
   hosts:
