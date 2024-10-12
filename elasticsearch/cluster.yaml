@@ -37,8 +37,4 @@ spec:
   - name: master
     count: 1
     config:
-      node.roles: ["master"]
-  - name: data
-    count: 1
-    config:
-      node.roles: ["data"]
+      node.roles: ["master", "data"]
