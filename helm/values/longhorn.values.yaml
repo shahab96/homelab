@@ -1,0 +1,13 @@
+metrics:
+  serviceMonitor:
+    enabled: true
+ingress:
+  enabled: true
+  ingressClassName: nginx-internal
+  host: longhorn.dogar.dev
+  tls: true
+  tlsSecretName: longhorn-tls
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-issuer
+    cert-manager.io/acme-challenge-type: dns01
+    cert-manager.io/private-key-size: "4096"

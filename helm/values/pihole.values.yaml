@@ -2,17 +2,21 @@
 DNS1:
   1.1.1.1
 DNS2:
-  192.168.0.1
+  192.168.18.1
+nodeSelector:
+  pihole: "true"
 admin:
   enabled: true
   existingSecret: pihole-admin
   passwordKey: password
 persistentVolumeClaim:
   enabled: true
+  storageClass: longhorn-crypto
   accessModes:
     - ReadWriteOnce
 ingress:
   enabled: true
+  ingressClassName: nginx-internal
   annotations:
     cert-manager.io/cluster-issuer: cloudflare-issuer
     cert-manager.io/acme-challenge-type: dns01
@@ -24,15 +28,54 @@ ingress:
       hosts:
         - pihole.dogar.dev
 serviceWeb:
-  loadBalancerIP: 192.168.0.250
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
+  loadBalancerIP: 192.168.18.250
 serviceDns:
-  loadBalancerIP: 192.168.0.250
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
+  loadBalancerIP: 192.168.18.250
+serviceDhcp:
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  enabled: true
+  type: LoadBalancer
+  loadBalancerIP: 192.168.18.250
+probes:
+  liveness:
+    enabled: false
+  readiness:
+    enabled: false
+dnsmasq:
+  additionalHostsEntries:
+    - 192.168.18.10 homelab-0
+    - 192.168.18.11 homelab-1
+    - 192.168.18.12 homelab-2
+    - 192.168.18.10 lab.dogar.dev
+  staticDhcpEntries:
+    - dhcp-host=B0:41:6F:0F:A8:D3,192.168.18.10,homelab-0
+    - dhcp-host=B0:41:6F:0F:AE:89,192.168.18.11,homelab-1
+    - dhcp-host=B0:41:6F:0F:A0:CD,192.168.18.12,homelab-2
+hostNetwork: true
+hostname: pihole
+privileged: true
+capabilities:
+  add:
+    - NET_ADMIN
+extraEnvVars:
+  TZ: "Asia/Karachi"
+  DNSSEC: "true"
+  FTLCONF_LOCAL_IPV4: "192.168.18.250"
+  INTERFACE: "enp1s0"
+  DNSMASQ_LISTENING: "single"
+  DHCP_ACTIVE: "true"
+  DHCP_START: "192.168.18.2"
+  DHCP_END: "192.168.18.20"
+  DHCP_ROUTER: "192.168.18.1"
+  PIHOLE_DOMAIN: "pihole.dogar.dev"
+  VIRTUAL_HOST: "pihole.dogar.dev"
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "9617"

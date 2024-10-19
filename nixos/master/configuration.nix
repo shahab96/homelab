@@ -23,6 +23,22 @@
   networking.hostName = meta.hostname; # Define your hostname.
   # Pick only one of the below networking options.
   networking.networkmanager.enable = true;
+  networking.interfaces.enp1s0.ipv4.addresses = [
+    {
+      address = (
+        if meta.hostname == "homelab-0" then "192.168.18.10"
+        else if meta.hostname == "homelab-1" then "192.168.18.11"
+        else if meta.hostname == "homelab-2" then "192.168.18.12"
+        else throw "Unknown hostname"
+      );
+      prefixLength = 24;
+    }
+  ];
+  networking.defaultGateway = "192.168.18.1";
+  networking.nameservers = [
+    "192.168.18.250"
+    "1.1.1.1"
+  ];
 
   # Set your time zone.
   time.timeZone = "Asia/Karachi";
@@ -61,8 +77,9 @@
 	    "--disable servicelb"
 	    "--disable traefik"
 	    "--disable local-storage"
+      "--tls-san homelab-0"
     ] ++ (if meta.hostname == "homelab-0" then [] else [
-	      "--server https://homelab-0:6443"
+	      "--server https://192.168.18.10:6443"
     ]));
     clusterInit = (meta.hostname == "homelab-0");
   };
@@ -147,6 +164,6 @@
   # and migrated your data accordingly.
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 }

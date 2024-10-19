@@ -1,8 +1,5 @@
 grafana:
   enabled: true
-  service:
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: grafana.dogar.dev
   ingress:
     enabled: true
     ingressClassName: nginx-internal

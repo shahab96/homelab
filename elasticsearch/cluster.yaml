@@ -38,5 +38,15 @@ spec:
   nodeSets:
   - name: master
     count: 1
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: longhorn-crypto
     config:
       node.roles: ["master", "data"]
