@@ -19,6 +19,8 @@ repositories:
     url: https://prometheus-community.github.io/helm-charts
   - name: authentik
     url: https://charts.goauthentik.io
+  - name: minio
+    url: https://operator.min.io
 ---
 releases:
   # Distributed Storage
@@ -112,3 +114,19 @@ releases:
     version: 2024.8.3
     values:
       - ./values/authentik.values.yaml
+
+  # Minio Operator
+  - name: minio-operator
+    namespace: minio-system
+    chart: minio/operator
+    version: 6.0.4
+    values:
+      - ./values/minio-operator.values.yaml
+
+  # Minio Tenant
+  # - name: minio-tenant
+  #   namespace: minio-system
+  #   chart: minio/tenant
+  #   version: 6.0.4
+  #   values:
+  #     - ./values/minio-tenant.values.yaml
