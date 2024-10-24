@@ -1,3 +1,8 @@
+defaultSettings:
+  backupTarget: "s3://homelab-backups@apac/longhorn"
+  backupTargetCredentialSecret: longhorn-backup
+  backupCompressionMethod: "gzip"
+  backupConcurrentLimit: 4
 metrics:
   serviceMonitor:
     enabled: true
