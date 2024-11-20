@@ -6,6 +6,7 @@ metadata:
   namespace: cloudflare-system
 data:
   DOMAINS: "git.dogar.dev,auth.dogar.dev,grafana.dogar.dev"
+  PROXIED: "true"
 ---
 apiVersion: apps/v1
 kind: Deployment
