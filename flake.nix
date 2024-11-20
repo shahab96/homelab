@@ -1,0 +1,31 @@
+{
+  description = "Flake to work with homelab setup";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
+    let
+      # Import nixpkgs to access packages
+      pkgs = import nixpkgs { inherit system; };
+
+      # Define the devshell
+      devShell = pkgs.mkShell {
+        buildInputs = with pkgs; [
+          helmfile
+          kubernetes-helm
+          kubernetes-helmPlugins.helm-diff
+          kubectl
+
+          # Adding node for copilot
+          nodejs_20
+        ];
+      };
+    in {
+      # Define the devShell for the current system
+      devShell = devShell;
+    }
+  );
+}
