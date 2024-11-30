@@ -24,10 +24,12 @@ server:
     ingressClassName: nginx-internal
     hosts:
       - auth.dogar.dev
+      - auth.rihla.digital
     tls:
       - secretName: authentik-tls
         hosts:
           - auth.dogar.dev
+          - auth.rihla.digital
   volumes:
     - name: postgres-creds
       secret:

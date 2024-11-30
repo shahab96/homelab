@@ -109,6 +109,6 @@ releases:
   - name: authentik
     namespace: authentik-system
     chart: authentik/authentik
-    version: 2024.8.3
+    version: 2024.10.4
     values:
       - ./values/authentik.values.yaml
