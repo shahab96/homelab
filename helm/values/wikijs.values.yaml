@@ -1,9 +1,15 @@
 ingress:
   enabled: true
+  ingressClassName: nginx-internal
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-issuer
+    cert-manager.io/acme-challenge-type: dns01
+    cert-manager.io/private-key-size: "4096"
   hosts:
     - host: docs.rihla.digital
       paths:
-        - /
+        - path: /
+          pathType: Prefix
   tls:
     - secretName: docs-rihla-digital
       hosts:
