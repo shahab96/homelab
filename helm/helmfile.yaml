@@ -19,6 +19,8 @@ repositories:
     url: https://prometheus-community.github.io/helm-charts
   - name: authentik
     url: https://charts.goauthentik.io
+  - name: requarks
+    url: https://charts.js.wiki
 ---
 releases:
   # Distributed Storage
@@ -112,3 +114,11 @@ releases:
     version: 2024.10.5
     values:
       - ./values/authentik.values.yaml
+
+  # WikiJS
+  - name: wikijs
+    namespace: docs-system
+    chart: requarks/wiki
+    version: 2.2.22
+    values:
+      - ./values/wikijs.values.yaml

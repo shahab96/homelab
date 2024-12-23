@@ -1,0 +1,19 @@
+ingress:
+  enabled: true
+  hosts:
+    - host: docs.rihla.digital
+      paths:
+        - /
+  tls:
+    - secretName: docs-rihla-digital
+      hosts:
+        - docs.rihla.digital
+
+postgresql:
+  enabled: false
+  postgresqlDatabase: docs
+  postgresqlUser: docs
+  postgresqlHost: postgres-cluster-rw.postgres-system.svc.cluster.local
+  postgresqlPort: 5432
+  existingSecret: docs-postgres
+  existingSecretKey: password
