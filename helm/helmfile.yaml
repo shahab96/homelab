@@ -9,7 +9,7 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
-  - name: postgres
+  - name: cnpg
     url: https://cloudnative-pg.github.io/charts
   - name: gitea
     url: https://dl.gitea.com/charts
@@ -19,8 +19,6 @@ repositories:
     url: https://prometheus-community.github.io/helm-charts
   - name: authentik
     url: https://charts.goauthentik.io
-  - name: requarks
-    url: https://charts.js.wiki
 ---
 releases:
   # Distributed Storage
@@ -65,7 +63,7 @@ releases:
   - name: postgres-system
     namespace: postgres-system
     chart: cnpg/cloudnative-pg
-    version: 0.21.6
+    version: 0.23.0
 
   # Memcached
   - name: memcached
@@ -114,11 +112,3 @@ releases:
     version: 2024.10.5
     values:
       - ./values/authentik.values.yaml
-
-  # WikiJS
-  - name: wikijs
-    namespace: docs-system
-    chart: requarks/wiki
-    version: 2.2.22
-    values:
-      - ./values/wikijs.values.yaml
