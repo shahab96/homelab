@@ -8,7 +8,7 @@
     disko.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, disko, ... }@inputs: let
+  outputs = { nixpkgs, disko, ... }: let
     nodes = [
       "homelab-0"
       "homelab-1"
@@ -23,12 +23,12 @@
           };
           system = "x86_64-linux";
           modules = [
-              # Modules
-	            disko.nixosModules.disko
-	            ./hardware-configuration.nix
-	            ./disko-config.nix
-	            ./configuration.nix
-	          ];
+            # Modules
+            disko.nixosModules.disko
+            ./hardware-configuration.nix
+            ./disko-config.nix
+            ./configuration.nix
+          ];
         };
     }) nodes);
   };
