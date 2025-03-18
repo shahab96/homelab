@@ -163,7 +163,7 @@
 
     peers = [
       {
-        publicKey = "public-key";
+        publicKey = "shahab";
         allowedIPs = [ "192.168.20.2/32" ];
       }
     ];
