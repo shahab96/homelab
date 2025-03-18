@@ -143,42 +143,6 @@
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
 
-  networking.nat = {
-    enable = true;
-    externalInterface = "enp1s0";
-    internalInterfaces = [ "wg0" ];
-  };
-
-  networking.wireguard = {
-    enable = true;
-    interfaces = {
-      wg0 = {
-        ips = [ "192.168.20.1/24" ];
-        listenPort = 51820;
-        privateKeyFile = "/etc/wireguard/private-key";
-
-        # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
-        # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
-        postSetup = ''
-          ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 192.168.20.0/24 -o eth0 -j MASQUERADE
-        '';
-
-        # This undoes the above command
-        postShutdown = ''
-          ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 192.168.20.0/24 -o eth0 -j MASQUERADE
-        '';
-
-        peers = [
-          {
-            name = "shahab";
-            publicKey = "IXW+O1L0OXs3dIGk55wOUIjvcWlQthuO84XS+rNB5Ac=";
-            allowedIPs = [ "192.168.20.2/32" ];
-          }
-        ];
-      };
-    };
-  };
-
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
