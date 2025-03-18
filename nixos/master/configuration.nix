@@ -143,6 +143,32 @@
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
 
+  networking.nat = {
+    enable = true;
+    externalInterface = "enp1s0";
+    internalInterfaces = [ "wg0" ];
+  };
+
+  networking.wireguard = {
+    enable = true;
+    interfaces = {
+      wg0 = {
+        ips = [ "192.168.20.1/24" ];
+        listenPort = 51820;
+        privateKey = "private-key";
+      };
+    };
+
+    privateKeyFile = "/etc/wireguard/private-key";
+
+    peers = [
+      {
+        publicKey = "public-key";
+        allowedIPs = [ "192.168.20.2/32" ];
+      }
+    ];
+  };
+
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
