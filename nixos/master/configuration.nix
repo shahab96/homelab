@@ -160,7 +160,7 @@
         peers = [
           {
             name = "shahab";
-            publicKey = "OQ7fJ6vnKGon70q/Rje2B4yNYJWE+lMQXuBAGkhd/Hk=";
+            publicKey = "0KN9Z2HZlPEh6j399SygclxwOwKFyRfgyyLE75WJhH8=";
             allowedIPs = [ "192.168.20.2/32" ];
           }
         ];
