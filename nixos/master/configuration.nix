@@ -155,18 +155,17 @@
       wg0 = {
         ips = [ "192.168.20.1/24" ];
         listenPort = 51820;
-        privateKey = "private-key";
+        privateKeyFile = "/etc/wireguard/private-key";
+
+        peers = [
+          {
+            name = "shahab";
+            publicKey = "Y8Lj8zAKCyr65mS/jfjw5BA3btftJnx136joizPXBxE=";
+            allowedIPs = [ "192.168.20.2/32" ];
+          }
+        ];
       };
     };
-
-    privateKeyFile = "/etc/wireguard/private-key";
-
-    peers = [
-      {
-        publicKey = "shahab";
-        allowedIPs = [ "192.168.20.2/32" ];
-      }
-    ];
   };
 
   # Copy the NixOS configuration file and link it from the resulting system
