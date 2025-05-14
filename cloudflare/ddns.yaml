@@ -8,6 +8,15 @@ data:
   DOMAINS: "auth.dogar.dev,grafana.dogar.dev,vpn.dogar.dev"
   PROXIED: "true"
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflare-domains-config-non-proxied
+  namespace: cloudflare-system
+data:
+  DOMAINS: "postgres.dogar.dev"
+  PROXIED: "false"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,6 +45,40 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: cloudflare-domains-config
+              key: DOMAINS
+        - name: UPDATE_TIMEOUT
+          value: "30s"
+        - name: IP6_PROVIDER
+          value: "none"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflare-ddns-non-proxied
+  namespace: cloudflare-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflare-ddns
+  template:
+    metadata:
+      labels:
+        app: cloudflare-ddns
+    spec:
+      containers:
+      - name: cloudflare-ddns-non-proxied
+        image: favonia/cloudflare-ddns:latest
+        env:
+        - name: CLOUDFLARE_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare-token
+              key: credential
+        - name: DOMAINS
+          valueFrom:
+            configMapKeyRef:
+              name: cloudflare-domains-config-non-proxied
               key: DOMAINS
         - name: UPDATE_TIMEOUT
           value: "30s"
