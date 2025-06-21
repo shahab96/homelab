@@ -29,5 +29,5 @@ spec:
     size: 10Gi
     storageClass: longhorn-crypto
   walStorage:
-    size: 1Gi
+    size: 10Gi
     storageClass: longhorn-crypto
