@@ -20,7 +20,7 @@
           kubectl
 
           # Adding node for copilot
-          nodejs_20
+          nodejs_24
         ];
       };
     in {
