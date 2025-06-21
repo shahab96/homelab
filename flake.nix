@@ -18,6 +18,7 @@
           kubernetes-helm
           kubernetes-helmPlugins.helm-diff
           kubectl
+          nil
 
           # Adding node for copilot
           nodejs_24
