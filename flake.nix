@@ -2,7 +2,7 @@
   description = "Flake to work with homelab setup";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
