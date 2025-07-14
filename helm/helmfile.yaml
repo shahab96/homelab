@@ -9,8 +9,6 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
-  - name: cnpg
-    url: https://cloudnative-pg.github.io/charts
   - name: jetstack
     url: https://charts.jetstack.io
   - name: prometheus-community
@@ -56,12 +54,6 @@ releases:
     version: 8.3.4
     values:
       - ./values/externaldns.values.yaml
-
-  # Postgres operator
-  - name: postgres-system
-    namespace: postgres-system
-    chart: cnpg/cloudnative-pg
-    version: 0.23.0
 
   # Memcached
   - name: memcached

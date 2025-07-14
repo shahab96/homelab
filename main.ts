@@ -7,6 +7,7 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 import { GiteaServer } from "./gitea/server";
 import { OnePassword } from "./1password/1password";
+import { PostgresCluster } from "./postgres/postgres";
 
 dotenv.config();
 
@@ -29,6 +30,19 @@ class Homelab extends TerraformStack {
       kubernetes: {
         configPath: "~/.kube/config",
       },
+    });
+
+    new PostgresCluster(this, "postgres-cluster", {
+      name: "postgres-cluster",
+      namespace: "postgres-system",
+      providers: {
+        kubernetes,
+        helm,
+      },
+      storageClass: "longhorn-crypto",
+      users: ["shahab"],
+      primaryUser: "shahab",
+      initSecretName: "postgres-password",
     });
 
     new GiteaServer(this, "gitea-server", {
