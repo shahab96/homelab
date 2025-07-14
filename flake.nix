@@ -23,6 +23,7 @@
       # Define the devshell
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
+          kubernetes-helm
           kubectl
           nil
           terraform
