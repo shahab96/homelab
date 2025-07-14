@@ -3,8 +3,11 @@ import { cleanEnv, str } from "envalid";
 import { Construct } from "constructs";
 import { App, TerraformStack, S3Backend } from "cdktf";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
+import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 import { GiteaServer } from "./gitea/server";
+
+import { OnePassword } from "./1password/1password";
 
 dotenv.config();
 
@@ -19,6 +22,10 @@ class Homelab extends TerraformStack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
+    const kubernetes = new KubernetesProvider(this, "kubernetes", {
+      configPath: "~/.kube/config",
+    });
+
     const helm = new HelmProvider(this, "helm", {
       kubernetes: {
         configPath: "~/.kube/config",
@@ -30,6 +37,10 @@ class Homelab extends TerraformStack {
       namespace: "gitea-system",
       provider: helm,
       version: "10.4.0",
+    });
+
+    new OnePassword(this, "one-password", {
+      provider: kubernetes,
     });
   }
 }
