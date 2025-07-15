@@ -19,8 +19,8 @@
           ];
         };
       };
-
-      # Define the devshell
+    in {
+      # Define the devShell for the current system
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
           kubernetes-helm
@@ -34,12 +34,8 @@
 
           # cli tools
           nodePackages.cdktf-cli
-          rm-improved
         ];
       };
-    in {
-      # Define the devShell for the current system
-      devShell = devShell;
     }
   );
 }
