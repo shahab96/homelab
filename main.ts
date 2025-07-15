@@ -12,6 +12,7 @@ import { Longhorn } from "./longhorn";
 import { AuthentikServer } from "./authentik";
 import { RedisCluster } from "./redis";
 import { CertManager } from "./cert-manager";
+import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 
 dotenv.config();
 
@@ -33,6 +34,24 @@ class Homelab extends TerraformStack {
     const helm = new HelmProvider(this, "helm", {
       kubernetes: {
         configPath: "~/.kube/config",
+      },
+    });
+
+    new Manifest(this, "core-dns", {
+      provider: kubernetes,
+      manifest: {
+        kind: "ConfigMap",
+        apiVersion: "v1",
+        metadata: {
+          name: "coredns-custom",
+          namespace: "kube-system",
+        },
+        data: {
+          "forward.override": `forward . /etc/resolv.conf {
+              policy sequential
+            }
+          `,
+        },
       },
     });
 
