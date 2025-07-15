@@ -15,6 +15,7 @@ import { CertManager } from "./cert-manager";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { PiHole } from "./pihole";
 import { MemcachedCluster } from "./memcached";
+import { Nginx } from "./nginx";
 
 dotenv.config();
 
@@ -72,6 +73,12 @@ class Homelab extends TerraformStack {
       provider: helm,
       name: "pihole",
       version: "2.26.1",
+    });
+
+    new Nginx(this, "nginx", {
+      provider: helm,
+      namespace: "nginx-system",
+      name: "ingress-nginx-internal",
     });
 
     const certManagerApiVersion = "cert-manager.io/v1";
