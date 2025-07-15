@@ -11,6 +11,7 @@ import { PostgresCluster } from "./postgres";
 import { Longhorn } from "./longhorn";
 import { AuthentikServer } from "./authentik";
 import { RedisCluster } from "./redis";
+import { CertManager } from "./cert-manager";
 
 dotenv.config();
 
@@ -35,6 +36,8 @@ class Homelab extends TerraformStack {
       },
     });
 
+    const certManagerApiVersion = "cert-manager.io/v1";
+
     new Longhorn(this, "longhorn", {
       namespace: "longhorn-system",
       name: "longhorn",
@@ -45,7 +48,19 @@ class Homelab extends TerraformStack {
       },
     });
 
+    new CertManager(this, "cert-manager", {
+      certManagerApiVersion,
+      name: "cert-manager",
+      namespace: "cert-manager",
+      version: "1.15.3",
+      providers: {
+        kubernetes,
+        helm,
+      },
+    });
+
     new PostgresCluster(this, "postgres-cluster", {
+      certManagerApiVersion,
       name: "postgres-cluster",
       namespace: "postgres-system",
       providers: {

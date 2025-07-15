@@ -15,6 +15,7 @@ type PostgresClusterOptions = {
   users: string[];
   primaryUser: string;
   initSecretName: string;
+  certManagerApiVersion: string;
 };
 
 export class PostgresCluster extends Construct {
@@ -31,7 +32,7 @@ export class PostgresCluster extends Construct {
       namespace: options.namespace,
     });
 
-    const certManagerApiVersion = "cert-manager.io/v1";
+    const { certManagerApiVersion } = options;
 
     const certNames = {
       server: "postgres-server-cert",

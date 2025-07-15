@@ -7,8 +7,6 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
-  - name: jetstack
-    url: https://charts.jetstack.io
   - name: prometheus-community
     url: https://prometheus-community.github.io/helm-charts
 ---
@@ -50,14 +48,6 @@ releases:
     version: 7.4.16
     values:
       - ./values/memcached.values.yaml
-
-  # Cert Manager
-  - name: cert-manager
-    namespace: cert-manager
-    chart: jetstack/cert-manager
-    version: 1.15.3
-    values:
-      - ./values/cert-manager.values.yaml
 
   # Prometheus Operator
   - name: prometheus-operator
