@@ -13,6 +13,7 @@ import { AuthentikServer } from "./authentik";
 import { RedisCluster } from "./redis";
 import { CertManager } from "./cert-manager";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
+import { PiHole } from "./pihole";
 
 dotenv.config();
 
@@ -55,8 +56,6 @@ class Homelab extends TerraformStack {
       },
     });
 
-    const certManagerApiVersion = "cert-manager.io/v1";
-
     new Longhorn(this, "longhorn", {
       namespace: "longhorn-system",
       name: "longhorn",
@@ -66,6 +65,15 @@ class Homelab extends TerraformStack {
         helm,
       },
     });
+
+    new PiHole(this, "pihole", {
+      namespace: "pihole-system",
+      provider: helm,
+      name: "pihole",
+      version: "2.26.1",
+    });
+
+    const certManagerApiVersion = "cert-manager.io/v1";
 
     new CertManager(this, "cert-manager", {
       certManagerApiVersion,
