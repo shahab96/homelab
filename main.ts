@@ -14,6 +14,7 @@ import { RedisCluster } from "./redis";
 import { CertManager } from "./cert-manager";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { PiHole } from "./pihole";
+import { MemcachedCluster } from "./memcached";
 
 dotenv.config();
 
@@ -104,7 +105,12 @@ class Homelab extends TerraformStack {
       provider: helm,
       namespace: "redis-system",
       name: "redis",
-      version: "20.2.0",
+    });
+
+    new MemcachedCluster(this, "memcached-cluster", {
+      provider: helm,
+      namespace: "memcached-system",
+      name: "memcached",
     });
 
     new AuthentikServer(this, "authentik-server", {

@@ -3,8 +3,6 @@ repositories:
     url: https://metallb.github.io/metallb
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
-  - name: bitnami
-    url: https://charts.bitnami.com/bitnami
   - name: prometheus-community
     url: https://prometheus-community.github.io/helm-charts
 ---
@@ -22,14 +20,6 @@ releases:
     version: 4.10.1
     values:
       - ./values/nginx-internal.values.yaml
-
-  # Memcached
-  - name: memcached
-    namespace: memcached-system
-    chart: bitnami/memcached
-    version: 7.4.16
-    values:
-      - ./values/memcached.values.yaml
 
   # Prometheus Operator
   - name: prometheus-operator
