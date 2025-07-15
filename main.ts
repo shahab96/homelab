@@ -10,6 +10,7 @@ import { OnePassword } from "./1password";
 import { PostgresCluster } from "./postgres";
 import { Longhorn } from "./longhorn";
 import { AuthentikServer } from "./authentik";
+import { RedisCluster } from "./redis";
 
 dotenv.config();
 
@@ -55,6 +56,13 @@ class Homelab extends TerraformStack {
       users: ["shahab"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
+    });
+
+    new RedisCluster(this, "redis-cluster", {
+      provider: helm,
+      namespace: "redis-system",
+      name: "redis",
+      version: "20.2.0",
     });
 
     new AuthentikServer(this, "authentik-server", {
