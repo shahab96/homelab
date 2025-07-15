@@ -17,6 +17,7 @@ import { PiHole } from "./pihole";
 import { MemcachedCluster } from "./memcached";
 import { Nginx } from "./nginx";
 import { Prometheus } from "./prometheus";
+import { MetalLB } from "./metallb";
 
 dotenv.config();
 
@@ -69,17 +70,23 @@ class Homelab extends TerraformStack {
       },
     });
 
-    new PiHole(this, "pihole", {
-      namespace: "pihole-system",
+    new MetalLB(this, "metallb", {
       provider: helm,
-      name: "pihole",
-      version: "2.26.1",
+      name: "metallb",
+      namespace: "metallb-system",
     });
 
     new Nginx(this, "nginx", {
       provider: helm,
       namespace: "nginx-system",
       name: "ingress-nginx-internal",
+    });
+
+    new PiHole(this, "pihole", {
+      namespace: "pihole-system",
+      provider: helm,
+      name: "pihole",
+      version: "2.26.1",
     });
 
     new Prometheus(this, "prometheus", {
