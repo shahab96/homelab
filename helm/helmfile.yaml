@@ -1,8 +1,6 @@
 repositories:
   - name: metallb
     url: https://metallb.github.io/metallb
-  - name: mojo2600
-    url: https://mojo2600.github.io/pihole-kubernetes
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
   - name: bitnami
@@ -17,14 +15,6 @@ releases:
     chart: metallb/metallb
     version: 0.14.8
 
-  # pihole
-  - name: pihole
-    namespace: pihole-system
-    chart: mojo2600/pihole
-    version: 2.26.1
-    values:
-      - ./values/pihole.values.yaml
-
   # Ingress for local network
   - name: ingress-nginx-internal
     namespace: nginx-system
@@ -32,14 +22,6 @@ releases:
     version: 4.10.1
     values:
       - ./values/nginx-internal.values.yaml
-
-  # Automatic DNS for pihole
-  - name: externaldns-pihole
-    namespace: pihole-system
-    chart: bitnami/external-dns
-    version: 8.3.4
-    values:
-      - ./values/externaldns.values.yaml
 
   # Memcached
   - name: memcached
