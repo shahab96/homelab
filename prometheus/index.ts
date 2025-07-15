@@ -7,6 +7,7 @@ type PrometheusOptions = {
   provider: HelmProvider;
   name: string;
   namespace: string;
+  version: string;
 };
 
 export class Prometheus extends Construct {

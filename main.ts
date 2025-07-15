@@ -63,7 +63,7 @@ class Homelab extends TerraformStack {
     new Longhorn(this, "longhorn", {
       namespace: "longhorn-system",
       name: "longhorn",
-      version: "1.7.0",
+      version: "1.8.2",
       providers: {
         kubernetes,
         helm,
@@ -74,12 +74,18 @@ class Homelab extends TerraformStack {
       provider: helm,
       name: "metallb",
       namespace: "metallb-system",
+      version: "0.15.2",
+    });
+
+    new OnePassword(this, "one-password", {
+      provider: kubernetes,
     });
 
     new Nginx(this, "nginx", {
       provider: helm,
       namespace: "nginx-system",
       name: "ingress-nginx-internal",
+      version: "4.13.0",
     });
 
     new PiHole(this, "pihole", {
@@ -93,6 +99,7 @@ class Homelab extends TerraformStack {
       provider: helm,
       namespace: "prometheus-system",
       name: "prometheus-operator",
+      version: "75.10.0",
     });
 
     const certManagerApiVersion = "cert-manager.io/v1";
@@ -101,7 +108,7 @@ class Homelab extends TerraformStack {
       certManagerApiVersion,
       name: "cert-manager",
       namespace: "cert-manager",
-      version: "1.15.3",
+      version: "1.18.2",
       providers: {
         kubernetes,
         helm,
@@ -110,6 +117,7 @@ class Homelab extends TerraformStack {
 
     new PostgresCluster(this, "postgres-cluster", {
       certManagerApiVersion,
+      version: "0.24.0",
       name: "postgres-cluster",
       namespace: "postgres-system",
       providers: {
@@ -138,18 +146,14 @@ class Homelab extends TerraformStack {
       provider: helm,
       name: "authentik",
       namespace: "authentik-system",
-      version: "2024.10.5",
+      version: "2025.6.3",
     });
 
     new GiteaServer(this, "gitea-server", {
       name: "gitea",
       namespace: "gitea-system",
       provider: helm,
-      version: "10.4.0",
-    });
-
-    new OnePassword(this, "one-password", {
-      provider: kubernetes,
+      version: "12.1.1",
     });
   }
 }

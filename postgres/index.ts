@@ -16,6 +16,7 @@ type PostgresClusterOptions = {
   primaryUser: string;
   initSecretName: string;
   certManagerApiVersion: string;
+  version: string;
 };
 
 export class PostgresCluster extends Construct {
@@ -26,6 +27,7 @@ export class PostgresCluster extends Construct {
 
     new Release(this, "cnpg-operator", {
       provider: helm,
+      version: options.version,
       repository: "https://cloudnative-pg.github.io/charts",
       chart: "cloudnative-pg",
       name: "postgres-system",
