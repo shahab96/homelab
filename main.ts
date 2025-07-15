@@ -5,9 +5,10 @@ import { App, TerraformStack, S3Backend } from "cdktf";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-import { GiteaServer } from "./gitea/server";
-import { OnePassword } from "./1password/1password";
-import { PostgresCluster } from "./postgres/postgres";
+import { GiteaServer } from "./gitea";
+import { OnePassword } from "./1password";
+import { PostgresCluster } from "./postgres";
+import { Longhorn } from "./longhorn";
 
 dotenv.config();
 
@@ -29,6 +30,16 @@ class Homelab extends TerraformStack {
     const helm = new HelmProvider(this, "helm", {
       kubernetes: {
         configPath: "~/.kube/config",
+      },
+    });
+
+    new Longhorn(this, "longhorn", {
+      namespace: "longhorn-system",
+      name: "longhorn",
+      version: "1.7.0",
+      providers: {
+        kubernetes,
+        helm,
       },
     });
 
