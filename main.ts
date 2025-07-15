@@ -16,6 +16,7 @@ import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { PiHole } from "./pihole";
 import { MemcachedCluster } from "./memcached";
 import { Nginx } from "./nginx";
+import { Prometheus } from "./prometheus";
 
 dotenv.config();
 
@@ -79,6 +80,12 @@ class Homelab extends TerraformStack {
       provider: helm,
       namespace: "nginx-system",
       name: "ingress-nginx-internal",
+    });
+
+    new Prometheus(this, "prometheus", {
+      provider: helm,
+      namespace: "prometheus-system",
+      name: "prometheus-operator",
     });
 
     const certManagerApiVersion = "cert-manager.io/v1";
