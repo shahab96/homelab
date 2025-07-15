@@ -9,6 +9,7 @@ import { GiteaServer } from "./gitea";
 import { OnePassword } from "./1password";
 import { PostgresCluster } from "./postgres";
 import { Longhorn } from "./longhorn";
+import { AuthentikServer } from "./authentik";
 
 dotenv.config();
 
@@ -54,6 +55,13 @@ class Homelab extends TerraformStack {
       users: ["shahab"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
+    });
+
+    new AuthentikServer(this, "authentik-server", {
+      provider: helm,
+      name: "authentik",
+      namespace: "authentik-system",
+      version: "2024.10.5",
     });
 
     new GiteaServer(this, "gitea-server", {
