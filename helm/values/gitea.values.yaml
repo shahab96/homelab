@@ -40,7 +40,7 @@ gitea:
     database:
       DB_TYPE: postgres
       HOST: postgres-cluster-rw.postgres-system.svc.cluster.local:5432
-      NAME: giteadb
+      NAME: gitea
       USER: gitea
     cache:
       ADAPTER: memcache

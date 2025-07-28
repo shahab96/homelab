@@ -80,6 +80,8 @@ export class PostgresCluster extends Construct {
             algorithm: "ECDSA",
             size: 384,
           },
+          duration: "52560h", // 6 years
+          renewBefore: "8760h", // 1 year before expiration
           issuerRef: {
             name: "selfsigned-issuer",
             kind: "Issuer",
@@ -142,6 +144,8 @@ export class PostgresCluster extends Construct {
             "postgres-cluster-r.postgres-system.svc.cluster.local",
             "postgres.dogar.dev",
           ],
+          duration: "4380h", // 6 months
+          renewBefore: "720h", // 30 days before expiration
           issuerRef: {
             name: `${caNames.server}-issuer`,
             kind: "Issuer",
@@ -169,6 +173,8 @@ export class PostgresCluster extends Construct {
             algorithm: "ECDSA",
             size: 256,
           },
+          duration: "52560h", // 6 years
+          renewBefore: "8760h", // 1 year before expiration
           issuerRef: {
             name: "selfsigned-issuer",
             kind: "Issuer",
@@ -226,6 +232,8 @@ export class PostgresCluster extends Construct {
           secretName: certNames.client,
           usages: ["client auth"],
           commonName: "streaming_replica",
+          duration: "4380h", // 6 months
+          renewBefore: "720h", // 30 days before expiration
           issuerRef: {
             name: "postgres-client-ca-issuer",
             kind: "Issuer",
@@ -251,6 +259,8 @@ export class PostgresCluster extends Construct {
               secretName: `${user}-client-cert`,
               usages: ["client auth"],
               commonName: user,
+              duration: "4380h", // 6 months
+              renewBefore: "720h", // 30 days before expiration
               issuerRef: {
                 name: "postgres-client-ca-issuer",
                 kind: "Issuer",

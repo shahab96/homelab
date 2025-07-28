@@ -4,6 +4,7 @@ import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 type OnePasswordSecret = {
+  id?: string;
   name: string;
   namespace: string;
   itemPath: string;
@@ -24,7 +25,7 @@ export class OnePassword extends Construct {
     );
 
     secrets.forEach((secret) => {
-      new Manifest(this, secret.name, {
+      new Manifest(this, secret.id ?? secret.name, {
         provider: options.provider,
         manifest: {
           apiVersion: "onepassword.com/v1",
