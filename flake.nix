@@ -28,6 +28,7 @@
           nil
           terraform
           tflint
+          typescript-language-server
 
           # Adding node for copilot
           nodejs_24
@@ -35,6 +36,12 @@
           # cli tools
           nodePackages.cdktf-cli
         ];
+
+        shellHook = ''
+          # Install the barman cloud plugin
+          kubectl create namespace cnpg-system
+          kubectl apply -f https://github.com/cloudnative-pg/plugin-barman-cloud/releases/download/v0.5.0/manifest.yaml
+        '';
       };
     }
   );
