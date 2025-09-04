@@ -14,4 +14,4 @@ tcp:
   5432:  "postgres-system/postgres-cluster-rw:5432"
   6379:  "redis-system/redis-master-0:6379"
   11211: "memcached-system/memcached:11211"
-  35432: "rihla/postgres-cluster-rw"
+  35432: "rihla/postgres-cluster-rw:5432"
