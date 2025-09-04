@@ -146,7 +146,7 @@ class Homelab extends TerraformStack {
       provider: helm,
       name: "authentik",
       namespace: "authentik-system",
-      version: "2025.6.3",
+      version: "2025.8.1",
     });
 
     new GiteaServer(this, "gitea-server", {
@@ -173,7 +173,7 @@ new S3Backend(stack, {
   accessKey: env.R2_ACCESS_KEY_ID,
   secretKey: env.R2_SECRET_ACCESS_KEY,
   endpoints: {
-    s3: `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com/homelab-terraform-state`,
+    s3: `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com/${env.BUCKET}`,
   },
 });
 
