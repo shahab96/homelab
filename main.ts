@@ -128,6 +128,7 @@ class Homelab extends TerraformStack {
       users: ["shahab", "budget-tracker"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
+      backupR2EndpointURL: `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com/homelab-backups`,
     });
 
     new RedisCluster(this, "redis-cluster", {
