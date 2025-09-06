@@ -125,7 +125,7 @@ class Homelab extends TerraformStack {
         helm,
       },
       storageClass: "longhorn-crypto",
-      users: ["shahab"],
+      users: ["shahab", "budget-tracker"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
     });
