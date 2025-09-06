@@ -17,7 +17,6 @@ type PostgresClusterOptions = {
   initSecretName: string;
   certManagerApiVersion: string;
   version: string;
-  backupR2EndpointURL: string;
 };
 
 export class PostgresCluster extends Construct {
@@ -33,44 +32,6 @@ export class PostgresCluster extends Construct {
       chart: "cloudnative-pg",
       name: "postgres-system",
       namespace: options.namespace,
-    });
-
-    const destinationPath = "s3://rihla-backups/";
-
-    const endpointURL = options.backupR2EndpointURL;
-    const barmanConfiguration = {
-      destinationPath,
-      endpointURL,
-      s3Credentials: {
-        accessKeyId: {
-          name: "cloudflare-r2-token",
-          key: "access_key",
-        },
-        secretAccessKey: {
-          name: "cloudflare-r2-token",
-          key: "secret_key",
-        },
-      },
-    };
-
-    new Manifest(this, "r2-backup-store", {
-      provider: kubernetes,
-      manifest: {
-        apiVersion: "barmancloud.cnpg.io/v1",
-        kind: "ObjectStore",
-        metadata: {
-          namespace: options.namespace,
-          name: "r2-postgres-backup-store",
-        },
-        spec: {
-          configuration: {
-            ...barmanConfiguration,
-            wal: {
-              compression: "gzip",
-            },
-          },
-        },
-      },
     });
 
     const { certManagerApiVersion } = options;
@@ -335,15 +296,6 @@ export class PostgresCluster extends Construct {
               "hostssl sameuser all      all          cert",
             ],
           },
-          plugins: [
-            {
-              name: "barman-cloud.cloudnative-pg.io",
-              isWALArchiver: true,
-              parameters: {
-                barmanObjectName: "r2-postgres-backup-store",
-              },
-            },
-          ],
           enableSuperuserAccess: false,
           bootstrap: {
             initdb: {
