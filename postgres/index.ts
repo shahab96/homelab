@@ -35,7 +35,7 @@ export class PostgresCluster extends Construct {
       namespace: options.namespace,
     });
 
-    const destinationPath = "s3://homelab-backups/";
+    const destinationPath = "s3://rihla-backups/";
 
     const endpointURL = options.backupR2EndpointURL;
     const barmanConfiguration = {
@@ -321,7 +321,7 @@ export class PostgresCluster extends Construct {
         },
         spec: {
           instances: 3,
-          maxSyncReplicas: 1,
+          maxSyncReplicas: 0,
           primaryUpdateStrategy: "unsupervised",
           certificates: {
             serverCASecret: certNames.server,
@@ -346,47 +346,12 @@ export class PostgresCluster extends Construct {
           ],
           enableSuperuserAccess: false,
           bootstrap: {
-            recovery: {
-              source: "clusterBackup",
+            initdb: {
               database: "postgres",
-              owner: options.primaryUser,
               secret: {
                 name: options.initSecretName,
               },
-            },
-          },
-          externalClusters: [
-            {
-              name: "clusterBackup",
-              plugin: {
-                name: "barman-cloud.cloudnative-pg.io",
-                parameters: {
-                  barmanObjectName: "r2-postgres-backup-store",
-                  serverName: "postgres-cluster",
-                },
-              },
-            },
-          ],
-          managed: {
-            services: {
-              disabledDefaultServices: ["ro", "r"],
-              additional: [
-                {
-                  selectorType: "rw",
-                  serviceTemplate: {
-                    metadata: {
-                      name: "postgres-cluster",
-                      annotations: {
-                        "external-dns.alpha.kubernetes.io/hostname":
-                          "postgres.dogar.dev",
-                      },
-                    },
-                    spec: {
-                      type: "LoadBalancer",
-                    },
-                  },
-                },
-              ],
+              postInitSQL: [`CREATE USER ${options.primaryUser} SUPERUSER;`],
             },
           },
           storage: {
