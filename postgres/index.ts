@@ -60,7 +60,7 @@ export class PostgresCluster extends Construct {
         kind: "ObjectStore",
         metadata: {
           namespace: options.namespace,
-          name: "r2-postgres-backup-store",
+          name: "r2-postgres-backup-store-homelab",
         },
         spec: {
           configuration: {
@@ -312,6 +312,7 @@ export class PostgresCluster extends Construct {
 
     new Manifest(this, "postgres-cluster", {
       provider: kubernetes,
+      fieldManager: { forceConflicts: true },
       manifest: {
         apiVersion: "postgresql.cnpg.io/v1",
         kind: "Cluster",
@@ -338,6 +339,7 @@ export class PostgresCluster extends Construct {
           plugins: [
             {
               name: "barman-cloud.cloudnative-pg.io",
+              enabled: false,
               isWALArchiver: true,
               parameters: {
                 barmanObjectName: "r2-postgres-backup-store",
