@@ -42,6 +42,18 @@ class Homelab extends TerraformStack {
       },
     });
 
+    new Manifest(this, "namespace", {
+      provider: kubernetes,
+      manifest: {
+        kind: "Namespace",
+        apiVersion: "v1",
+        metadata: {
+          name: "homelab",
+        },
+        spec: {},
+      },
+    });
+
     new Manifest(this, "core-dns", {
       provider: kubernetes,
       manifest: {
@@ -128,6 +140,7 @@ class Homelab extends TerraformStack {
       users: ["shahab", "budget-tracker"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
+      backupR2EndpointURL: `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`,
     });
 
     new RedisCluster(this, "redis-cluster", {

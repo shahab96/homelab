@@ -24,7 +24,12 @@
               content = {
                 name = "crypted";
                 type = "luks";
-                askPassword = true;
+                passwordFile = "/tmp/secret.key";
+                settings = {
+                  allowDiscards = true;
+                  crypttabExtraOpts =
+                    [ "fido2-device=auto" "token-timeout=10" ];
+                };
                 content = {
                   type = "filesystem";
                   format = "ext4";

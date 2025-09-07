@@ -17,6 +17,7 @@ type PostgresClusterOptions = {
   initSecretName: string;
   certManagerApiVersion: string;
   version: string;
+  backupR2EndpointURL: string;
 };
 
 export class PostgresCluster extends Construct {
@@ -32,6 +33,44 @@ export class PostgresCluster extends Construct {
       chart: "cloudnative-pg",
       name: "postgres-system",
       namespace: options.namespace,
+    });
+
+    const destinationPath = "s3://homelab-backups/";
+
+    const endpointURL = options.backupR2EndpointURL;
+    const barmanConfiguration = {
+      destinationPath,
+      endpointURL,
+      s3Credentials: {
+        accessKeyId: {
+          name: "cloudflare-r2-token",
+          key: "access_key",
+        },
+        secretAccessKey: {
+          name: "cloudflare-r2-token",
+          key: "secret_key",
+        },
+      },
+    };
+
+    new Manifest(this, "r2-backup-store", {
+      provider: kubernetes,
+      manifest: {
+        apiVersion: "barmancloud.cnpg.io/v1",
+        kind: "ObjectStore",
+        metadata: {
+          namespace: options.namespace,
+          name: "r2-postgres-backup-store-homelab",
+        },
+        spec: {
+          configuration: {
+            ...barmanConfiguration,
+            wal: {
+              compression: "gzip",
+            },
+          },
+        },
+      },
     });
 
     const { certManagerApiVersion } = options;
@@ -273,6 +312,7 @@ export class PostgresCluster extends Construct {
 
     new Manifest(this, "postgres-cluster", {
       provider: kubernetes,
+      fieldManager: { forceConflicts: true },
       manifest: {
         apiVersion: "postgresql.cnpg.io/v1",
         kind: "Cluster",
@@ -296,14 +336,59 @@ export class PostgresCluster extends Construct {
               "hostssl sameuser all      all          cert",
             ],
           },
+          plugins: [
+            {
+              name: "barman-cloud.cloudnative-pg.io",
+              enabled: true,
+              isWALArchiver: true,
+              parameters: {
+                barmanObjectName: "r2-postgres-backup-store",
+              },
+            },
+          ],
           enableSuperuserAccess: false,
           bootstrap: {
-            initdb: {
+            recovery: {
+              source: "clusterBackup",
               database: "postgres",
+              owner: options.primaryUser,
               secret: {
                 name: options.initSecretName,
               },
-              postInitSQL: [`CREATE USER ${options.primaryUser} SUPERUSER;`],
+            },
+          },
+          externalClusters: [
+            {
+              name: "clusterBackup",
+              plugin: {
+                name: "barman-cloud.cloudnative-pg.io",
+                parameters: {
+                  barmanObjectName: "r2-postgres-backup-store",
+                  serverName: "postgres-cluster",
+                },
+              },
+            },
+          ],
+          managed: {
+            services: {
+              disabledDefaultServices: ["ro", "r"],
+              additional: [
+                {
+                  selectorType: "rw",
+                  serviceTemplate: {
+                    metadata: {
+                      name: "postgres-cluster",
+                      annotations: {
+                        "external-dns.alpha.kubernetes.io/hostname":
+                          "postgres.dogar.dev",
+                      },
+                    },
+                    spec: {
+                      type: "LoadBalancer",
+                    },
+                  },
+                },
+              ],
             },
           },
           storage: {
