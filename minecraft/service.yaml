@@ -6,6 +6,8 @@ metadata:
   namespace: minecraft
   labels:
     app: monifactory-server
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: dogar.dev
 spec:
   type: ClusterIP
   ports:
