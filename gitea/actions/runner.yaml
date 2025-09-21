@@ -71,32 +71,3 @@ spec:
   selector:
     matchLabels:
       app: action-runner
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: action-runner-netpol
-  namespace: homelab
-spec:
-  podSelector:
-    matchLabels:
-      app: action-runner
-  policyTypes:
-  - Egress
-  egress:
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: TCP
-      port: 53
-    - protocol: UDP
-      port: 53
