@@ -6,8 +6,6 @@ service:
   http:
     annotations:
       metallb.universe.tf/allow-shared-ip: gitea
-    port: 443
-    targetPort: 443
   ssh:
     annotations:
       metallb.universe.tf/allow-shared-ip: gitea
@@ -24,11 +22,6 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-          backend:
-            service:
-              name: gitea-http
-              port:
-                number: 443
   tls:
     - secretName: gitea-tls
       hosts:
@@ -49,7 +42,6 @@ gitea:
       ENABLE_GZIP: true
       LFS_START_SERVER: true
       SSH_DOMAIN: git.dogar.dev
-      HTTP_PORT: 443
       PROTOCOL: https
       CERT_FILE: /opt/gitea/tls/cert.pem
       KEY_FILE: /opt/gitea/tls/key.pem
@@ -90,18 +82,6 @@ gitea:
         secretKeyRef:
           name: smtp-token
           key: gitea-password
-  livenessProbe:
-    enabled: true
-    tcpSocket:
-      port: 443
-  readinessProbe:
-    enabled: true
-    tcpSocket:
-      port: 443
-  startupProbe:
-    enabled: true
-    tcpSocket:
-      port: 443
 persistence:
   enabled: true
   accessModes:
