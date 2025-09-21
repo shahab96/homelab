@@ -10,11 +10,10 @@ import { OnePassword } from "./1password";
 import { PostgresCluster } from "./postgres";
 import { Longhorn } from "./longhorn";
 import { AuthentikServer } from "./authentik";
-import { RedisCluster } from "./redis";
+import { ValkeyCluster } from "./valkey";
 import { CertManager } from "./cert-manager";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { PiHole } from "./pihole";
-import { MemcachedCluster } from "./memcached";
 import { Nginx } from "./nginx";
 import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
@@ -27,6 +26,8 @@ const env = cleanEnv(process.env, {
   ACCOUNT_ID: str({ desc: "Cloudflare account id." }),
   BUCKET: str({ desc: "The name of the R2 bucket." }),
 });
+
+const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
 class Homelab extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -42,13 +43,15 @@ class Homelab extends TerraformStack {
       },
     });
 
-    new Manifest(this, "namespace", {
+    const namespace = "homelab";
+
+    const ns = new Manifest(this, "namespace", {
       provider: kubernetes,
       manifest: {
         kind: "Namespace",
         apiVersion: "v1",
         metadata: {
-          name: "homelab",
+          name: namespace,
         },
         spec: {},
       },
@@ -72,54 +75,40 @@ class Homelab extends TerraformStack {
       },
     });
 
-    new Longhorn(this, "longhorn", {
-      namespace: "longhorn-system",
+    const longhorn = new Longhorn(this, "longhorn", {
+      namespace,
       name: "longhorn",
-      version: "1.8.2",
       providers: {
         kubernetes,
         helm,
       },
     });
 
+    longhorn.node.addDependency(ns);
+
     new MetalLB(this, "metallb", {
       provider: helm,
       name: "metallb",
-      namespace: "metallb-system",
-      version: "0.15.2",
+      namespace,
     });
 
     new OnePassword(this, "one-password", {
       provider: kubernetes,
+      namespace,
     });
 
-    new Nginx(this, "nginx", {
+    const nginx = new Nginx(this, "nginx", {
       provider: helm,
-      namespace: "nginx-system",
-      name: "ingress-nginx-internal",
-      version: "4.13.0",
-    });
-
-    new PiHole(this, "pihole", {
-      namespace: "pihole-system",
-      provider: helm,
-      name: "pihole",
-      version: "2.26.1",
-    });
-
-    new Prometheus(this, "prometheus", {
-      provider: helm,
-      namespace: "prometheus-system",
-      name: "prometheus-operator",
-      version: "75.10.0",
+      namespace,
+      name: "nginx-ingress",
     });
 
     const certManagerApiVersion = "cert-manager.io/v1";
 
-    new CertManager(this, "cert-manager", {
+    const cm = new CertManager(this, "cert-manager", {
       certManagerApiVersion,
       name: "cert-manager",
-      namespace: "cert-manager",
+      namespace,
       version: "1.18.2",
       providers: {
         kubernetes,
@@ -127,47 +116,64 @@ class Homelab extends TerraformStack {
       },
     });
 
-    new PostgresCluster(this, "postgres-cluster", {
+    const pihole = new PiHole(this, "pihole", {
+      namespace,
+      provider: helm,
+      name: "pihole",
+    });
+
+    pihole.node.addDependency(longhorn);
+    pihole.node.addDependency(nginx);
+    pihole.node.addDependency(cm);
+
+    new Prometheus(this, "prometheus", {
+      provider: helm,
+      namespace,
+      name: "prometheus-operator",
+      version: "75.10.0",
+    });
+
+    const pg = new PostgresCluster(this, "postgres-cluster", {
       certManagerApiVersion,
-      version: "0.24.0",
       name: "postgres-cluster",
-      namespace: "postgres-system",
+      namespace,
       providers: {
         kubernetes,
         helm,
       },
       storageClass: "longhorn-crypto",
-      users: ["shahab", "budget-tracker"],
+      users: ["shahab", "budget-tracker", "authentik", "gitea"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
-      backupR2EndpointURL: `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      backupR2EndpointURL: r2Endpoint,
     });
 
-    new RedisCluster(this, "redis-cluster", {
-      provider: helm,
-      namespace: "redis-system",
-      name: "redis",
+    pg.node.addDependency(pihole);
+
+    const valkey = new ValkeyCluster(this, "valkey-cluster", {
+      provider: kubernetes,
+      namespace,
+      name: "valkey",
     });
 
-    new MemcachedCluster(this, "memcached-cluster", {
-      provider: helm,
-      namespace: "memcached-system",
-      name: "memcached",
-    });
+    valkey.node.addDependency(pihole);
 
-    new AuthentikServer(this, "authentik-server", {
+    const authentik = new AuthentikServer(this, "authentik-server", {
       provider: helm,
       name: "authentik",
-      namespace: "authentik-system",
-      version: "2025.8.1",
+      namespace,
     });
 
-    new GiteaServer(this, "gitea-server", {
+    authentik.node.addDependency(pg);
+    authentik.node.addDependency(valkey);
+
+    const gitea = new GiteaServer(this, "gitea-server", {
       name: "gitea",
-      namespace: "gitea-system",
+      namespace,
       provider: helm,
-      version: "12.1.1",
     });
+
+    gitea.node.addDependency(authentik);
   }
 }
 
@@ -175,6 +181,7 @@ const app = new App();
 const stack = new Homelab(app, "homelab");
 
 new S3Backend(stack, {
+  encrypt: true,
   bucket: env.BUCKET,
   key: "terraform.tfstate",
   region: "auto",
@@ -186,7 +193,7 @@ new S3Backend(stack, {
   accessKey: env.R2_ACCESS_KEY_ID,
   secretKey: env.R2_SECRET_ACCESS_KEY,
   endpoints: {
-    s3: `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com/${env.BUCKET}`,
+    s3: `${r2Endpoint}/${env.BUCKET}`,
   },
 });
 

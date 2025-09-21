@@ -3,25 +3,25 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cloudflare-domains-config
-  namespace: cloudflare-system
+  namespace: homelab
 data:
-  DOMAINS: "auth.dogar.dev,grafana.dogar.dev,vpn.dogar.dev"
+  DOMAINS: "auth.dogar.dev,grafana.dogar.dev"
   PROXIED: "true"
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cloudflare-domains-config-non-proxied
-  namespace: cloudflare-system
+  namespace: homelab
 data:
-  DOMAINS: "postgres.dogar.dev"
+  DOMAINS: "dogar.dev,git.dogar.dev"
   PROXIED: "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cloudflare-ddns
-  namespace: cloudflare-system
+  namespace: homelab
 spec:
   replicas: 1
   selector:
@@ -40,7 +40,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: cloudflare-token
-              key: credential
+              key: token
         - name: DOMAINS
           valueFrom:
             configMapKeyRef:
@@ -55,7 +55,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cloudflare-ddns-non-proxied
-  namespace: cloudflare-system
+  namespace: homelab
 spec:
   replicas: 1
   selector:
@@ -74,7 +74,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: cloudflare-token
-              key: credential
+              key: token
         - name: DOMAINS
           valueFrom:
             configMapKeyRef:

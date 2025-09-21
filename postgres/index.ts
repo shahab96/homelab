@@ -16,7 +16,6 @@ type PostgresClusterOptions = {
   primaryUser: string;
   initSecretName: string;
   certManagerApiVersion: string;
-  version: string;
   backupR2EndpointURL: string;
 };
 
@@ -28,27 +27,27 @@ export class PostgresCluster extends Construct {
 
     new Release(this, "cnpg-operator", {
       provider: helm,
-      version: options.version,
       repository: "https://cloudnative-pg.github.io/charts",
       chart: "cloudnative-pg",
       name: "postgres-system",
-      namespace: options.namespace,
+      namespace: "cnpg-system",
     });
 
-    const destinationPath = "s3://homelab-backups/";
-
+    const destinationPath = "s3://homelab/";
     const endpointURL = options.backupR2EndpointURL;
+    const barmanStoreName = "r2-postgres-backup-store";
+
     const barmanConfiguration = {
       destinationPath,
       endpointURL,
       s3Credentials: {
         accessKeyId: {
-          name: "cloudflare-r2-token",
-          key: "access_key",
+          name: "cloudflare-token",
+          key: "access_key_id",
         },
         secretAccessKey: {
-          name: "cloudflare-r2-token",
-          key: "secret_key",
+          name: "cloudflare-token",
+          key: "secret_access_key",
         },
       },
     };
@@ -60,7 +59,7 @@ export class PostgresCluster extends Construct {
         kind: "ObjectStore",
         metadata: {
           namespace: options.namespace,
-          name: "r2-postgres-backup-store-homelab",
+          name: barmanStoreName,
         },
         spec: {
           configuration: {
@@ -178,9 +177,8 @@ export class PostgresCluster extends Construct {
           secretName: certNames.server,
           usages: ["server auth"],
           dnsNames: [
-            "postgres-cluster-rw.postgres-system.svc.cluster.local",
-            "postgres-cluster-ro.postgres-system.svc.cluster.local",
-            "postgres-cluster-r.postgres-system.svc.cluster.local",
+            "postgres-cluster-rw",
+            "postgres-cluster-rw.homelab.svc.cluster.local",
             "postgres.dogar.dev",
           ],
           duration: "4380h", // 6 months
@@ -342,7 +340,7 @@ export class PostgresCluster extends Construct {
               enabled: true,
               isWALArchiver: true,
               parameters: {
-                barmanObjectName: "r2-postgres-backup-store",
+                barmanObjectName: barmanStoreName,
               },
             },
           ],
@@ -396,7 +394,7 @@ export class PostgresCluster extends Construct {
             storageClass: options.storageClass,
           },
           walStorage: {
-            size: "10Gi",
+            size: "1Gi",
             storageClass: options.storageClass,
           },
         },

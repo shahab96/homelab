@@ -5,7 +5,6 @@ import { Construct } from "constructs";
 
 type AuthentikServerOptions = {
   provider: HelmProvider;
-  version: string;
   name: string;
   namespace: string;
 };

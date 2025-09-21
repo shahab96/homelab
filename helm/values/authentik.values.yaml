@@ -1,17 +1,86 @@
 global:
   addPrometheusAnnotations: true
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  env:
+    - name: AUTHENTIK_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: authentik-secret-key
+          key: password
+    - name: AUTHENTIK_EMAIL__USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: smtp-token
+          key: authentik-username
+    - name: AUTHENTIK_EMAIL__PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: smtp-token
+          key: authentik-password
+    - name: AUTHENTIK_EMAIL__FROM
+      valueFrom:
+        secretKeyRef:
+          name: smtp-token
+          key: authentik-username
+    - name: AUTHENTIK_EMAIL__USE_TLS
+      value: "true"
+    - name: AUTHENTIK_POSTGRESQL__USER
+      valueFrom:
+        secretKeyRef:
+          name: authentik-postgres
+          key: username
+    - name: AUTHENTIK_POSTGRESQL__NAME
+      valueFrom:
+        secretKeyRef:
+          name: authentik-postgres
+          key: database
+    - name: AUTHENTIK_POSTGRESQL__SSLMODE
+      value: verify-full
+    - name: AUTHENTIK_POSTGRESQL__SSLROOTCERT
+      value: "/opt/authentik/certs/ca.crt"
+    - name: AUTHENTIK_POSTGRESQL__SSLCERT
+      value: "/opt/authentik/certs/tls.crt"
+    - name: AUTHENTIK_POSTGRESQL__SSLKEY
+      value: "/opt/authentik/certs/tls.key"
+    - name: AUTHENTIK_REDIS__PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: valkey
+          key: password
+  volumes:
+    - name: ssl-bundle
+      projected:
+        sources:
+          - secret:
+              name: authentik-client-cert
+              items:
+                - key: tls.crt
+                  path: tls.crt
+                - key: tls.key
+                  path: tls.key
+                  mode: 0600
+          - secret:
+              name: postgres-server-cert
+              items:
+                - key: ca.crt
+                  path: ca.crt
+  volumeMounts:
+    - name: ssl-bundle
+      mountPath: /opt/authentik/certs
+      readOnly: true
 
 authentik:
-  secret_key: "c8cc2e4a498c697a0443d96b31fe042c69c2158dc8bfb3da3878d1dbfbe6128e"
   error_reporting:
     enabled: false
+  email:
+    host: "smtp.protonmail.ch"
+    port: 587
   postgresql:
-    host: postgres-cluster-rw.postgres-system.svc.cluster.local
-    user: file:///postgres-creds/username
-    password: file:///postgres-creds/password
+    host: postgres-cluster-rw
   redis:
-    host: redis-master.redis-system.svc.cluster.local
-    password: file:///redis-creds/password
+    host: valkey
 
 server:
   replicas: 3
@@ -21,45 +90,20 @@ server:
       cert-manager.io/cluster-issuer: cloudflare-issuer
       cert-manager.io/acme-challenge-type: dns01
       cert-manager.io/private-key-size: "4096"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
     ingressClassName: nginx-internal
+    https: true
     hosts:
       - auth.dogar.dev
-      - auth.rihla.digital
     tls:
       - secretName: authentik-tls
         hosts:
           - auth.dogar.dev
-          - auth.rihla.digital
-  volumes:
-    - name: postgres-creds
-      secret:
-        secretName: authentik-postgres
-    - name: redis-creds
-      secret:
-        secretName: authentik-redis
-  volumeMounts:
-    - name: postgres-creds
-      mountPath: /postgres-creds
-      readOnly: true
-    - name: redis-creds
-      mountPath: /redis-creds
-      readOnly: true
+
 worker:
   replicas: 3
-  volumes:
-    - name: postgres-creds
-      secret:
-        secretName: authentik-postgres
-    - name: redis-creds
-      secret:
-        secretName: authentik-redis
-  volumeMounts:
-    - name: postgres-creds
-      mountPath: /postgres-creds
-      readOnly: true
-    - name: redis-creds
-      mountPath: /redis-creds
-      readOnly: true
     
 postgresql:
     enabled: false

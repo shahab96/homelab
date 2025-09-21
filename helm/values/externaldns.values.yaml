@@ -3,7 +3,7 @@ provider: pihole
 policy: upsert-only
 txtOwnerId: "homelab"
 pihole:
-  server: http://pihole-web.pihole-system.svc.cluster.local
+  server: http://pihole-web
 extraEnvVars:
   - name: EXTERNAL_DNS_PIHOLE_PASSWORD
     valueFrom:

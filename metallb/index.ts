@@ -6,7 +6,6 @@ type MetalLBOptions = {
   provider: HelmProvider;
   name: string;
   namespace: string;
-  version: string;
 };
 
 export class MetalLB extends Construct {

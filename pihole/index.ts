@@ -5,7 +5,6 @@ import { Construct } from "constructs";
 
 type PiHoleOptions = {
   provider: HelmProvider;
-  version: string;
   name: string;
   namespace: string;
 };
@@ -18,7 +17,7 @@ export class PiHole extends Construct {
       ...options,
       repository: "https://mojo2600.github.io/pihole-kubernetes",
       chart: "pihole",
-      createNamespace: true,
+      version: "2.26.1",
       values: [
         fs.readFileSync("helm/values/pihole.values.yaml", {
           encoding: "utf8",
@@ -30,7 +29,7 @@ export class PiHole extends Construct {
       provider: options.provider,
       name: "externaldns-pihole",
       namespace: options.namespace,
-      repository: "https://charts.bitnami.com/bitnami",
+      repository: "oci://registry-1.docker.io/bitnamicharts/",
       chart: "external-dns",
       values: [
         fs.readFileSync("helm/values/externaldns.values.yaml", {

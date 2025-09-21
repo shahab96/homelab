@@ -10,7 +10,6 @@ type LonghornOptions = {
     kubernetes: KubernetesProvider;
     helm: HelmProvider;
   };
-  version: string;
   name: string;
   namespace: string;
 };
@@ -24,16 +23,35 @@ export class Longhorn extends Construct {
     new Release(this, id, {
       name: options.name,
       namespace: options.namespace,
-      version: options.version,
       provider: helm,
       repository: "https://charts.longhorn.io",
       chart: "longhorn",
       createNamespace: true,
+      upgradeInstall: true,
       values: [
         fs.readFileSync("helm/values/longhorn.values.yaml", {
           encoding: "utf8",
         }),
       ],
+    });
+
+    new Manifest(this, "recurring-backup-job", {
+      provider: kubernetes,
+      manifest: {
+        apiVersion: "longhorn.io/v1beta1",
+        kind: "RecurringJob",
+        metadata: {
+          name: "daily-backup",
+          namespace: options.namespace,
+        },
+        spec: {
+          cron: "0 0 * * *",
+          task: "backup",
+          retain: 30,
+          groups: ["default"],
+          concurrency: 3,
+        },
+      },
     });
 
     new Manifest(this, "longhorn-crypto-storage-class", {

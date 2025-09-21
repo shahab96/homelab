@@ -7,7 +7,6 @@ type NginxOptions = {
   provider: HelmProvider;
   name: string;
   namespace: string;
-  version: string;
 };
 
 export class Nginx extends Construct {

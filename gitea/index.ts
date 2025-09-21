@@ -5,7 +5,6 @@ import { Construct } from "constructs";
 
 type GiteaServerOptions = {
   provider: HelmProvider;
-  version: string;
   name: string;
   namespace: string;
 };

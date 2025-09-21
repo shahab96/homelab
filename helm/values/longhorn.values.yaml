@@ -1,8 +1,10 @@
 defaultSettings:
-  backupTarget: "s3://homelab-backups@apac/longhorn"
-  backupTargetCredentialSecret: longhorn-backup
+  defaultReplicaCount: 2
+  storageOverProvisioningPercentage: 100
   backupCompressionMethod: "gzip"
-  backupConcurrentLimit: 4
+defaultBackupStore:
+  backupTarget: "s3://homelab@auto/longhorn"
+  backupTargetCredentialSecret: cloudflare-token
 metrics:
   serviceMonitor:
     enabled: true
