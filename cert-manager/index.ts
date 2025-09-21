@@ -119,7 +119,7 @@ export class CertManager extends Construct {
                   cloudflare: {
                     apiTokenSecretRef: {
                       name: "cloudflare-token",
-                      key: "credential",
+                      key: "token",
                     },
                   },
                 },
