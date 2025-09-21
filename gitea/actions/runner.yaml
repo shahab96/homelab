@@ -91,8 +91,12 @@ spec:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: homelab
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
     ports:
     - protocol: TCP
+      port: 53
     - protocol: UDP
       port: 53
