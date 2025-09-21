@@ -2,7 +2,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: action-runner
-  namespace: gitea-system
+  namespace: homelab
 spec:
   accessModes:
     - ReadWriteMany
@@ -17,7 +17,7 @@ metadata:
   labels:
     app: action-runner
   name: action-runner
-  namespace: gitea-system
+  namespace: homelab
 spec:
   replicas: 3
   selector:
