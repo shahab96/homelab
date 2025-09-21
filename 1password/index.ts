@@ -5,13 +5,14 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 type OnePasswordSecret = {
   id?: string;
+  namespace?: string;
   name: string;
-  namespace: string;
   itemPath: string;
 };
 
 type OnePasswordOptions = {
   provider: KubernetesProvider;
+  namespace: string;
 };
 
 export class OnePassword extends Construct {
@@ -32,7 +33,7 @@ export class OnePassword extends Construct {
           kind: "OnePasswordItem",
           metadata: {
             name: secret.name,
-            namespace: secret.namespace,
+            namespace: secret.namespace ?? options.namespace,
             annotations: {
               "operator.1password.io/auto-restart": "true",
             },
