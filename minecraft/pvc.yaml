@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,6 +11,19 @@ spec:
   resources:
     requests:
       storage: 250Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gtnh-data
+  namespace: minecraft
+spec:
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

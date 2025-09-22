@@ -8,6 +8,7 @@ metadata:
     app: monifactory-server
   annotations:
     external-dns.alpha.kubernetes.io/hostname: dogar.dev
+    metallb.universe.tf/allow-shared-ip: minecraft
 spec:
   type: ClusterIP
   ports:
@@ -15,3 +16,22 @@ spec:
       port: 25565
   selector:
     app: monifactory-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gtnh-server
+  namespace: minecraft
+  labels:
+    app: gtnh-server
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: dogar.dev
+    metallb.universe.tf/allow-shared-ip: minecraft
+spec:
+  type: ClusterIP
+  ports:
+    - name: gtnh
+      port: 25566
+      targetPort: 25565
+  selector:
+    app: gtnh-server
