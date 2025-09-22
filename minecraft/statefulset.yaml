@@ -26,7 +26,10 @@ spec:
             - name: MODPACK_PLATFORM
               value: "AUTO_CURSEFORGE"
             - name: CF_API_KEY
-              value: "$2a$10$12Z0ZWRDkHKShnN2gdZdY./Cj8BjpzIdcwuFXx9HrPsPUH90vwHcK"
+              valueFrom:
+                secretKeyRef:
+                  name: curseforge
+                  key: credential
             - name: CF_PAGE_URL
               value: "https://www.curseforge.com/minecraft/modpacks/monifactory/"
             - name: VERSION
