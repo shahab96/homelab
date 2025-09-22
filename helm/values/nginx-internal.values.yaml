@@ -9,3 +9,4 @@ controller:
 tcp:
   22:       "homelab/gitea-ssh:22"
   25565:    "minecraft/monifactory-server:25565"
+  25566:    "minecraft/gtnh-server:25565"
