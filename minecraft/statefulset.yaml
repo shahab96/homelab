@@ -83,7 +83,7 @@ spec:
     spec:
       containers:
         - name: gtnh-server
-          image: itzg/minecraft-server:java21
+          image: itzg/minecraft-server:java25
           env:
             - name: EULA
               value: "TRUE"
@@ -94,7 +94,7 @@ spec:
             - name: TYPE
               value: "CUSTOM"
             - name: GENERIC_PACKS
-              value: "GT_New_Horizons_2.7.4_Server_Java_17-21"
+              value: "GT_New_Horizons_2.8.0_Server_Java_17-25"
             - name: GENERIC_PACKS_SUFFIX
               value: ".zip"
             - name: GENERIC_PACKS_PREFIX
@@ -104,7 +104,7 @@ spec:
             - name: MEMORY
               value: 6G
             - name: JVM_OPTS
-              value: "-Dfml.readTimeout=180 @java9args.txt"
+              value: "-Dfml.readTimeout=180 -Dfml.queryResult=confirm @java9args.txt"
             - name: CUSTOM_JAR_EXEC
               value: "-jar lwjgl3ify-forgePatches.jar nogui"
             - name: ALLOW_FLIGHT
@@ -117,7 +117,7 @@ spec:
           resources:
             limits:
               cpu: 8
-              memory: "6Gi"
+              memory: "8Gi"
           volumeMounts:
           - name: gtnh-data
             mountPath: /data
