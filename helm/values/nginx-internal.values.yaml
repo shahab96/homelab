@@ -6,6 +6,9 @@ controller:
     controllerValue: "k8s.io/ingress-nginx"
     parameters: {}
   ingressClass: nginx-internal
+  service:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "dogar.dev"
 tcp:
   22:       "homelab/gitea-ssh:22"
   25565:    "minecraft/monifactory-server:25565"
