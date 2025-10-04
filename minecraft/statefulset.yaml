@@ -57,15 +57,10 @@ spec:
           volumeMounts:
           - name: monifactory-data
             mountPath: /data
-          - name: modpacks
-            mountPath: /modpacks
       volumes:
         - name: monifactory-data
           persistentVolumeClaim:
             claimName: monifactory-data
-        - name: modpacks
-          persistentVolumeClaim:
-            claimName: modpacks
 ---
 apiVersion: apps/v1
 kind: StatefulSet
