@@ -5,12 +5,12 @@ metadata:
   name: monifactory-data
   namespace: minecraft
 spec:
-  storageClassName: longhorn
+  storageClassName: longhorn-crypto
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 250Gi
+      storage: 10Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -18,7 +18,7 @@ metadata:
   name: gtnh-data
   namespace: minecraft
 spec:
-  storageClassName: longhorn
+  storageClassName: longhorn-crypto
   accessModes:
     - ReadWriteMany
   resources:
@@ -31,9 +31,9 @@ metadata:
   name: modpacks
   namespace: minecraft
 spec:
-  storageClassName: longhorn
+  storageClassName: longhorn-crypto
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 25Gi
+      storage: 5Gi
