@@ -28,3 +28,18 @@ spec:
       port: 25565
   selector:
     app: gtnh-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tfg-server
+  namespace: minecraft
+  labels:
+    app: tfg-server
+spec:
+  type: ClusterIP
+  ports:
+    - name: tfg
+      port: 25565
+  selector:
+    app: tfg-server
