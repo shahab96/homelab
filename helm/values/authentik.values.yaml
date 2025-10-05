@@ -83,7 +83,7 @@ authentik:
     host: valkey
 
 server:
-  replicas: 3
+  replicas: 1
   ingress:
     enabled: true
     annotations:
@@ -103,7 +103,7 @@ server:
           - auth.dogar.dev
 
 worker:
-  replicas: 3
+  replicas: 1
     
 postgresql:
     enabled: false

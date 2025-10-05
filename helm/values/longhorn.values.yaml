@@ -1,5 +1,5 @@
 defaultSettings:
-  defaultReplicaCount: 2
+  defaultReplicaCount: 3
   storageOverProvisioningPercentage: 100
   backupCompressionMethod: "gzip"
 defaultBackupStore:

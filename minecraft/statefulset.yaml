@@ -157,7 +157,7 @@ spec:
             - name: INIT_MEMORY
               value: 2G
             - name: MAX_MEMORY
-              value: 6G
+              value: 8G
             - name: ALLOW_FLIGHT
               value: "TRUE"
             - name: ENABLE_ROLLING_LOGS
@@ -173,7 +173,7 @@ spec:
               memory: "2Gi"
             limits:
               cpu: 6
-              memory: "6Gi"
+              memory: "9Gi"
           volumeMounts:
           - name: tfg-data
             mountPath: /data
