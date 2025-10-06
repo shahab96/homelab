@@ -152,6 +152,8 @@ spec:
                   key: credential
             - name: CF_PAGE_URL
               value: "https://www.curseforge.com/minecraft/modpacks/terrafirmagreg-modern/"
+            - name: CF_FILENAME_MATCHER
+              value: "0.10.17"
             - name: VERSION
               value: "1.20.1"
             - name: INIT_MEMORY
