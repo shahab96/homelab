@@ -26,16 +26,6 @@ global:
           key: authentik-username
     - name: AUTHENTIK_EMAIL__USE_TLS
       value: "true"
-    - name: AUTHENTIK_POSTGRESQL__USER
-      valueFrom:
-        secretKeyRef:
-          name: authentik-postgres
-          key: username
-    - name: AUTHENTIK_POSTGRESQL__NAME
-      valueFrom:
-        secretKeyRef:
-          name: authentik-postgres
-          key: database
     - name: AUTHENTIK_POSTGRESQL__SSLMODE
       value: verify-full
     - name: AUTHENTIK_POSTGRESQL__SSLROOTCERT
@@ -79,6 +69,8 @@ authentik:
     port: 587
   postgresql:
     host: postgres-cluster-rw
+    user: authentik
+    name: authentik
   redis:
     host: valkey
 
