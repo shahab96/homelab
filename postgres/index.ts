@@ -319,7 +319,7 @@ export class PostgresCluster extends Construct {
           namespace: options.namespace,
         },
         spec: {
-          instances: 1,
+          instances: 3,
           maxSyncReplicas: 0,
           primaryUpdateStrategy: "unsupervised",
           certificates: {
