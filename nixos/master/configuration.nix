@@ -8,11 +8,10 @@
   imports = [ ./hardware-configuration.nix ];
 
   nix = {
-    package = pkgs.nixFlakes;
-    settings.require-sigs = false;
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
+    settings = {
+      require-sigs = false;
+      experimental-features = [ "nix-command" "flakes" ];
+    };
   };
 
   # Use the systemd-boot EFI boot loader.
