@@ -109,7 +109,11 @@ deployment:
     - name: PGSSLKEY
       value: /opt/gitea/.postgresql/postgresql.key
 resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
   limits:
+    cpu: 6
     memory: 6Gi
 extraVolumes:
   - name: ssl-bundle
