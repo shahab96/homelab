@@ -19,7 +19,7 @@ metadata:
   name: action-runner
   namespace: homelab
 spec:
-  replicas: 1
+  replicas: 9
   selector:
     matchLabels:
       app: action-runner
