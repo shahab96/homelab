@@ -43,11 +43,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: DOCKER_HOST
-          value: tcp://localhost:2376
-        - name: DOCKER_CERT_PATH
-          value: /certs/client
-        - name: DOCKER_TLS_VERIFY
-          value: "1"
+          value: unix:///run/user/1000/docker.sock
         - name: GITEA_INSTANCE_URL
           value: https://git.dogar.dev
         - name: GITEA_RUNNER_REGISTRATION_TOKEN
