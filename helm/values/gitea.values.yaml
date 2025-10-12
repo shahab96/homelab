@@ -108,6 +108,9 @@ deployment:
       value: /opt/gitea/.postgresql/postgresql.crt
     - name: PGSSLKEY
       value: /opt/gitea/.postgresql/postgresql.key
+resources:
+  limits:
+    memory: 6Gi
 extraVolumes:
   - name: ssl-bundle
     projected:
