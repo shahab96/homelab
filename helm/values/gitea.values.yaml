@@ -89,6 +89,10 @@ gitea:
         secretKeyRef:
           name: smtp-token
           key: gitea-password
+    - name: GITEA__PACKAGES__CHUNKED_UPLOAD_PATH
+      value: "/tmp/gitea-uploads"
+    - name: GITEA__PACKAGES__CHUNKED_UPLOAD_CONCURRENCY
+      value: "4"
 persistence:
   enabled: true
   size: 50Gi
@@ -131,6 +135,8 @@ extraVolumes:
                 path: cert.pem
               - key: tls.key
                 path: key.pem
+  - name: gitea-temp
+    emptyDir: {}
 extraInitVolumeMounts:
   - name: ssl-bundle
     mountPath: /opt/gitea/.postgresql
@@ -142,6 +148,8 @@ extraContainerVolumeMounts:
   - name: tls-bundle
     mountPath: /opt/gitea/tls
     readOnly: true
+  - name: gitea-temp
+    mountPath: /tmp/gitea-uploads
 postgresql-ha:
   enabled: false
 valkey-cluster:
