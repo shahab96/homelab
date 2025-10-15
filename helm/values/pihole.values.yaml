@@ -9,7 +9,7 @@ admin:
   passwordKey: password
 persistentVolumeClaim:
   enabled: true
-  storageClass: longhorn-crypto
+  storageClass: longhorn
   size: 10Gi
   accessModes:
     - ReadWriteMany
