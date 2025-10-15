@@ -10,6 +10,8 @@ extraEnvVars:
       secretKeyRef:
         name: pihole-admin
         key: password
+extraArgs:
+  pihole-api-version: 6
 serviceAccount:
   create: true
   name: "external-dns"
