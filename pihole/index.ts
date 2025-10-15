@@ -17,7 +17,6 @@ export class PiHole extends Construct {
       ...options,
       repository: "https://mojo2600.github.io/pihole-kubernetes",
       chart: "pihole",
-      version: "2.26.1",
       values: [
         fs.readFileSync("helm/values/pihole.values.yaml", {
           encoding: "utf8",
