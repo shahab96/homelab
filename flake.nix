@@ -31,7 +31,6 @@
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
           kubernetes-helm
-          kubectl
           (kubectl.withKrewPlugins (plugins: with plugins; [
             cnpg
           ]))
