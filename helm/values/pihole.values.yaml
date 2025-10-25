@@ -35,6 +35,7 @@ serviceWeb:
 serviceDns:
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+  mixedService: true
   type: LoadBalancer
   loadBalancerIP: 192.168.18.250
 serviceDhcp:
@@ -51,21 +52,22 @@ dnsmasq:
     - dhcp-host=B0:41:6F:0F:A0:CD,192.168.18.12,homelab-2
 hostNetwork: true
 hostname: pihole
+priviledged: true
+virtualHost: "pihole.dogar.dev"
 capabilities:
   add:
     - NET_ADMIN
 extraEnvVars:
   TZ: "Asia/Karachi"
   DNSSEC: "true"
-  FTLCONF_LOCAL_IPV4: "192.168.18.250"
+  FTLCONG_dhcp_active: "true"
+  FTLCONF_dhcp_start: "192.168.18.2"
+  FTLCONF_dhcp_end: "192.168.18.100"
+  FTLCONF_dhcp_leaseTime: "24h"
+  FTLCONF_dhcp_netmask: "255.255.255.0"
+  FTLCONF_dhcp_router: "192.168.18.1"
+  FTLCONF_dns_listeningMode: "all"
   INTERFACE: "enp1s0"
-  DNSMASQ_LISTENING: "single"
-  DHCP_ACTIVE: "true"
-  DHCP_START: "192.168.18.2"
-  DHCP_END: "192.168.18.20"
-  DHCP_ROUTER: "192.168.18.1"
-  PIHOLE_DOMAIN: "pihole.dogar.dev"
-  VIRTUAL_HOST: "pihole.dogar.dev"
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/port: "9617"

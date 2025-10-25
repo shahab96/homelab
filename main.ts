@@ -13,10 +13,10 @@ import { AuthentikServer } from "./authentik";
 import { ValkeyCluster } from "./valkey";
 import { CertManager } from "./cert-manager";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
-import { PiHole } from "./pihole";
 import { Nginx } from "./nginx";
 import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
+import { PiHole } from "./pihole";
 
 dotenv.config();
 
@@ -148,15 +148,11 @@ class Homelab extends TerraformStack {
       backupR2EndpointURL: r2Endpoint,
     });
 
-    pg.node.addDependency(pihole);
-
     const valkey = new ValkeyCluster(this, "valkey-cluster", {
       provider: kubernetes,
       namespace,
       name: "valkey",
     });
-
-    valkey.node.addDependency(pihole);
 
     const authentik = new AuthentikServer(this, "authentik-server", {
       provider: helm,

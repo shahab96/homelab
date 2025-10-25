@@ -375,15 +375,24 @@ export class PostgresCluster extends Construct {
               },
             },
           ],
-          enableSuperuserAccess: false,
+          enableSuperuserAccess: true,
+          // bootstrap: {
+          //   recovery: {
+          //     source: "clusterBackup",
+          //     database: "postgres",
+          //     owner: options.primaryUser,
+          //     secret: {
+          //       name: options.initSecretName,
+          //     },
+          //   },
+          // },
           bootstrap: {
-            recovery: {
-              source: "clusterBackup",
+            initdb: {
               database: "postgres",
-              owner: options.primaryUser,
               secret: {
                 name: options.initSecretName,
               },
+              postInitSQL: [`CREATE USER ${options.primaryUser} SUPERUSER;`],
             },
           },
           externalClusters: [
@@ -392,7 +401,7 @@ export class PostgresCluster extends Construct {
               plugin: {
                 name: "barman-cloud.cloudnative-pg.io",
                 parameters: {
-                  barmanObjectName: "r2-postgres-backup-store",
+                  barmanObjectName: barmanStoreName,
                   serverName: "postgres-cluster",
                 },
               },
@@ -427,6 +436,25 @@ export class PostgresCluster extends Construct {
           walStorage: {
             size: "1Gi",
             storageClass: options.storageClass,
+          },
+        },
+      },
+    });
+
+    new Manifest(this, "postgres-backup-job", {
+      provider: kubernetes,
+      manifest: {
+        apiVersion: "postgresql.cnpg.io/v1",
+        kind: "ScheduledBackup",
+        metadata: {
+          name: "postgres-cluster",
+          namespace: options.namespace,
+        },
+        spec: {
+          schedule: "0 0 0 * * *", // daily at midnight
+          backupOwnerReference: "self",
+          cluster: {
+            name: options.name,
           },
         },
       },
