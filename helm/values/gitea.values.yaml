@@ -1,5 +1,5 @@
 global:
-  storageClass: longhorn-crypto
+  storageClass: longhorn
 image:
   rootless: false
 service:
