@@ -17,7 +17,7 @@ export class ValkeyCluster extends Construct {
     const labels = { app: "valkey" };
     const { provider, name, namespace } = options;
 
-    new DeploymentV1(this, "valkeyDeployment", {
+    new DeploymentV1(this, "valkey-deployment", {
       provider,
       metadata: {
         name,
@@ -93,7 +93,7 @@ export class ValkeyCluster extends Construct {
       },
     });
 
-    new ServiceV1(this, "valkeyService", {
+    new ServiceV1(this, "valkey-service", {
       provider,
       metadata: {
         name,
