@@ -1,13 +1,20 @@
+global:
+  nodeSelector:
+    nodepool: worker
 defaultSettings:
-  defaultReplicaCount: 3
-  storageOverProvisioningPercentage: 100
+  defaultReplicaCount: "3"
+  storageOverProvisioningPercentage: "100"
   backupCompressionMethod: "gzip"
+  replicaSoftAntiAffinity: "true"
+  concurrentReplicaRebuildPerNodeLimit: "1"
+  replicaReplenishmentWaitInterval: "600"
+  disableSchdedulingOnCordonedNode: "true"
 defaultBackupStore:
-  backupTarget: "s3://homelab@auto/longhorn"
+  backupTarget: "s3://longhorn-backups@auto"
   backupTargetCredentialSecret: cloudflare-token
 metrics:
   serviceMonitor:
-    enabled: true
+    enabled: false
 ingress:
   enabled: true
   ingressClassName: nginx-internal
