@@ -57,7 +57,7 @@ gitea:
       HOST: postgres-cluster-rw
       NAME: gitea
       USER: gitea
-      SSL_MODE: require
+      SSL_MODE: verify-full
     cache:
       ADAPTER: memory
     session:
