@@ -4,14 +4,9 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-
-    krew2nix = {
-      url = "github:eigengrau/krew2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { nixpkgs, flake-utils, krew2nix, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { nixpkgs, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       lib = nixpkgs.lib;
 
@@ -24,16 +19,12 @@
           ];
         };
       };
-
-      kubectl = krew2nix.packages.${system}.kubectl;
     in {
       # Define the devShell for the current system
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
           kubernetes-helm
-          (kubectl.withKrewPlugins (plugins: with plugins; [
-            cnpg
-          ]))
+          kubectl-cnpg
           nil
           terraform
           tflint
