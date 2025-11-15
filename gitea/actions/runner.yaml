@@ -9,7 +9,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: longhorn-crypto
+  storageClassName: longhorn
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,6 +30,8 @@ spec:
       labels:
         app: action-runner
     spec:
+      nodeSelector:
+        nodepool: worker
       restartPolicy: Always
       volumes:
       - name: runner-data
