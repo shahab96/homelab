@@ -11,7 +11,6 @@ type PostgresClusterOptions = {
   };
   name: string;
   namespace: string;
-  storageClass: string;
   users: string[];
   primaryUser: string;
   initSecretName: string;
@@ -31,11 +30,13 @@ export class PostgresCluster extends Construct {
       chart: "cloudnative-pg",
       name: "postgres-system",
       namespace: "cnpg-system",
+      createNamespace: true,
     });
 
-    const destinationPath = "s3://homelab/";
+    const destinationPath = "s3://postgres-backups/";
     const endpointURL = options.backupR2EndpointURL;
     const barmanStoreName = "r2-postgres-backup-store";
+    const backupServerName = `${options.name}-backup`;
 
     const barmanConfiguration = {
       destinationPath,
@@ -49,6 +50,16 @@ export class PostgresCluster extends Construct {
           name: "cloudflare-token",
           key: "secret_access_key",
         },
+        region: {
+          name: "cloudflare-token",
+          key: "AWS_REGION",
+        },
+      },
+      wal: {
+        compression: "gzip",
+      },
+      data: {
+        compression: "gzip",
       },
     };
 
@@ -62,11 +73,9 @@ export class PostgresCluster extends Construct {
           name: barmanStoreName,
         },
         spec: {
+          retentionPolicy: "15d",
           configuration: {
             ...barmanConfiguration,
-            wal: {
-              compression: "gzip",
-            },
           },
         },
       },
@@ -142,22 +151,6 @@ export class PostgresCluster extends Construct {
         spec: {
           ca: {
             secretName: caNames.server,
-          },
-        },
-      },
-    });
-
-    // Secret for server certificate
-    new Manifest(this, "server-ca-cert-secret", {
-      provider: kubernetes,
-      manifest: {
-        apiVersion: "v1",
-        kind: "Secret",
-        metadata: {
-          name: certNames.server,
-          namespace: options.namespace,
-          labels: {
-            "cnpg.io/reload": "",
           },
         },
       },
@@ -332,7 +325,7 @@ export class PostgresCluster extends Construct {
           postgresql: {
             parameters: {
               archive_mode: "on",
-              archive_timeout: "5min",
+              archive_timeout: "60min",
               checkpoint_timeout: "10min",
               checkpoint_completion_target: "0.7",
               dynamic_shared_memory_type: "posix",
@@ -346,16 +339,17 @@ export class PostgresCluster extends Construct {
               logging_collector: "on",
               max_parallel_workers: "32",
               max_replication_slots: "32",
-              max_wal_size: "768MB",
               max_worker_processes: "32",
               max_slot_wal_keep_size: "256MB",
+              max_wal_size: "512MB",
               min_wal_size: "128MB",
               shared_memory_type: "mmap",
               shared_preload_libraries: "",
               ssl_max_protocol_version: "TLSv1.3",
               ssl_min_protocol_version: "TLSv1.3",
+              wal_compression: "on",
               wal_keep_size: "128MB",
-              wal_level: "logical",
+              wal_level: "replica",
               wal_log_hints: "on",
               wal_receiver_timeout: "5s",
               wal_sender_timeout: "5s",
@@ -368,31 +362,16 @@ export class PostgresCluster extends Construct {
           plugins: [
             {
               name: "barman-cloud.cloudnative-pg.io",
-              enabled: true,
               isWALArchiver: true,
               parameters: {
                 barmanObjectName: barmanStoreName,
+                serverName: backupServerName,
               },
             },
           ],
-          enableSuperuserAccess: true,
-          // bootstrap: {
-          //   recovery: {
-          //     source: "clusterBackup",
-          //     database: "postgres",
-          //     owner: options.primaryUser,
-          //     secret: {
-          //       name: options.initSecretName,
-          //     },
-          //   },
-          // },
           bootstrap: {
-            initdb: {
-              database: "postgres",
-              secret: {
-                name: options.initSecretName,
-              },
-              postInitSQL: [`CREATE USER ${options.primaryUser} SUPERUSER;`],
+            recovery: {
+              source: "clusterBackup",
             },
           },
           externalClusters: [
@@ -402,7 +381,8 @@ export class PostgresCluster extends Construct {
                 name: "barman-cloud.cloudnative-pg.io",
                 parameters: {
                   barmanObjectName: barmanStoreName,
-                  serverName: "postgres-cluster",
+                  serverName: backupServerName,
+                  skipWalArchiveCheck: true,
                 },
               },
             },
@@ -416,6 +396,7 @@ export class PostgresCluster extends Construct {
                   serviceTemplate: {
                     metadata: {
                       name: "postgres-cluster",
+                      superuser: true,
                       annotations: {
                         "external-dns.alpha.kubernetes.io/hostname":
                           "postgres.dogar.dev",
@@ -428,14 +409,26 @@ export class PostgresCluster extends Construct {
                 },
               ],
             },
+            roles: [
+              {
+                name: options.primaryUser,
+                inRoles: ["postgres"],
+                inherit: true,
+                disablePassword: true,
+                createdb: true,
+                createrole: true,
+                login: true,
+                ensure: "present",
+              },
+            ],
           },
           storage: {
             size: "10Gi",
-            storageClass: options.storageClass,
+            storageClass: "longhorn",
           },
           walStorage: {
-            size: "1Gi",
-            storageClass: options.storageClass,
+            size: "2Gi",
+            storageClass: "longhorn",
           },
         },
       },
@@ -451,8 +444,18 @@ export class PostgresCluster extends Construct {
           namespace: options.namespace,
         },
         spec: {
-          schedule: "0 0 0 * * *", // daily at midnight
+          immediate: true,
+          // weekly midnight on Sunday
+          schedule: "* 0 0 * * 0",
           backupOwnerReference: "self",
+          method: "plugin",
+          pluginConfiguration: {
+            name: "barman-cloud.cloudnative-pg.io",
+            parameters: {
+              barmanObjectName: barmanStoreName,
+              serverName: backupServerName,
+            },
+          },
           cluster: {
             name: options.name,
           },
