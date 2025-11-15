@@ -1,0 +1,231 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: aamil-3
+      containers:
+        - name: server
+          image: jellyfin/jellyfin:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8096
+              name: http
+          env:
+            - name: TZ
+              value: "Asia/Karachi"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: cache
+              mountPath: /cache
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: jellyfin-config
+        - name: cache
+          emptyDir: {}
+        - name: media
+          persistentVolumeClaim:
+            claimName: media
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec: 
+      nodeSelector:
+        kubernetes.io/hostname: aamil-3
+      containers:
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8989
+              name: http
+          env:
+            - name: TZ
+              value: "Asia/Karachi"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: media
+              mountPath: /media
+            - name: downloads
+              mountPath: /downloads       
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: sonarr-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: media
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: downloads
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: aamil-3
+      containers:
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent:latest
+          ports:
+            - containerPort: 8080   # web UI
+              name: http
+            - containerPort: 6881
+              name: bt
+            - containerPort: 6881
+              protocol: UDP
+              name: bt-udp
+          env:
+            - name: TZ
+              value: "Asia/Karachi"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: WEBUI_PORT
+              value: "8080"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: downloads
+              mountPath: /downloads
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: downloads
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prowlarr
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prowlarr
+  template:
+    metadata:
+      labels:
+        app: prowlarr
+    spec:
+      nodeSelector:
+        nodepool: worker
+      containers:
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9696
+              name: http
+          env:
+            - name: TZ
+              value: "Asia/Karachi"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: prowlarr-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: aamil-3
+      containers:
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7878
+              name: http
+          env:
+            - name: TZ
+              value: "Asia/Karachi"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: media
+              mountPath: /media
+            - name: downloads
+              mountPath: /downloads
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: radarr-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: media
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: downloads

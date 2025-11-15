@@ -1,0 +1,76 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: server
+  namespace: media
+  annotations:
+    # cert-manager (Cloudflare DNS-01)
+    cert-manager.io/cluster-issuer: cloudflare-issuer
+    cert-manager.io/acme-challenge-type: dns01
+    cert-manager.io/private-key-size: "4096"
+
+    # Jellyfin / streaming friendly nginx settings
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/use-proxy-protocol: "false"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+spec:
+  ingressClassName: nginx-internal
+  tls:
+    - hosts:
+        - media.dogar.dev
+      secretName: media-tls
+    - hosts:
+        - sonarr.dogar.dev
+      secretName: sonarr-tls
+    - hosts:
+        - radarr.dogar.dev
+      secretName: radarr-tls
+    - hosts:
+        - torrent.dogar.dev
+      secretName: torrent-tls
+  rules:
+    - host: media.dogar.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: server
+                port:
+                  number: 80
+    - host: sonarr.dogar.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarr
+                port:
+                  number: 80
+    - host: radarr.dogar.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: radarr
+                port:
+                  number: 80
+    - host: torrent.dogar.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent
+                port:
+                  number: 80
