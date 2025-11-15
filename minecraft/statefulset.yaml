@@ -5,6 +5,7 @@ metadata:
   name: monifactory-server
   namespace: minecraft
 spec:
+  serviceName: monifactory-server
   selector:
     matchLabels:
       app: monifactory-server
@@ -13,6 +14,8 @@ spec:
       labels:
         app: monifactory-server
     spec:
+      nodeSelector:
+        nodepool: worker
       containers:
         - name: monifactory-server
           image: itzg/minecraft-server:java17
@@ -37,7 +40,7 @@ spec:
             - name: INIT_MEMORY
               value: 4G
             - name: MAX_MEMORY
-              value: 8G
+              value: 12G
             - name: ALLOW_FLIGHT
               value: "TRUE"
             - name: ENABLE_ROLLING_LOGS
@@ -53,7 +56,7 @@ spec:
               memory: "4Gi"
             limits:
               cpu: 8
-              memory: "8Gi"
+              memory: "12Gi"
           volumeMounts:
           - name: monifactory-data
             mountPath: /data
@@ -68,6 +71,7 @@ metadata:
   name: gtnh-server
   namespace: minecraft
 spec:
+  serviceName: gtnh-server
   selector:
     matchLabels:
       app: gtnh-server
@@ -76,6 +80,8 @@ spec:
       labels:
         app: gtnh-server
     spec:
+      nodeSelector:
+        nodepool: worker
       containers:
         - name: gtnh-server
           image: itzg/minecraft-server:java25
@@ -97,7 +103,7 @@ spec:
             - name: SKIP_GENERIC_PACK_UPDATE_CHECK
               value: "true"
             - name: MEMORY
-              value: 6G
+              value: 12G
             - name: JVM_OPTS
               value: "-Dfml.readTimeout=180 -Dfml.queryResult=confirm @java9args.txt"
             - name: CUSTOM_JAR_EXEC
@@ -112,7 +118,7 @@ spec:
           resources:
             limits:
               cpu: 8
-              memory: "8Gi"
+              memory: "12Gi"
           volumeMounts:
           - name: gtnh-data
             mountPath: /data
@@ -127,6 +133,7 @@ metadata:
   name: tfg-server
   namespace: minecraft
 spec:
+  serviceName: tfg-server
   selector:
     matchLabels:
       app: tfg-server
@@ -135,6 +142,8 @@ spec:
       labels:
         app: tfg-server
     spec:
+      nodeSelector:
+        nodepool: worker
       containers:
         - name: tfg-server
           image: itzg/minecraft-server:java17
@@ -159,7 +168,7 @@ spec:
             - name: INIT_MEMORY
               value: 2G
             - name: MAX_MEMORY
-              value: 8G
+              value: 12G
             - name: ALLOW_FLIGHT
               value: "TRUE"
             - name: ENABLE_ROLLING_LOGS
@@ -175,7 +184,7 @@ spec:
               memory: "2Gi"
             limits:
               cpu: 6
-              memory: "9Gi"
+              memory: "12Gi"
           volumeMounts:
           - name: tfg-data
             mountPath: /data
@@ -183,3 +192,71 @@ spec:
         - name: tfg-data
           persistentVolumeClaim:
             claimName: tfg-data
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: atm10-server
+  namespace: minecraft
+spec:
+  serviceName: atm10-server
+  selector:
+    matchLabels:
+      app: atm10-server
+  template:
+    metadata:
+      labels:
+        app: atm10-server
+    spec:
+      nodeSelector:
+        nodepool: worker
+      containers:
+        - name: atm10-server
+          image: itzg/minecraft-server:java21
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: MODE
+              value: "survival"
+            - name: MODPACK_PLATFORM
+              value: "AUTO_CURSEFORGE"
+            - name: CF_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: curseforge
+                  key: credential
+            - name: CF_PAGE_URL
+              value: "https://www.curseforge.com/minecraft/modpacks/all-the-mods-10/files/7121777"
+            - name: VERSION
+              value: "1.21.1"
+            - name: INIT_MEMORY
+              value: 2G
+            - name: MAX_MEMORY
+              value: 15G
+            - name: ALLOW_FLIGHT
+              value: "TRUE"
+            - name: ENABLE_ROLLING_LOGS
+              value: "TRUE"
+            - name: USE_MEOWICE_FLAGS
+              value: "TRUE"
+            - name: CF_OVERRIDES_EXCLUSIONS
+              value: |
+                # Not applicable for server side
+                shaderpacks/**
+          ports:
+            - name: minecraft
+              containerPort: 25565
+          resources:
+            requests:
+              cpu: 2
+              memory: "2Gi"
+            limits:
+              cpu: 6
+              memory: "16Gi"
+          volumeMounts:
+          - name: atm10-data
+            mountPath: /data
+      volumes:
+        - name: atm10-data
+          persistentVolumeClaim:
+            claimName: atm10-data

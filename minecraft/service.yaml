@@ -43,3 +43,18 @@ spec:
       port: 25565
   selector:
     app: tfg-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atm10-server
+  namespace: minecraft
+  labels:
+    app: atm10-server
+spec:
+  type: ClusterIP
+  ports:
+    - name: atm10
+      port: 25565
+  selector:
+    app: atm10-server
