@@ -1,9 +1,10 @@
 import * as dotenv from "dotenv";
 import { cleanEnv, str } from "envalid";
 import { Construct } from "constructs";
-import { App, TerraformStack, S3Backend } from "cdktf";
+import { App, TerraformStack, LocalBackend } from "cdktf";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
+import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 
 import { GiteaServer } from "./gitea";
 import { OnePassword } from "./1password";
@@ -12,7 +13,6 @@ import { Longhorn } from "./longhorn";
 import { AuthentikServer } from "./authentik";
 import { ValkeyCluster } from "./valkey";
 import { CertManager } from "./cert-manager";
-import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { Nginx } from "./nginx";
 import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
@@ -45,15 +45,10 @@ class Homelab extends TerraformStack {
 
     const namespace = "homelab";
 
-    const ns = new Manifest(this, "namespace", {
+    new NamespaceV1(this, "namespace", {
       provider: kubernetes,
-      manifest: {
-        kind: "Namespace",
-        apiVersion: "v1",
-        metadata: {
-          name: namespace,
-        },
-        spec: {},
+      metadata: {
+        name: namespace,
       },
     });
 
@@ -65,12 +60,10 @@ class Homelab extends TerraformStack {
       },
     });
 
-    longhorn.node.addDependency(ns);
-
     new MetalLB(this, "metallb", {
       provider: helm,
       name: "metallb",
-      namespace,
+      namespace: "metallb-system",
     });
 
     new OnePassword(this, "one-password", {
@@ -121,7 +114,6 @@ class Homelab extends TerraformStack {
         kubernetes,
         helm,
       },
-      storageClass: "longhorn-crypto",
       users: ["shahab", "budget-tracker", "authentik", "gitea"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
@@ -156,21 +148,9 @@ class Homelab extends TerraformStack {
 const app = new App();
 const stack = new Homelab(app, "homelab");
 
-new S3Backend(stack, {
-  encrypt: true,
-  bucket: env.BUCKET,
-  key: "terraform.tfstate",
-  region: "auto",
-  skipCredentialsValidation: true,
-  skipMetadataApiCheck: true,
-  skipRegionValidation: true,
-  skipRequestingAccountId: true,
-  skipS3Checksum: true,
-  accessKey: env.R2_ACCESS_KEY_ID,
-  secretKey: env.R2_SECRET_ACCESS_KEY,
-  endpoints: {
-    s3: `${r2Endpoint}/${env.BUCKET}`,
-  },
+new LocalBackend(stack, {
+  path: "terraform.tfstate",
+  workspaceDir: ".",
 });
 
 app.synth();
