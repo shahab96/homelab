@@ -58,6 +58,8 @@ gitea:
       NAME: gitea
       USER: gitea
       SSL_MODE: verify-full
+    metrics:
+      ENABLED: true
     cache:
       ADAPTER: memory
     session:
