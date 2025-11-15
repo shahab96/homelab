@@ -3,6 +3,17 @@ global:
   securityContext:
     runAsUser: 1000
     fsGroup: 1000
+  podLabels:
+    app: authentik
+  nodeSelector:
+    nodepool: worker
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: authentik
   env:
     - name: AUTHENTIK_SECRET_KEY
       valueFrom:
