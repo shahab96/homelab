@@ -2,6 +2,15 @@ controller:
   replicaCount: 3
   nodeSelector:
     nodepool: worker
+  labels:
+    app: nginx-internal
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: nginx-internal
   ingressClassResource:
     name: nginx-internal
     enabled: true
