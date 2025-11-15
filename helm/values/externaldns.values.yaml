@@ -1,15 +1,25 @@
+global:
+  security:
+    allowInsecureImages: true # needed for ghcr.io images
+image:
+  registry: docker.io
+  repository: bitnamilegacy/external-dns
+  tag: 0.18.0-debian-12-r1
+  pullPolicy: IfNotPresent
 interval: 10s
 provider: pihole
 policy: upsert-only
 txtOwnerId: "homelab"
 pihole:
-  server: http://pihole-web
+  server: http://rashid
+nodeSelector:
+  nodepool: worker
 extraEnvVars:
   - name: EXTERNAL_DNS_PIHOLE_PASSWORD
     valueFrom:
       secretKeyRef:
         name: pihole-admin
-        key: password
+        key: app-password
 extraArgs:
   pihole-api-version: 6
 serviceAccount:
@@ -18,7 +28,7 @@ serviceAccount:
 ingressClassFilters:
   - nginx-internal
 metrics:
-  enabled: true
+  enabled: false
   serviceMonitor:
     enabled: true
     interval: 30s

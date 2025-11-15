@@ -3,31 +3,18 @@ import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
 
-type PiHoleOptions = {
+type ExternalDNSOptions = {
   provider: HelmProvider;
   name: string;
   namespace: string;
 };
 
-export class PiHole extends Construct {
-  constructor(scope: Construct, id: string, options: PiHoleOptions) {
+export class ExternalDNS extends Construct {
+  constructor(scope: Construct, id: string, options: ExternalDNSOptions) {
     super(scope, id);
 
-    new Release(this, id, {
-      ...options,
-      repository: "https://mojo2600.github.io/pihole-kubernetes",
-      chart: "pihole",
-      values: [
-        fs.readFileSync("helm/values/pihole.values.yaml", {
-          encoding: "utf8",
-        }),
-      ],
-    });
-
     new Release(this, "external-dns", {
-      provider: options.provider,
-      name: "externaldns-pihole",
-      namespace: options.namespace,
+      ...options,
       repository: "oci://registry-1.docker.io/bitnamicharts/",
       chart: "external-dns",
       values: [

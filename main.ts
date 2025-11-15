@@ -16,7 +16,7 @@ import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { Nginx } from "./nginx";
 import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
-import { PiHole } from "./pihole";
+import { ExternalDNS } from "./external-dns";
 
 dotenv.config();
 
@@ -57,26 +57,7 @@ class Homelab extends TerraformStack {
       },
     });
 
-    new Manifest(this, "core-dns", {
-      provider: kubernetes,
-      manifest: {
-        kind: "ConfigMap",
-        apiVersion: "v1",
-        metadata: {
-          name: "coredns-custom",
-          namespace: "kube-system",
-        },
-        data: {
-          "forward.override": `forward . /etc/resolv.conf {
-              policy sequential
-            }
-          `,
-        },
-      },
-    });
-
-    const longhorn = new Longhorn(this, "longhorn", {
-      namespace,
+    new Longhorn(this, "longhorn", {
       name: "longhorn",
       providers: {
         kubernetes,
@@ -116,15 +97,14 @@ class Homelab extends TerraformStack {
       },
     });
 
-    const pihole = new PiHole(this, "pihole", {
+    const externalDNS = new ExternalDNS(this, "external-dns", {
       namespace,
       provider: helm,
-      name: "pihole",
+      name: "external-dns",
     });
 
-    pihole.node.addDependency(longhorn);
-    pihole.node.addDependency(nginx);
-    pihole.node.addDependency(cm);
+    externalDNS.node.addDependency(nginx);
+    externalDNS.node.addDependency(cm);
 
     new Prometheus(this, "prometheus", {
       provider: helm,
