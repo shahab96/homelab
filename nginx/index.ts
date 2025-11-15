@@ -3,6 +3,8 @@ import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
 
+import { NixCache } from "./nix-cache";
+
 type NginxOptions = {
   provider: HelmProvider;
   name: string;
@@ -23,6 +25,12 @@ export class Nginx extends Construct {
           encoding: "utf8",
         }),
       ],
+    });
+
+    new NixCache(this, "nix-cache", {
+      namespace: options.namespace,
+      host: "nix.dogar.dev",
+      ingressClassName: "nginx-internal",
     });
   }
 }

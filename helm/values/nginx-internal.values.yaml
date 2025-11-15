@@ -1,4 +1,7 @@
 controller:
+  replicaCount: 3
+  nodeSelector:
+    nodepool: worker
   ingressClassResource:
     name: nginx-internal
     enabled: true
@@ -9,8 +12,31 @@ controller:
   service:
     annotations:
       external-dns.alpha.kubernetes.io/hostname: "dogar.dev"
+  extraVolumes:
+    - name: nix-cache
+      persistentVolumeClaim:
+        claimName: nix-cache
+  extraVolumeMounts:
+    - name: nix-cache
+      mountPath: /var/cache/nginx/nix
+  podSecurityContext:
+    fsGroup: 101
+  config:
+    proxy-buffering: "on"
+    proxy-ssl-server-name: "true"
+    http-snippet: |
+      # Persistent on-disk cache; lives on the PVC
+      proxy_cache_path /var/cache/nginx/nix levels=1:2 keys_zone=cachecache:32m max_size=120g inactive=365d use_temp_path=off;
+
+      # Only advertise cacheability for 200/302
+      map $status $cache_header {
+        200     "public";
+        302     "public";
+        default "no-cache";
+      }
 tcp:
   22:       "homelab/gitea-ssh:22"
   25565:    "minecraft/monifactory-server:25565"
   25566:    "minecraft/gtnh-server:25565"
   25567:    "minecraft/tfg-server:25565"
+  25568:    "minecraft/atm10-server:25565"
