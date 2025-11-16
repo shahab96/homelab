@@ -82,6 +82,8 @@ gitea:
       SMTP_ADDR: smtp.protonmail.ch
       SMTP_PORT: 587
       FROM: git@dogar.dev
+    picture:
+      GRAVATAR_SOURCE: gravatar
   oauth:
     - name: "authentik"
       provider: "openidConnect"
