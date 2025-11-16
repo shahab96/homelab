@@ -58,3 +58,18 @@ spec:
       port: 25565
   selector:
     app: atm10-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: star-technology-server
+  namespace: minecraft
+  labels:
+    app: star-technology-server
+spec:
+  type: ClusterIP
+  ports:
+    - name: star-technology
+      port: 25565
+  selector:
+    app: star-technology-server
