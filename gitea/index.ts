@@ -7,6 +7,7 @@ type GiteaServerOptions = {
   provider: HelmProvider;
   name: string;
   namespace: string;
+  r2Endpoint: string;
 };
 
 export class GiteaServer extends Construct {
@@ -18,6 +19,12 @@ export class GiteaServer extends Construct {
       repository: "https://dl.gitea.com/charts",
       chart: "gitea",
       createNamespace: true,
+      set: [
+        {
+          name: "gitea.config.storage.MINIO_ENDPOINT",
+          value: options.r2Endpoint,
+        },
+      ],
       values: [
         fs.readFileSync("helm/values/gitea.values.yaml", {
           encoding: "utf8",

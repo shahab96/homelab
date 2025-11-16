@@ -67,8 +67,11 @@ gitea:
       PROVIDER_CONFIG: ""
     queue:
       TYPE: channel
-    lfs:
-      STORAGE_TYPE: local
+    storage:
+      STORAGE_TYPE: minio
+      MINIO_USE_SSL: true
+      MINIO_BUCKET_LOOKUP_STYLE: path
+      MINIO_LOCATION: auto
     service:
       DISABLE_REGISTRATION: true
     oauth2_client:
@@ -78,6 +81,7 @@ gitea:
       PROTOCOL: smtp+starttls
       SMTP_ADDR: smtp.protonmail.ch
       SMTP_PORT: 587
+      FROM: git@dogar.dev
   oauth:
     - name: "authentik"
       provider: "openidConnect"
@@ -85,6 +89,21 @@ gitea:
       autoDiscoverUrl: "https://auth.dogar.dev/application/o/gitea/.well-known/openid-configuration"
       iconUrl: "https://goauthentik.io/img/icon.png"
       scopes: "email profile"
+  livenessProbe:
+    enabled: true
+    scheme: HTTPS
+    tcpSocket:
+      port: http
+  readinessProbe:
+    enabled: true
+    scheme: HTTPS
+    tcpSocket:
+      port: http
+  startupProbe:
+    enabled: true
+    scheme: HTTPS
+    tcpSocket:
+      port: http
   additionalConfigFromEnvs:
     - name: GITEA__MAILER__PASSWD
       valueFrom:
@@ -95,6 +114,16 @@ gitea:
       value: "/tmp/gitea-uploads"
     - name: GITEA__PACKAGES__CHUNKED_UPLOAD_CONCURRENCY
       value: "4"
+    - name: GITEA__STORAGE__MINIO_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: cloudflare-token
+          key: access_key_id
+    - name: GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: cloudflare-token
+          key: secret_access_key
 persistence:
   labels:
     recurring-job.longhorn.io/source: "enabled"

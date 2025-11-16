@@ -21,10 +21,7 @@ import { ExternalDNS } from "./external-dns";
 dotenv.config();
 
 const env = cleanEnv(process.env, {
-  R2_ACCESS_KEY_ID: str(),
-  R2_SECRET_ACCESS_KEY: str(),
   ACCOUNT_ID: str({ desc: "Cloudflare account id." }),
-  BUCKET: str({ desc: "The name of the R2 bucket." }),
 });
 
 const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
@@ -139,6 +136,7 @@ class Homelab extends TerraformStack {
       name: "gitea",
       namespace,
       provider: helm,
+      r2Endpoint: `${env.ACCOUNT_ID}.r2.cloudflarestorage.com`,
     });
 
     gitea.node.addDependency(authentik);
