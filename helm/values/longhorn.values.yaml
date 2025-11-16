@@ -10,11 +10,11 @@ defaultSettings:
   replicaReplenishmentWaitInterval: "600"
   disableSchdedulingOnCordonedNode: "true"
 defaultBackupStore:
-  backupTarget: "s3://longhorn-backups@auto"
+  backupTarget: "s3://longhorn-backups@auto/"
   backupTargetCredentialSecret: cloudflare-token
 metrics:
   serviceMonitor:
-    enabled: false
+    enabled: true
 ingress:
   enabled: true
   ingressClassName: nginx-internal
