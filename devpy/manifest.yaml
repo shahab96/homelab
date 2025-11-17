@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: devpi
+  namespace: homelab
+spec:
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 128Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devpi
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devpi
+  template:
+    metadata:
+      labels:
+        app: devpi
+    spec:
+      containers:
+        - name: devpi
+          image: jonasal/devpi-server:latest
+          env:
+            - name: DEVPI_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: devpi-secret
+                  key: password
+          ports:
+            - containerPort: 3141
+          volumeMounts:
+            - name: data
+              mountPath: /devpi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: devpi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devpi
+  namespace: homelab
+spec:
+  selector:
+    app: devpi
+  ports:
+    - port: 3141
+      targetPort: 3141
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devpi-ingress
+  namespace: homelab
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    cert-manager.io/cluster-issuer: "cloudflare-issuer"
+    cert-manager.io/acme-challenge-type: "dns01"
+    cert-manager.io/private-key-size: "4096"
+spec:
+  ingressClassName: nginx-internal
+  tls:
+    - hosts:
+        - pip.dogar.dev
+      secretName: devpi-tls
+  rules:
+    - host: pip.dogar.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: devpi
+                port:
+                  number: 3141
