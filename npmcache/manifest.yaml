@@ -8,11 +8,6 @@ data:
   config.yaml: |
     storage: /verdaccio/storage
 
-    auth:
-      htpasswd:
-        file: /dev/null
-        max_users: -1
-
     uplinks:
       npmjs:
         url: https://registry.npmjs.org/
@@ -28,7 +23,7 @@ data:
         publish: never
         proxy: npmjs
 
-    logs:
+    log:
       - {type: stdout, format: pretty, level: http}
 ---
 apiVersion: v1
@@ -38,7 +33,7 @@ metadata:
   namespace: homelab
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: longhorn
   resources:
     requests:
@@ -84,6 +79,11 @@ spec:
       containers:
         - name: verdaccio
           image: verdaccio/verdaccio:latest
+          env:
+            - name: VERDACCIO_APP_CONFIG
+              value: /verdaccio/conf/custom.yaml
+            - name: VERDACCIO_PORT
+              value: "4873"
           ports:
             - containerPort: 4873
           volumeMounts:
