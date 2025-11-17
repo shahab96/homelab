@@ -18,7 +18,7 @@ metadata:
   name: devpi
   namespace: homelab
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: devpi
@@ -27,6 +27,28 @@ spec:
       labels:
         app: devpi
     spec:
+      nodeSelector:
+        nodepool: worker
+
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: devpi
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - devpi
+              topologyKey: "kubernetes.io/hostname"
+
       containers:
         - name: devpi
           image: jonasal/devpi-server:latest
@@ -70,6 +92,11 @@ metadata:
     cert-manager.io/cluster-issuer: "cloudflare-issuer"
     cert-manager.io/acme-challenge-type: "dns01"
     cert-manager.io/private-key-size: "4096"
+
+    # NGINX IP-based rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+    nginx.ingress.kubernetes.io/limit-whitelist: "127.0.0.1"
 spec:
   ingressClassName: nginx-internal
   tls:
