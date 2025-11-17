@@ -14,7 +14,7 @@ metadata:
   name: cloudflare-domains-config-non-proxied
   namespace: homelab
 data:
-  DOMAINS: "dogar.dev,git.dogar.dev,nix.dogar.dev,pip.dogar.dev"
+  DOMAINS: "dogar.dev,git.dogar.dev,nix.dogar.dev,pip.dogar.dev,npm.dogar.dev"
   PROXIED: "false"
 ---
 apiVersion: apps/v1

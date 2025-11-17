@@ -129,7 +129,7 @@ metadata:
     nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
     nginx.ingress.kubernetes.io/limit-whitelist: "127.0.0.1"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-internal
   tls:
     - hosts:
         - npm.dogar.dev
