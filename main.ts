@@ -14,6 +14,7 @@ import { AuthentikServer } from "./authentik";
 import { ValkeyCluster } from "./valkey";
 import { CertManager } from "./cert-manager";
 import { Nginx } from "./nginx";
+import { Traefik } from "./traefik";
 import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
 import { ExternalDNS } from "./external-dns";
@@ -72,6 +73,12 @@ class Homelab extends TerraformStack {
       provider: helm,
       namespace,
       name: "nginx-ingress",
+    });
+
+    new Traefik(this, "traefik", {
+      provider: helm,
+      namespace,
+      name: "traefik",
     });
 
     const certManagerApiVersion = "cert-manager.io/v1";
