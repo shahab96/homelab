@@ -15,15 +15,8 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare-issuer
     cert-manager.io/acme-challenge-type: dns01
     cert-manager.io/private-key-size: 4096
-    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-    nginx.ingress.kubernetes.io/proxy-request-buffering: off
-    nginx.ingress.kubernetes.io/proxy-buffering: off
-    nginx.ingress.kubernetes.io/proxy-body-size: 0
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 3600
-    nginx.ingress.kubernetes.io/proxy-send-timeout: 3600
-    nginx.ingress.kubernetes.io/client-body-timeout: 3600
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: 3600
-  className: nginx-internal
+    traefik.io/service.scheme: https
+  className: traefik
   hosts:
     - host: git.dogar.dev
       paths:
