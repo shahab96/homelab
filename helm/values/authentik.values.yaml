@@ -93,11 +93,7 @@ server:
       cert-manager.io/cluster-issuer: cloudflare-issuer
       cert-manager.io/acme-challenge-type: dns01
       cert-manager.io/private-key-size: "4096"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    ingressClassName: nginx-internal
-    https: true
+    ingressClassName: traefik
     hosts:
       - auth.dogar.dev
     tls:
