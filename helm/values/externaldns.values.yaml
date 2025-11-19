@@ -1,12 +1,12 @@
 global:
   security:
-    allowInsecureImages: true # needed for ghcr.io images
+    allowInsecureImages: true # needed for non-official images
 image:
   registry: docker.io
   repository: bitnamilegacy/external-dns
   tag: 0.18.0-debian-12-r1
   pullPolicy: IfNotPresent
-interval: 10s
+interval: 60s
 provider: pihole
 policy: upsert-only
 txtOwnerId: "homelab"
@@ -27,6 +27,7 @@ serviceAccount:
   name: "external-dns"
 ingressClassFilters:
   - nginx-internal
+  - traefik
 metrics:
   enabled: false
   serviceMonitor:
