@@ -2,7 +2,7 @@ grafana:
   enabled: true
   ingress:
     enabled: true
-    ingressClassName: nginx-internal
+    ingressClassName: traefik
     annotations:
       cert-manager.io/cluster-issuer: cloudflare-issuer
       cert-manager.io/acme-challenge-type: dns01
