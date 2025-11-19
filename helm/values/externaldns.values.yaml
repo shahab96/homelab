@@ -6,7 +6,7 @@ image:
   repository: bitnamilegacy/external-dns
   tag: 0.18.0-debian-12-r1
   pullPolicy: IfNotPresent
-interval: 60s
+interval: 10s
 provider: pihole
 policy: upsert-only
 txtOwnerId: "homelab"
