@@ -82,10 +82,24 @@ spec:
       protocol: TCP
   type: ClusterIP
 ---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: devpi
+  namespace: homelab
+spec:
+  ipAllowList:
+    sourceRange:
+      - "127.0.0.1/32"
+      - "10.43.0.0/16"
+  rateLimit:
+    average: 10
+    burst: 50
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: devpi-ingress
+  name: devpi
   namespace: homelab
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
@@ -93,12 +107,10 @@ metadata:
     cert-manager.io/acme-challenge-type: "dns01"
     cert-manager.io/private-key-size: "4096"
 
-    # NGINX IP-based rate limiting
-    nginx.ingress.kubernetes.io/limit-rps: "10"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
-    nginx.ingress.kubernetes.io/limit-whitelist: "127.0.0.1"
+    # Traefik Middleware
+    traefik.io/router.middlewares: "devpi@kubernetescrd"
 spec:
-  ingressClassName: nginx-internal
+  ingressClassName: traefik
   tls:
     - hosts:
         - pip.dogar.dev
