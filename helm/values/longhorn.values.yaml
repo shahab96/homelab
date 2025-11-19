@@ -17,7 +17,7 @@ metrics:
     enabled: true
 ingress:
   enabled: true
-  ingressClassName: nginx-internal
+  ingressClassName: traefik
   host: longhorn.dogar.dev
   tls: true
   tlsSecretName: longhorn-tls
