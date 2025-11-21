@@ -142,7 +142,10 @@ class Homelab extends TerraformStack {
     const gitea = new GiteaServer(this, "gitea-server", {
       name: "gitea",
       namespace,
-      provider: helm,
+      providers: {
+        helm,
+        kubernetes,
+      },
       r2Endpoint: `${env.ACCOUNT_ID}.r2.cloudflarestorage.com`,
     });
 
