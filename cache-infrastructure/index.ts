@@ -1,7 +1,7 @@
 import { Construct } from "constructs";
 import { TerraformStack } from "cdktf";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
-import { NixCache } from "./nixcache";
+import { NixCache } from "./nix";
 
 export class CacheInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {

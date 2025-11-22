@@ -6,7 +6,7 @@ import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import { IngressRoute, LonghornPvc } from "../../utils";
+import { PublicIngressRoute, LonghornPvc } from "../../utils";
 
 export class NixCache extends Construct {
   constructor(scope: Construct, id: string, provider: KubernetesProvider) {
@@ -119,14 +119,13 @@ export class NixCache extends Construct {
       },
     });
 
-    new IngressRoute(this, "ingress-route", {
+    new PublicIngressRoute(this, "ingress-route", {
       provider,
+      name: "nix-cache",
       namespace: "homelab",
       host: "nix.dogar.dev",
       serviceName: "nix-cache",
       servicePort: 80,
-      entryPoints: ["websecure"],
-      tlsSecretName: "nix-cache-tls",
     });
   }
 }
