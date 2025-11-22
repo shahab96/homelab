@@ -1,88 +1,24 @@
 import * as dotenv from "dotenv";
 import { cleanEnv, str } from "envalid";
-import { Construct } from "constructs";
-import { App, TerraformStack, LocalBackend, TerraformOutput } from "cdktf";
-import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
-import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
-import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
-
-import { Longhorn } from "./longhorn";
-import { CertManager } from "./cert-manager";
-import { Traefik } from "./traefik";
-import { MetalLB } from "./metallb";
+import { App, S3Backend, TerraformStack } from "cdktf";
 import { CacheInfrastructure } from "./cache-infrastructure";
 import { UtilityServices } from "./utility-services";
 import { K8SOperators } from "./k8s-operators";
+import { CoreServices } from "./core-services";
 
 dotenv.config();
 
-cleanEnv(process.env, {
+const env = cleanEnv(process.env, {
   ACCOUNT_ID: str({ desc: "Cloudflare account id." }),
   OP_CONNECT_TOKEN: str({ desc: "1Password Connect token." }),
+  ACCESS_KEY: str({ desc: "Access key ID for R2 storage." }),
+  SECRET_KEY: str({ desc: "Secret access key for R2 storage." }),
 });
 
-class CoreServices extends TerraformStack {
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
-
-    const kubernetes = new KubernetesProvider(this, "kubernetes", {
-      configPath: "~/.kube/config",
-    });
-
-    const helm = new HelmProvider(this, "helm", {
-      kubernetes: {
-        configPath: "~/.kube/config",
-      },
-    });
-
-    const namespace = "homelab";
-
-    new NamespaceV1(this, "namespace", {
-      provider: kubernetes,
-      metadata: {
-        name: namespace,
-      },
-    });
-
-    new TerraformOutput(this, "namespace-output", {
-      value: namespace,
-    });
-
-    new Longhorn(this, "longhorn", {
-      name: "longhorn",
-      providers: {
-        kubernetes,
-        helm,
-      },
-    });
-
-    new MetalLB(this, "metallb", {
-      provider: helm,
-      name: "metallb",
-      namespace: "metallb-system",
-    });
-
-    new Traefik(this, "traefik", {
-      provider: helm,
-      namespace,
-      name: "traefik",
-    });
-
-    new CertManager(this, "cert-manager", {
-      certManagerApiVersion: "cert-manager.io/v1",
-      name: "cert-manager",
-      namespace,
-      version: "1.18.2",
-      providers: {
-        kubernetes,
-        helm,
-      },
-    });
-  }
-}
+const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
 const app = new App();
-const coreServices = new CoreServices(app, "homelab");
+const coreServices = new CoreServices(app, "core-services");
 
 const k8sOperators = new K8SOperators(app, "k8s-operators");
 k8sOperators.node.addDependency(coreServices);
@@ -93,24 +29,30 @@ utilityServices.node.addDependency(k8sOperators);
 const caches = new CacheInfrastructure(app, "cache-infrastructure");
 caches.node.addDependency(utilityServices);
 
-new LocalBackend(coreServices, {
-  path: "terraform.tfstate",
-  workspaceDir: ".",
-});
+const deploy: (stack: TerraformStack, key: string) => S3Backend = (
+  stack,
+  key,
+) =>
+  new S3Backend(stack, {
+    bucket: "terraform-state",
+    key: `${key}/terraform.tfstate`,
+    region: "auto",
+    endpoints: {
+      s3: r2Endpoint,
+    },
+    accessKey: env.ACCESS_KEY,
+    secretKey: env.SECRET_KEY,
+    encrypt: true,
+    usePathStyle: true,
+    skipRegionValidation: true,
+    skipCredentialsValidation: true,
+    skipRequestingAccountId: true,
+    skipS3Checksum: true,
+  });
 
-new LocalBackend(caches, {
-  path: "terraform.tfstate",
-  workspaceDir: "./cachestf",
-});
-
-new LocalBackend(utilityServices, {
-  path: "terraform.tfstate",
-  workspaceDir: "./utilityservicestf",
-});
-
-new LocalBackend(k8sOperators, {
-  path: "terraform.tfstate",
-  workspaceDir: "./k8soperatorstf",
-});
+deploy(coreServices, "core-services");
+deploy(utilityServices, "utility-services");
+deploy(k8sOperators, "k8s-operators");
+deploy(caches, "cache-infrastructure");
 
 app.synth();
