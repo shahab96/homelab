@@ -39,8 +39,6 @@ export class CertManager extends Construct {
       ],
     });
 
-    // "apiVersion=v1,kind=Secret,namespace=default,name=sample"
-
     // Self-signed ClusterIssuer for initial CA
     new Manifest(this, "ca-issuer", {
       provider: kubernetes,
@@ -54,9 +52,7 @@ export class CertManager extends Construct {
           selfSigned: {},
         },
       },
-    }).importFrom(
-      `apiVersion=${certManagerApiVersion},kind=ClusterIssuer,name=ca-issuer`,
-    );
+    });
 
     // Self-signed CA Certificate
     new Manifest(this, "selfsigned-ca", {
@@ -83,9 +79,7 @@ export class CertManager extends Construct {
           },
         },
       },
-    }).importFrom(
-      `apiVersion=${certManagerApiVersion},kind=Certificate,name=selfsigned-ca,namespace=${options.namespace}`,
-    );
+    });
 
     // CA-based ClusterIssuer
     new Manifest(this, "cluster-issuer", {
@@ -102,9 +96,7 @@ export class CertManager extends Construct {
           },
         },
       },
-    }).importFrom(
-      `apiVersion=${certManagerApiVersion},kind=ClusterIssuer,name=cluster-issuer`,
-    );
+    });
 
     // Cloudflare ACME ClusterIssuer
     new Manifest(this, "cloudflare-issuer", {
@@ -137,8 +129,6 @@ export class CertManager extends Construct {
           },
         },
       },
-    }).importFrom(
-      `apiVersion=${certManagerApiVersion},kind=ClusterIssuer,name=cloudflare-issuer`,
-    );
+    });
   }
 }
