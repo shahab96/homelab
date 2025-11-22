@@ -8,14 +8,23 @@ import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
 import { PublicIngressRoute, LonghornPvc } from "../../utils";
 
+type NixCacheOptions = {
+  provider: KubernetesProvider;
+  name: string;
+  namespace: string;
+  host: string;
+};
+
 export class NixCache extends Construct {
-  constructor(scope: Construct, id: string, provider: KubernetesProvider) {
+  constructor(scope: Construct, id: string, options: NixCacheOptions) {
     super(scope, id);
+
+    const { provider, name, namespace, host } = options;
 
     const pvc = new LonghornPvc(this, "pvc", {
       provider,
-      name: "nix-cache",
-      namespace: "homelab",
+      name,
+      namespace,
       accessModes: ["ReadWriteMany"],
       size: "64Gi",
     });
@@ -25,11 +34,11 @@ export class NixCache extends Construct {
       "utf-8",
     );
 
-    const configMap = new ConfigMapV1(this, "config-map", {
+    new ConfigMapV1(this, "config", {
       provider,
       metadata: {
-        name: "nix-cache",
-        namespace: "homelab",
+        name,
+        namespace,
       },
       data: {
         "nix-cache.conf": nginxConfig,
@@ -39,12 +48,12 @@ export class NixCache extends Construct {
     new ServiceV1(this, "service", {
       provider,
       metadata: {
-        name: "nix-cache",
-        namespace: "homelab",
+        name,
+        namespace,
       },
       spec: {
         selector: {
-          app: "nix-cache",
+          app: name,
         },
         port: [
           {
@@ -60,20 +69,20 @@ export class NixCache extends Construct {
     new DeploymentV1(this, "deployment", {
       provider,
       metadata: {
-        name: "nix-cache",
-        namespace: "homelab",
+        name,
+        namespace,
       },
       spec: {
         replicas: "3",
         selector: {
           matchLabels: {
-            app: "nix-cache",
+            app: name,
           },
         },
         template: {
           metadata: {
             labels: {
-              app: "nix-cache",
+              app: name,
             },
           },
           spec: {
@@ -104,7 +113,7 @@ export class NixCache extends Construct {
               {
                 name: "nginx-config",
                 configMap: {
-                  name: configMap.metadata.name,
+                  name,
                   items: [
                     {
                       key: "nix-cache.conf",
@@ -121,10 +130,10 @@ export class NixCache extends Construct {
 
     new PublicIngressRoute(this, "ingress-route", {
       provider,
-      name: "nix-cache",
-      namespace: "homelab",
-      host: "nix.dogar.dev",
-      serviceName: "nix-cache",
+      name,
+      namespace,
+      host,
+      serviceName: name,
       servicePort: 80,
     });
   }
