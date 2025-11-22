@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-export interface CertificateOptions {
+type CertificateOptions = {
   provider: KubernetesProvider;
 
   /** Namespace to create the Certificate in */
@@ -28,7 +28,7 @@ export interface CertificateOptions {
 
   /** Optional renewBefore (default: cert-manager default) */
   renewBefore?: string;
-}
+};
 
 class Certificate extends Construct {
   public readonly manifest: Manifest;

@@ -4,7 +4,7 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 import { CloudflareCertificate } from "../cert-manager";
 
-export interface IngressRouteOptions {
+type IngressRouteOptions = {
   provider: KubernetesProvider;
   namespace: string;
 
@@ -29,7 +29,7 @@ export interface IngressRouteOptions {
 
   /** Name override (otherwise auto) */
   name?: string;
-}
+};
 
 export class IngressRoute extends Construct {
   public readonly manifest: Manifest;

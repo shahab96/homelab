@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-export interface IngressRouteTcpOptions {
+type IngressRouteTcpOptions = {
   provider: KubernetesProvider;
 
   /** Namespace where the IngressRouteTCP will be created */
@@ -25,7 +25,7 @@ export interface IngressRouteTcpOptions {
 
   /** Name override (CR name) */
   name?: string;
-}
+};
 
 export class IngressRouteTcp extends Construct {
   public readonly manifest: Manifest;
