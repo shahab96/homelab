@@ -34,7 +34,6 @@ export class PipCache extends Construct {
       namespace,
       name,
       size: "128Gi",
-      accessModes: ["ReadWriteMany"],
     });
 
     new DeploymentV1(this, "deployment", {
@@ -44,7 +43,7 @@ export class PipCache extends Construct {
         namespace,
       },
       spec: {
-        replicas: "3",
+        replicas: "1",
         selector: {
           matchLabels: {
             app: name,
@@ -59,40 +58,6 @@ export class PipCache extends Construct {
           spec: {
             nodeSelector: {
               nodepool: "worker",
-            },
-            topologySpreadConstraint: [
-              {
-                maxSkew: 1,
-                topologyKey: "kubernetes.io/hostname",
-                whenUnsatisfiable: "ScheduleAnyway",
-                labelSelector: [
-                  {
-                    matchLabels: {
-                      app: name,
-                    },
-                  },
-                ],
-              },
-            ],
-            affinity: {
-              podAntiAffinity: {
-                requiredDuringSchedulingIgnoredDuringExecution: [
-                  {
-                    topologyKey: "kubernetes.io/hostname",
-                    labelSelector: [
-                      {
-                        matchExpressions: [
-                          {
-                            key: "app",
-                            operator: "In",
-                            values: [name],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
             },
             volume: [
               {
