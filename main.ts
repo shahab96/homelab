@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { cleanEnv, str } from "envalid";
 import { Construct } from "constructs";
-import { App, TerraformStack, LocalBackend } from "cdktf";
+import { App, TerraformStack, LocalBackend, PgBackend } from "cdktf";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
@@ -13,16 +13,18 @@ import { Longhorn } from "./longhorn";
 import { AuthentikServer } from "./authentik";
 import { ValkeyCluster } from "./valkey";
 import { CertManager } from "./cert-manager";
-import { Nginx } from "./nginx";
 import { Traefik } from "./traefik";
 import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
-import { ExternalDNS } from "./external-dns";
+import { NixCache } from "./nixcache";
 
 dotenv.config();
 
 const env = cleanEnv(process.env, {
   ACCOUNT_ID: str({ desc: "Cloudflare account id." }),
+  PG_CONN_STR: str({
+    desc: "PostgreSQL connection string for Terraform state backend.",
+  }),
 });
 
 const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
@@ -69,12 +71,6 @@ class Homelab extends TerraformStack {
       namespace,
     });
 
-    const nginx = new Nginx(this, "nginx", {
-      provider: helm,
-      namespace,
-      name: "nginx-ingress",
-    });
-
     new Traefik(this, "traefik", {
       provider: helm,
       namespace,
@@ -83,7 +79,7 @@ class Homelab extends TerraformStack {
 
     const certManagerApiVersion = "cert-manager.io/v1";
 
-    const cm = new CertManager(this, "cert-manager", {
+    new CertManager(this, "cert-manager", {
       certManagerApiVersion,
       name: "cert-manager",
       namespace,
@@ -93,15 +89,6 @@ class Homelab extends TerraformStack {
         helm,
       },
     });
-
-    const externalDNS = new ExternalDNS(this, "external-dns", {
-      namespace,
-      provider: helm,
-      name: "external-dns",
-    });
-
-    externalDNS.node.addDependency(nginx);
-    externalDNS.node.addDependency(cm);
 
     new Prometheus(this, "prometheus", {
       provider: helm,
@@ -154,11 +141,19 @@ class Homelab extends TerraformStack {
 }
 
 const app = new App();
-const stack = new Homelab(app, "homelab");
+const homelab = new Homelab(app, "homelab");
 
-new LocalBackend(stack, {
+const nixCache = new NixCache(app, "nix-cache");
+nixCache.node.addDependency(homelab);
+
+new LocalBackend(homelab, {
   path: "terraform.tfstate",
   workspaceDir: ".",
+});
+
+new PgBackend(nixCache, {
+  schemaName: "nix_cache",
+  connStr: env.PG_CONN_STR,
 });
 
 app.synth();
