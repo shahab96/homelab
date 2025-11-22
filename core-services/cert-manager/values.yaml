@@ -1,6 +1,6 @@
 crds:
   enabled: true
 prometheus:
-  enabled: false
+  enabled: true
 webhook:
   timeoutSeconds: 4

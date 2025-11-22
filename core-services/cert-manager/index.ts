@@ -1,11 +1,10 @@
 import * as fs from "fs";
+import * as path from "path";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
-
-export { CloudflareCertificate } from "./certificate";
 
 type CertManagerOptions = {
   providers: {
@@ -34,11 +33,13 @@ export class CertManager extends Construct {
       chart: "cert-manager",
       createNamespace: true,
       values: [
-        fs.readFileSync("helm/values/cert-manager.values.yaml", {
+        fs.readFileSync(path.join(__dirname, "values.yaml"), {
           encoding: "utf8",
         }),
       ],
     });
+
+    // "apiVersion=v1,kind=Secret,namespace=default,name=sample"
 
     // Self-signed ClusterIssuer for initial CA
     new Manifest(this, "ca-issuer", {
@@ -53,7 +54,9 @@ export class CertManager extends Construct {
           selfSigned: {},
         },
       },
-    });
+    }).importFrom(
+      `apiVersion=${certManagerApiVersion},kind=ClusterIssuer,name=ca-issuer`,
+    );
 
     // Self-signed CA Certificate
     new Manifest(this, "selfsigned-ca", {
@@ -80,7 +83,9 @@ export class CertManager extends Construct {
           },
         },
       },
-    });
+    }).importFrom(
+      `apiVersion=${certManagerApiVersion},kind=Certificate,name=selfsigned-ca,namespace=${options.namespace}`,
+    );
 
     // CA-based ClusterIssuer
     new Manifest(this, "cluster-issuer", {
@@ -97,7 +102,9 @@ export class CertManager extends Construct {
           },
         },
       },
-    });
+    }).importFrom(
+      `apiVersion=${certManagerApiVersion},kind=ClusterIssuer,name=cluster-issuer`,
+    );
 
     // Cloudflare ACME ClusterIssuer
     new Manifest(this, "cloudflare-issuer", {
@@ -130,6 +137,8 @@ export class CertManager extends Construct {
           },
         },
       },
-    });
+    }).importFrom(
+      `apiVersion=${certManagerApiVersion},kind=ClusterIssuer,name=cloudflare-issuer`,
+    );
   }
 }
