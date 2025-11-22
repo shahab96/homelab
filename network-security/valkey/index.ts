@@ -60,9 +60,22 @@ export class ValkeyCluster extends Construct {
                       },
                     },
                   },
+                  {
+                    name: "SHAHAB_PASSWORD",
+                    valueFrom: {
+                      secretKeyRef: { name: "valkey", key: "password" },
+                    },
+                  },
                 ],
                 command: ["/bin/sh", "-c"],
-                args: ['exec valkey-server --requirepass "$PASSWORD"'],
+                args: [
+                  `
+                  valkey-server --requirepass "$PASSWORD" &
+                  sleep 2
+                  valkey-cli -a "$PASSWORD" ACL SETUSER shahab on ">$SHAHAB_PASSWORD" allcommands allkeys
+                  wait
+                  `,
+                ],
                 readinessProbe: {
                   tcpSocket: [
                     {
