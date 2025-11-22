@@ -1,33 +1,23 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Construct } from "constructs";
-import { PersistentVolumeClaimV1 } from "@cdktf/provider-kubernetes/lib/persistent-volume-claim-v1";
 import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
-
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
-import { IngressRoute } from "../../utils";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
+import { IngressRoute, LonghornPvc } from "../../utils";
+
 export class NixCache extends Construct {
-  constructor(scope: Construct, id: string, kubernetes: KubernetesProvider) {
+  constructor(scope: Construct, id: string, provider: KubernetesProvider) {
     super(scope, id);
 
-    const pvc = new PersistentVolumeClaimV1(this, "pvc", {
-      provider: kubernetes,
-      metadata: {
-        name: "nix-cache",
-        namespace: "homelab",
-      },
-      spec: {
-        storageClassName: "longhorn",
-        accessModes: ["ReadWriteMany"],
-        resources: {
-          requests: {
-            storage: "64Gi",
-          },
-        },
-      },
+    const pvc = new LonghornPvc(this, "pvc", {
+      provider,
+      name: "nix-cache",
+      namespace: "homelab",
+      accessModes: ["ReadWriteMany"],
+      size: "64Gi",
     });
 
     const nginxConfig = fs.readFileSync(
@@ -36,7 +26,7 @@ export class NixCache extends Construct {
     );
 
     const configMap = new ConfigMapV1(this, "config-map", {
-      provider: kubernetes,
+      provider,
       metadata: {
         name: "nix-cache",
         namespace: "homelab",
@@ -47,7 +37,7 @@ export class NixCache extends Construct {
     });
 
     new ServiceV1(this, "service", {
-      provider: kubernetes,
+      provider,
       metadata: {
         name: "nix-cache",
         namespace: "homelab",
@@ -68,7 +58,7 @@ export class NixCache extends Construct {
     });
 
     new DeploymentV1(this, "deployment", {
-      provider: kubernetes,
+      provider,
       metadata: {
         name: "nix-cache",
         namespace: "homelab",
@@ -108,7 +98,7 @@ export class NixCache extends Construct {
               {
                 name: "cache",
                 persistentVolumeClaim: {
-                  claimName: pvc.metadata.name,
+                  claimName: pvc.name,
                 },
               },
               {
@@ -130,7 +120,7 @@ export class NixCache extends Construct {
     });
 
     new IngressRoute(this, "ingress-route", {
-      provider: kubernetes,
+      provider,
       namespace: "homelab",
       host: "nix.dogar.dev",
       serviceName: "nix-cache",
