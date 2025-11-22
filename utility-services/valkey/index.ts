@@ -2,6 +2,7 @@ import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 import { Construct } from "constructs";
+import { OnePasswordSecret } from "../../utils";
 
 type ValkeyClusterOptions = {
   provider: KubernetesProvider;
@@ -16,6 +17,13 @@ export class ValkeyCluster extends Construct {
     // Labels used by both Deployment and Service
     const labels = { app: "valkey" };
     const { provider, name, namespace } = options;
+
+    new OnePasswordSecret(this, "valkey-secret", {
+      provider,
+      name: "valkey",
+      namespace,
+      itemPath: "vaults/Lab/items/valkey",
+    });
 
     new DeploymentV1(this, "valkey-deployment", {
       provider,

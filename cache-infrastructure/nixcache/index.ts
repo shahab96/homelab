@@ -1,22 +1,17 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Construct } from "constructs";
-import { TerraformStack } from "cdktf";
 import { PersistentVolumeClaimV1 } from "@cdktf/provider-kubernetes/lib/persistent-volume-claim-v1";
 import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
 
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
-import { TraefikIngressRoute } from "../traefik/ingress-route";
+import { IngressRoute } from "../../utils";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-export class NixCache extends TerraformStack {
-  constructor(scope: Construct, id: string) {
+export class NixCache extends Construct {
+  constructor(scope: Construct, id: string, kubernetes: KubernetesProvider) {
     super(scope, id);
-
-    const kubernetes = new KubernetesProvider(this, "kubernetes", {
-      configPath: "~/.kube/config",
-    });
 
     const pvc = new PersistentVolumeClaimV1(this, "pvc", {
       provider: kubernetes,
@@ -134,7 +129,7 @@ export class NixCache extends TerraformStack {
       },
     });
 
-    new TraefikIngressRoute(this, "ingress-route", {
+    new IngressRoute(this, "ingress-route", {
       provider: kubernetes,
       namespace: "homelab",
       host: "nix.dogar.dev",

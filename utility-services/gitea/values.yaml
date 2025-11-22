@@ -1,0 +1,161 @@
+global:
+  storageClass: longhorn
+image:
+  rootless: false
+service:
+  http:
+    annotations:
+      metallb.universe.tf/allow-shared-ip: gitea
+  ssh:
+    annotations:
+      metallb.universe.tf/allow-shared-ip: gitea
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-issuer
+    cert-manager.io/acme-challenge-type: dns01
+    cert-manager.io/private-key-size: 4096
+  className: traefik
+  hosts:
+    - host: git.dogar.dev
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gitea-tls
+      hosts:
+        - git.dogar.dev
+gitea:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "6060"
+  admin:
+    existingSecret: gitea-admin
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  config:
+    server:
+      ENABLE_PPROF: true
+      ENABLE_GZIP: true
+      LFS_START_SERVER: true
+      SSH_DOMAIN: git.dogar.dev
+    database:
+      DB_TYPE: postgres
+      HOST: postgres-cluster-rw
+      NAME: gitea
+      USER: gitea
+      SSL_MODE: verify-full
+    metrics:
+      ENABLED: true
+    cache:
+      ADAPTER: memory
+    session:
+      PROVIDER: db
+      PROVIDER_CONFIG: ""
+    queue:
+      TYPE: channel
+    storage:
+      STORAGE_TYPE: minio
+      MINIO_USE_SSL: true
+      MINIO_BUCKET_LOOKUP_STYLE: path
+      MINIO_LOCATION: auto
+    service:
+      DISABLE_REGISTRATION: true
+    oauth2_client:
+      ENABLE_AUTO_REGISTRATION: true
+    mailer:
+      ENABLED: true
+      PROTOCOL: smtp+starttls
+      SMTP_ADDR: smtp.protonmail.ch
+      SMTP_PORT: 587
+      FROM: git@dogar.dev
+    picture:
+      GRAVATAR_SOURCE: gravatar
+  oauth:
+    - name: "authentik"
+      provider: "openidConnect"
+      existingSecret: gitea-oauth
+      autoDiscoverUrl: "https://auth.dogar.dev/application/o/gitea/.well-known/openid-configuration"
+      iconUrl: "https://goauthentik.io/img/icon.png"
+      scopes: "email profile"
+  additionalConfigFromEnvs:
+    - name: GITEA__MAILER__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: gitea-smtp-token
+          key: gitea-password
+    - name: GITEA__PACKAGES__CHUNKED_UPLOAD_PATH
+      value: "/tmp/gitea-uploads"
+    - name: GITEA__PACKAGES__CHUNKED_UPLOAD_CONCURRENCY
+      value: "4"
+    - name: GITEA__STORAGE__MINIO_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: gitea-cloudflare-token
+          key: access_key_id
+    - name: GITEA__STORAGE__MINIO_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: gitea-cloudflare-token
+          key: secret_access_key
+persistence:
+  labels:
+    recurring-job.longhorn.io/source: "enabled"
+    recurring-job.longhorn.io/daily-backup: "enabled"
+  enabled: true
+  size: 50Gi
+  accessModes:
+    - ReadWriteMany
+deployment:
+  env:
+    - name: PGSSLMODE
+      value: verify-full
+    - name: PGSSLROOTCERT
+      value: /opt/gitea/.postgresql/root.crt
+    - name: PGSSLCERT
+      value: /opt/gitea/.postgresql/postgresql.crt
+    - name: PGSSLKEY
+      value: /opt/gitea/.postgresql/postgresql.key
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 6
+    memory: 6Gi
+extraVolumes:
+  - name: ssl-bundle
+    projected:
+      sources:
+        - secret:
+            name: gitea-client-cert
+            items:
+              - key: tls.crt
+                path: postgresql.crt
+              - key: tls.key
+                path: postgresql.key
+                mode: 0600
+        - secret:
+            name: postgres-server-cert
+            items:
+              - key: ca.crt
+                path: root.crt
+  - name: gitea-temp
+    emptyDir: {}
+extraInitVolumeMounts:
+  - name: ssl-bundle
+    mountPath: /opt/gitea/.postgresql
+    readOnly: true
+extraContainerVolumeMounts:
+  - name: ssl-bundle
+    mountPath: /opt/gitea/.postgresql
+    readOnly: true
+    readOnly: true
+  - name: gitea-temp
+    mountPath: /tmp/gitea-uploads
+postgresql-ha:
+  enabled: false
+valkey-cluster:
+  enabled: false

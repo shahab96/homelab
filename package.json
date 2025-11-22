@@ -23,16 +23,17 @@
     "upgrade:next": "npm i cdktf@next cdktf-cli@next"
   },
   "dependencies": {
-    "@cdktf/provider-helm": "10.5.0",
-    "@cdktf/provider-kubernetes": "11.12.1",
-    "cdktf": "^0.20.12",
-    "constructs": "^10.4.2",
-    "dotenv": "^16.5.0",
-    "envalid": "^8.0.0"
+    "@cdktf/provider-helm": "12.1.1",
+    "@cdktf/provider-kubernetes": "12.1.0",
+    "@cdktf/provider-null": "^11.0.0",
+    "cdktf": "^0.21.0",
+    "constructs": "^10.4.3",
+    "dotenv": "^17.2.3",
+    "envalid": "^8.1.1"
   },
   "devDependencies": {
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.10.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   }
 }

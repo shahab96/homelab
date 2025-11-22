@@ -1,6 +1,7 @@
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { Construct } from "constructs";
+import { OnePasswordSecret } from "../../utils";
 
 type PostgresClusterOptions = {
   provider: KubernetesProvider;
@@ -29,15 +30,15 @@ export class PostgresCluster extends Construct {
       endpointURL,
       s3Credentials: {
         accessKeyId: {
-          name: "cloudflare-token",
+          name: "barman-cloudflare-token",
           key: "access_key_id",
         },
         secretAccessKey: {
-          name: "cloudflare-token",
+          name: "barman-cloudflare-token",
           key: "secret_access_key",
         },
         region: {
-          name: "cloudflare-token",
+          name: "barman-cloudflare-token",
           key: "AWS_REGION",
         },
       },
@@ -48,6 +49,13 @@ export class PostgresCluster extends Construct {
         compression: "gzip",
       },
     };
+
+    new OnePasswordSecret(this, "barman-cloudflare-token", {
+      provider: options.provider,
+      name: "barman-cloudflare-token",
+      namespace: options.namespace,
+      itemPath: "vaults/Lab/items/cloudflare",
+    });
 
     new Manifest(this, "r2-backup-store", {
       provider,
@@ -383,10 +391,6 @@ export class PostgresCluster extends Construct {
                     metadata: {
                       name: "postgres-cluster",
                       superuser: true,
-                      annotations: {
-                        "external-dns.alpha.kubernetes.io/hostname":
-                          "postgres.dogar.dev",
-                      },
                     },
                     spec: {
                       type: "LoadBalancer",

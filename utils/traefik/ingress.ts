@@ -4,7 +4,7 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 import { CloudflareCertificate } from "../cert-manager";
 
-export interface TraefikIngressRouteOptions {
+export interface IngressRouteOptions {
   provider: KubernetesProvider;
   namespace: string;
 
@@ -31,10 +31,10 @@ export interface TraefikIngressRouteOptions {
   name?: string;
 }
 
-export class TraefikIngressRoute extends Construct {
+export class IngressRoute extends Construct {
   public readonly manifest: Manifest;
 
-  constructor(scope: Construct, id: string, opts: TraefikIngressRouteOptions) {
+  constructor(scope: Construct, id: string, opts: IngressRouteOptions) {
     super(scope, id);
 
     const name = opts.name ?? `route-${opts.host.replace(/\./g, "-")}`;

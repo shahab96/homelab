@@ -1,35 +1,27 @@
 import * as dotenv from "dotenv";
 import { cleanEnv, str } from "envalid";
 import { Construct } from "constructs";
-import { App, TerraformStack, LocalBackend, PgBackend } from "cdktf";
+import { App, TerraformStack, LocalBackend, TerraformOutput } from "cdktf";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 
-import { GiteaServer } from "./gitea";
-import { OnePassword } from "./1password";
-import { PostgresCluster } from "./postgres";
 import { Longhorn } from "./longhorn";
-import { AuthentikServer } from "./authentik";
-import { ValkeyCluster } from "./valkey";
 import { CertManager } from "./cert-manager";
 import { Traefik } from "./traefik";
-import { Prometheus } from "./prometheus";
 import { MetalLB } from "./metallb";
-import { NixCache } from "./nixcache";
+import { CacheInfrastructure } from "./cache-infrastructure";
+import { UtilityServices } from "./utility-services";
+import { K8SOperators } from "./k8s-operators";
 
 dotenv.config();
 
-const env = cleanEnv(process.env, {
+cleanEnv(process.env, {
   ACCOUNT_ID: str({ desc: "Cloudflare account id." }),
-  PG_CONN_STR: str({
-    desc: "PostgreSQL connection string for Terraform state backend.",
-  }),
+  OP_CONNECT_TOKEN: str({ desc: "1Password Connect token." }),
 });
 
-const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
-
-class Homelab extends TerraformStack {
+class CoreServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
@@ -52,6 +44,10 @@ class Homelab extends TerraformStack {
       },
     });
 
+    new TerraformOutput(this, "namespace-output", {
+      value: namespace,
+    });
+
     new Longhorn(this, "longhorn", {
       name: "longhorn",
       providers: {
@@ -66,21 +62,14 @@ class Homelab extends TerraformStack {
       namespace: "metallb-system",
     });
 
-    new OnePassword(this, "one-password", {
-      provider: kubernetes,
-      namespace,
-    });
-
     new Traefik(this, "traefik", {
       provider: helm,
       namespace,
       name: "traefik",
     });
 
-    const certManagerApiVersion = "cert-manager.io/v1";
-
     new CertManager(this, "cert-manager", {
-      certManagerApiVersion,
+      certManagerApiVersion: "cert-manager.io/v1",
       name: "cert-manager",
       namespace,
       version: "1.18.2",
@@ -89,71 +78,39 @@ class Homelab extends TerraformStack {
         helm,
       },
     });
-
-    new Prometheus(this, "prometheus", {
-      provider: helm,
-      namespace,
-      name: "prometheus-operator",
-      version: "75.10.0",
-    });
-
-    const pg = new PostgresCluster(this, "postgres-cluster", {
-      certManagerApiVersion,
-      name: "postgres-cluster",
-      namespace,
-      providers: {
-        kubernetes,
-        helm,
-      },
-      users: ["shahab", "budget-tracker", "authentik", "gitea"],
-      primaryUser: "shahab",
-      initSecretName: "postgres-password",
-      backupR2EndpointURL: r2Endpoint,
-    });
-
-    const valkey = new ValkeyCluster(this, "valkey-cluster", {
-      provider: kubernetes,
-      namespace,
-      name: "valkey",
-    });
-
-    const authentik = new AuthentikServer(this, "authentik-server", {
-      provider: helm,
-      name: "authentik",
-      namespace,
-    });
-
-    authentik.node.addDependency(pg);
-    authentik.node.addDependency(valkey);
-
-    const gitea = new GiteaServer(this, "gitea-server", {
-      name: "gitea",
-      namespace,
-      providers: {
-        helm,
-        kubernetes,
-      },
-      r2Endpoint: `${env.ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    });
-
-    gitea.node.addDependency(authentik);
   }
 }
 
 const app = new App();
-const homelab = new Homelab(app, "homelab");
+const coreServices = new CoreServices(app, "homelab");
 
-const nixCache = new NixCache(app, "nix-cache");
-nixCache.node.addDependency(homelab);
+const k8sOperators = new K8SOperators(app, "k8s-operators");
+k8sOperators.node.addDependency(coreServices);
 
-new LocalBackend(homelab, {
+const utilityServices = new UtilityServices(app, "utility-services");
+utilityServices.node.addDependency(k8sOperators);
+
+const caches = new CacheInfrastructure(app, "cache-infrastructure");
+caches.node.addDependency(utilityServices);
+
+new LocalBackend(coreServices, {
   path: "terraform.tfstate",
   workspaceDir: ".",
 });
 
-new PgBackend(nixCache, {
-  schemaName: "nix_cache",
-  connStr: env.PG_CONN_STR,
+new LocalBackend(caches, {
+  path: "terraform.tfstate",
+  workspaceDir: "./cachestf",
+});
+
+new LocalBackend(utilityServices, {
+  path: "terraform.tfstate",
+  workspaceDir: "./utilityservicestf",
+});
+
+new LocalBackend(k8sOperators, {
+  path: "terraform.tfstate",
+  workspaceDir: "./k8soperatorstf",
 });
 
 app.synth();
