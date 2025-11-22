@@ -4,6 +4,13 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 type IngressRouteTcpOptions = {
   provider: KubernetesProvider;
+  name: string;
+
+  /**
+   * Match rule.
+   * Default is `HostSNI(\`*\`)` which is correct for most TCP services.
+   */
+  match: string;
 
   /** Namespace where the IngressRouteTCP will be created */
   namespace: string;
@@ -16,15 +23,6 @@ type IngressRouteTcpOptions = {
 
   /** Backend service port */
   servicePort: number;
-
-  /**
-   * Match rule.
-   * Default is `HostSNI(\`*\`)` which is correct for most TCP services.
-   */
-  match?: string;
-
-  /** Name override (CR name) */
-  name?: string;
 };
 
 export class IngressRouteTcp extends Construct {
@@ -33,14 +31,7 @@ export class IngressRouteTcp extends Construct {
   constructor(scope: Construct, id: string, opts: IngressRouteTcpOptions) {
     super(scope, id);
 
-    const name =
-      opts.name ??
-      `tcp-${opts.entryPoint}-${opts.serviceName}`.replace(
-        /[^a-zA-Z0-9-]/g,
-        "",
-      );
-
-    const matchRule = opts.match ?? "HostSNI(`*`)";
+    const { name, match } = opts;
 
     this.manifest = new Manifest(this, name, {
       provider: opts.provider,
@@ -55,7 +46,7 @@ export class IngressRouteTcp extends Construct {
           entryPoints: [opts.entryPoint],
           routes: [
             {
-              match: matchRule,
+              match,
               services: [
                 {
                   name: opts.serviceName,

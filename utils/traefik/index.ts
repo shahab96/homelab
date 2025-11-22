@@ -1,2 +1,2 @@
-export { IngressRoute } from "./ingress";
-export { IngressRouteTcp } from "./ingress-tcp";
+export { PublicIngressRoute, InternalIngressRoute } from "./ingress";
+export { IngressRouteTcp } from "./ingressTCP";

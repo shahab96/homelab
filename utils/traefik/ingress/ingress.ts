@@ -2,11 +2,12 @@ import { Construct } from "constructs";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-import { CloudflareCertificate } from "../cert-manager";
+import { CloudflareCertificate } from "../../cert-manager";
 
-type IngressRouteOptions = {
+export type IngressRouteOptions = {
   provider: KubernetesProvider;
   namespace: string;
+  name: string;
 
   /** Hostname for this route (e.g. npm.dogar.dev) */
   host: string;
@@ -26,9 +27,6 @@ type IngressRouteOptions = {
 
   /** Extra middlewares (traefik format: namespace/name) */
   middlewares?: string[];
-
-  /** Name override (otherwise auto) */
-  name?: string;
 };
 
 export class IngressRoute extends Construct {
@@ -37,7 +35,7 @@ export class IngressRoute extends Construct {
   constructor(scope: Construct, id: string, opts: IngressRouteOptions) {
     super(scope, id);
 
-    const name = opts.name ?? `route-${opts.host.replace(/\./g, "-")}`;
+    const name = opts.name;
     const path = opts.path ?? "/";
     const entryPoints = opts.entryPoints ?? ["websecure"];
 
