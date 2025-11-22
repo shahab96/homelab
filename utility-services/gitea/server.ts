@@ -1,18 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
-import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
-import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-import { OnePasswordSecret } from "../../utils";
-import { IngressRoute, IngressRouteTcp } from "../../utils/traefik";
+import { OnePasswordSecret, IngressRoute, IngressRouteTcp } from "../../utils";
+import type { Providers } from "../../types";
 
 type GiteaServerOptions = {
-  providers: {
-    helm: HelmProvider;
-    kubernetes: KubernetesProvider;
-  };
+  providers: Providers;
   name: string;
   namespace: string;
   r2Endpoint: string;

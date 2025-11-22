@@ -5,7 +5,7 @@ import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 
 import { ValkeyCluster } from "./valkey";
-import { GiteaServer } from "./gitea";
+import { GiteaRunner, GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
@@ -110,5 +110,12 @@ export class UtilityServices extends TerraformStack {
     });
 
     gitea.node.addDependency(authentik);
+
+    new GiteaRunner(this, "gitea-runner", {
+      provider: kubernetes,
+      namespace,
+      name: "gitea-runner",
+      replicas: 3,
+    });
   }
 }
