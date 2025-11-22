@@ -4,7 +4,6 @@ import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 
-import { ValkeyCluster } from "./valkey";
 import { GiteaRunner, GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
@@ -26,24 +25,28 @@ export class UtilityServices extends TerraformStack {
 
     const r2Endpoint = `${process.env.ACCOUNT_ID!}.r2.cloudflarestorage.com`;
 
-    const homelabState = new DataTerraformRemoteStateS3(this, "homelab-state", {
-      usePathStyle: true,
-      skipRegionValidation: true,
-      skipCredentialsValidation: true,
-      skipRequestingAccountId: true,
-      skipS3Checksum: true,
-      encrypt: true,
-      bucket: "terraform-state",
-      key: "core-services/terraform.tfstate",
-      endpoints: {
-        s3: `https://${r2Endpoint}`,
+    const coreServicesState = new DataTerraformRemoteStateS3(
+      this,
+      "core-services-state",
+      {
+        usePathStyle: true,
+        skipRegionValidation: true,
+        skipCredentialsValidation: true,
+        skipRequestingAccountId: true,
+        skipS3Checksum: true,
+        encrypt: true,
+        bucket: "terraform-state",
+        key: "core-services/terraform.tfstate",
+        endpoints: {
+          s3: `https://${r2Endpoint}`,
+        },
+        region: "auto",
+        accessKey: process.env.ACCESS_KEY,
+        secretKey: process.env.SECRET_KEY,
       },
-      region: "auto",
-      accessKey: process.env.ACCESS_KEY,
-      secretKey: process.env.SECRET_KEY,
-    });
+    );
 
-    const namespaceName = homelabState.getString("namespace-output");
+    const namespaceName = coreServicesState.getString("namespace-output");
     const namespaceResource = new DataKubernetesNamespaceV1(
       this,
       "homelab-namespace",
@@ -70,12 +73,6 @@ export class UtilityServices extends TerraformStack {
       ],
     });
 
-    const valkeyCluster = new ValkeyCluster(this, "valkey-cluster", {
-      namespace,
-      provider: kubernetes,
-      name: "valkey",
-    });
-
     const postgres = new PostgresCluster(this, "postgres-cluster", {
       certManagerApiVersion: "cert-manager.io/v1",
       name: "postgres-cluster",
@@ -96,7 +93,6 @@ export class UtilityServices extends TerraformStack {
       namespace,
     });
 
-    authentik.node.addDependency(valkeyCluster);
     authentik.node.addDependency(postgres);
 
     const gitea = new GiteaServer(this, "gitea-server", {

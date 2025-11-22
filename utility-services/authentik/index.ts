@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
-import { IngressRoute, OnePasswordSecret } from "../../utils";
+import { PublicIngressRoute, OnePasswordSecret } from "../../utils";
 import { Providers } from "../../types";
 
 type AuthentikServerOptions = {
@@ -44,14 +44,13 @@ export class AuthentikServer extends Construct {
       ],
     });
 
-    new IngressRoute(this, "ingress", {
+    new PublicIngressRoute(this, "ingress", {
       provider: kubernetes,
       name: options.name,
       namespace: options.namespace,
       host: "auth.dogar.dev",
       serviceName: `authentik-server`,
       servicePort: 80,
-      tlsSecretName: "authentik-tls",
     });
   }
 }

@@ -3,7 +3,11 @@ import * as path from "path";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
 
-import { OnePasswordSecret, IngressRoute, IngressRouteTcp } from "../../utils";
+import {
+  OnePasswordSecret,
+  PublicIngressRoute,
+  IngressRouteTcp,
+} from "../../utils";
 import type { Providers } from "../../types";
 
 type GiteaServerOptions = {
@@ -69,20 +73,20 @@ export class GiteaServer extends Construct {
     new IngressRouteTcp(this, "ssh-ingress", {
       provider: kubernetes,
       namespace: options.namespace,
+      name: options.name,
+      match: "HostSNI(`*`)",
       entryPoint: "ssh",
       serviceName: `${options.name}-ssh`,
       servicePort: 22,
     });
 
-    new IngressRoute(this, "http-ingress", {
+    new PublicIngressRoute(this, "http-ingress", {
       provider: kubernetes,
       namespace: options.namespace,
       name: options.name,
-      entryPoints: ["websecure"],
       host: "git.dogar.dev",
       serviceName: `${options.name}-http`,
       servicePort: 3000,
-      tlsSecretName: `${options.name}-tls`,
     });
   }
 }
