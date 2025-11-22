@@ -1,14 +1,14 @@
-import * as path from "path";
 import { DataKubernetesNamespaceV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-namespace-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
-import { DataTerraformRemoteStateLocal, TerraformStack } from "cdktf";
+import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 
 import { ValkeyCluster } from "./valkey";
 import { GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
+import { DynamicDNS } from "./dynamic-dns";
 
 export class UtilityServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -24,16 +24,24 @@ export class UtilityServices extends TerraformStack {
       },
     });
 
-    const homelabState = new DataTerraformRemoteStateLocal(
-      this,
-      "homelab-state",
-      {
-        path: path.join(
-          __dirname,
-          "../cdktf.out/stacks/homelab/terraform.tfstate",
-        ),
+    const r2Endpoint = `${process.env.ACCOUNT_ID!}.r2.cloudflarestorage.com`;
+
+    const homelabState = new DataTerraformRemoteStateS3(this, "homelab-state", {
+      usePathStyle: true,
+      skipRegionValidation: true,
+      skipCredentialsValidation: true,
+      skipRequestingAccountId: true,
+      skipS3Checksum: true,
+      encrypt: true,
+      bucket: "terraform-state",
+      key: "core-services/terraform.tfstate",
+      endpoints: {
+        s3: `https://${r2Endpoint}`,
       },
-    );
+      region: "auto",
+      accessKey: process.env.ACCESS_KEY,
+      secretKey: process.env.SECRET_KEY,
+    });
 
     const namespaceName = homelabState.getString("namespace-output");
     const namespaceResource = new DataKubernetesNamespaceV1(
@@ -48,7 +56,19 @@ export class UtilityServices extends TerraformStack {
     );
     const namespace = namespaceResource.metadata.name;
 
-    const r2Endpoint = `${process.env.ACCOUNT_ID!}.r2.cloudflarestorage.com`;
+    new DynamicDNS(this, "dynamic-dns", {
+      provider: kubernetes,
+      namespace,
+      name: "cloudflare-ddns",
+      records: [
+        "dogar.dev",
+        "auth.dogar.dev",
+        "git.dogar.dev",
+        "nix.dogar.dev",
+        "pip.dogar.dev",
+        "npm.dogar.dev",
+      ],
+    });
 
     const valkeyCluster = new ValkeyCluster(this, "valkey-cluster", {
       namespace,
