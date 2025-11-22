@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
@@ -19,7 +20,7 @@ export class Traefik extends Construct {
       chart: "traefik",
       createNamespace: true,
       values: [
-        fs.readFileSync("helm/values/traefik.values.yaml", {
+        fs.readFileSync(path.join(__dirname, "values.yaml"), {
           encoding: "utf8",
         }),
       ],
