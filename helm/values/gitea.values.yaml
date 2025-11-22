@@ -15,7 +15,6 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare-issuer
     cert-manager.io/acme-challenge-type: dns01
     cert-manager.io/private-key-size: 4096
-    traefik.io/service.scheme: https
   className: traefik
   hosts:
     - host: git.dogar.dev
@@ -42,9 +41,6 @@ gitea:
       ENABLE_GZIP: true
       LFS_START_SERVER: true
       SSH_DOMAIN: git.dogar.dev
-      PROTOCOL: https
-      CERT_FILE: /opt/gitea/tls/cert.pem
-      KEY_FILE: /opt/gitea/tls/key.pem
     database:
       DB_TYPE: postgres
       HOST: postgres-cluster-rw
@@ -84,21 +80,6 @@ gitea:
       autoDiscoverUrl: "https://auth.dogar.dev/application/o/gitea/.well-known/openid-configuration"
       iconUrl: "https://goauthentik.io/img/icon.png"
       scopes: "email profile"
-  livenessProbe:
-    enabled: true
-    scheme: HTTPS
-    tcpSocket:
-      port: http
-  readinessProbe:
-    enabled: true
-    scheme: HTTPS
-    tcpSocket:
-      port: http
-  startupProbe:
-    enabled: true
-    scheme: HTTPS
-    tcpSocket:
-      port: http
   additionalConfigFromEnvs:
     - name: GITEA__MAILER__PASSWD
       valueFrom:
@@ -161,16 +142,6 @@ extraVolumes:
             items:
               - key: ca.crt
                 path: root.crt
-  - name: tls-bundle
-    projected:
-      sources:
-        - secret:
-            name: gitea-tls
-            items:
-              - key: tls.crt
-                path: cert.pem
-              - key: tls.key
-                path: key.pem
   - name: gitea-temp
     emptyDir: {}
 extraInitVolumeMounts:
@@ -181,8 +152,6 @@ extraContainerVolumeMounts:
   - name: ssl-bundle
     mountPath: /opt/gitea/.postgresql
     readOnly: true
-  - name: tls-bundle
-    mountPath: /opt/gitea/tls
     readOnly: true
   - name: gitea-temp
     mountPath: /tmp/gitea-uploads
