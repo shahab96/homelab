@@ -5,7 +5,6 @@ import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
-import { IngressRoute } from "../../utils";
 
 type LonghornOptions = {
   providers: {
@@ -52,17 +51,6 @@ export class Longhorn extends Construct {
           concurrency: 3,
         },
       },
-    });
-
-    new IngressRoute(this, "ingress", {
-      provider: kubernetes,
-      name: "longhorn",
-      namespace,
-      serviceName: "longhorn-frontend",
-      servicePort: 80,
-      host: "longhorn.dogar.dev",
-      tlsSecretName: "longhorn-tls",
-      entryPoints: ["websecure"],
     });
   }
 }
