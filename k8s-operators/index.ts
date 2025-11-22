@@ -1,12 +1,10 @@
-import * as fs from "fs";
-import * as path from "path";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 import { BarmanCloudPluginInstall } from "./barman";
 import { Prometheus } from "./prometheus";
-import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
+import { OnePassword } from "./1password";
 
 export class K8SOperators extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -18,48 +16,16 @@ export class K8SOperators extends TerraformStack {
       },
     });
 
-    const kubernetes = new KubernetesProvider(this, "kubernetes", {
-      configPath: "~/.kube/config",
-    });
-
     new Prometheus(this, "prometheus", {
-      providers: {
-        helm,
-        kubernetes,
-      },
+      provider: helm,
       namespace: "monitoring",
       name: "prometheus-operator",
       version: "75.10.0",
     });
 
-    new Release(this, "onepassword-operator", {
+    new OnePassword(this, "onepassword", {
       provider: helm,
-      name: "onepassword-operator",
-      chart: "connect",
-      repository: "https://1password.github.io/connect-helm-charts/",
-      namespace: "1password",
-      createNamespace: true,
-      set: [
-        {
-          name: "operator.create",
-          value: "true",
-        },
-      ],
-      setSensitive: [
-        {
-          name: "operator.token.value",
-          value: process.env.OP_CONNECT_TOKEN!,
-        },
-        {
-          name: "connect.credentials_base64",
-          value: btoa(
-            fs.readFileSync(
-              path.join(__dirname, "1password-credentials.json"),
-              "utf-8",
-            ),
-          ),
-        },
-      ],
+      name: "onepassword",
     });
 
     const cnpg = new Release(this, "cnpg-operator", {
