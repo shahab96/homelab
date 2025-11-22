@@ -4,6 +4,7 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { NixCache } from "./nix";
 import { NpmCache } from "./npm";
+import { PipCache } from "./pip";
 
 export class CacheInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -34,6 +35,13 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "npm-cache",
       host: "npm.dogar.dev",
+    });
+
+    new PipCache(this, "pip-cache", {
+      provider,
+      namespace,
+      name: "pip-cache",
+      host: "pip.dogar.dev",
     });
   }
 }
