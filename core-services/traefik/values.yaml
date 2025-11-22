@@ -12,10 +12,13 @@ deployment:
     app: traefik
 nodeSelector:
   nodepool: worker
+service:
+  spec:
+    externalTrafficPolicy: Local
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: "kubernetes.io/hostname"
-    whenUnsatisfiable: "ScheduleAnyway"
+    whenUnsatisfiable: "DoNotSchedule"
     labelSelector:
       matchLabels:
         app: traefik
