@@ -5,6 +5,7 @@ import { CacheInfrastructure } from "./cache-infrastructure";
 import { UtilityServices } from "./utility-services";
 import { K8SOperators } from "./k8s-operators";
 import { CoreServices } from "./core-services";
+import { NetworkSecurity } from "./network-security";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const env = cleanEnv(process.env, {
   OP_CONNECT_TOKEN: str({ desc: "1Password Connect token." }),
   ACCESS_KEY: str({ desc: "Access key ID for R2 storage." }),
   SECRET_KEY: str({ desc: "Secret access key for R2 storage." }),
+  VALKEY_PASSWORD: str({ desc: "Password for Valkey database." }),
 });
 
 const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
@@ -23,8 +25,11 @@ const coreServices = new CoreServices(app, "core-services");
 const k8sOperators = new K8SOperators(app, "k8s-operators");
 k8sOperators.node.addDependency(coreServices);
 
+const networkSecurity = new NetworkSecurity(app, "network-security");
+networkSecurity.node.addDependency(k8sOperators);
+
 const utilityServices = new UtilityServices(app, "utility-services");
-utilityServices.node.addDependency(k8sOperators);
+utilityServices.node.addDependency(networkSecurity);
 
 const caches = new CacheInfrastructure(app, "cache-infrastructure");
 caches.node.addDependency(utilityServices);
@@ -51,8 +56,9 @@ const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   });
 
 deploy(coreServices, "core-services");
-deploy(utilityServices, "utility-services");
 deploy(k8sOperators, "k8s-operators");
+deploy(networkSecurity, "network-security");
+deploy(utilityServices, "utility-services");
 deploy(caches, "cache-infrastructure");
 
 app.synth();
