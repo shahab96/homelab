@@ -1,10 +1,12 @@
 import * as fs from "fs";
-import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
+import * as path from "path";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
+import { CloudflareCertificate, IngressRoute } from "../../utils";
+import { Providers } from "../../types";
 
 type PrometheusOptions = {
-  provider: HelmProvider;
+  providers: Providers;
   name: string;
   namespace: string;
   version: string;
@@ -14,13 +16,35 @@ export class Prometheus extends Construct {
   constructor(scope: Construct, id: string, options: PrometheusOptions) {
     super(scope, id);
 
+    const { helm, kubernetes } = options.providers;
+
+    new CloudflareCertificate(this, "certificate", {
+      provider: kubernetes,
+      name: "grafana",
+      namespace: options.namespace,
+      dnsNames: ["grafana.dogar.dev"],
+      secretName: "grafana-tls",
+    });
+
+    new IngressRoute(this, "ingress", {
+      provider: kubernetes,
+      name: "grafana",
+      namespace: options.namespace,
+      entryPoints: ["websecure"],
+      serviceName: "prometheus-operator-grafana",
+      servicePort: 80,
+      tlsSecretName: "grafana-tls",
+      host: "grafana.dogar.dev",
+    });
+
     new Release(this, id, {
       ...options,
+      provider: helm,
       repository: "https://prometheus-community.github.io/helm-charts",
       chart: "kube-prometheus-stack",
       createNamespace: true,
       values: [
-        fs.readFileSync("helm/values/prometheus.values.yaml", {
+        fs.readFileSync(path.join(__dirname, "values.yaml"), {
           encoding: "utf8",
         }),
       ],

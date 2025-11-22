@@ -6,6 +6,7 @@ import { TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 import { BarmanCloudPluginInstall } from "./barman";
 import { Prometheus } from "./prometheus";
+import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 export class K8SOperators extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -17,8 +18,15 @@ export class K8SOperators extends TerraformStack {
       },
     });
 
+    const kubernetes = new KubernetesProvider(this, "kubernetes", {
+      configPath: "~/.kube/config",
+    });
+
     new Prometheus(this, "prometheus", {
-      provider: helm,
+      providers: {
+        helm,
+        kubernetes,
+      },
       namespace: "monitoring",
       name: "prometheus-operator",
       version: "75.10.0",
