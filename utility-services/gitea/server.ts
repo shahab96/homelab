@@ -6,7 +6,7 @@ import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
 import { OnePasswordSecret } from "../../utils";
-import { IngressRouteTcp } from "../../utils/traefik";
+import { IngressRoute, IngressRouteTcp } from "../../utils/traefik";
 
 type GiteaServerOptions = {
   providers: {
@@ -77,6 +77,17 @@ export class GiteaServer extends Construct {
       entryPoint: "ssh",
       serviceName: `${options.name}-ssh`,
       servicePort: 22,
+    });
+
+    new IngressRoute(this, "http-ingress", {
+      provider: kubernetes,
+      namespace: options.namespace,
+      name: options.name,
+      entryPoints: ["websecure"],
+      host: "git.dogar.dev",
+      serviceName: `${options.name}-http`,
+      servicePort: 3000,
+      tlsSecretName: `${options.name}-tls`,
     });
   }
 }

@@ -10,21 +10,7 @@ service:
     annotations:
       metallb.universe.tf/allow-shared-ip: gitea
 ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: cloudflare-issuer
-    cert-manager.io/acme-challenge-type: dns01
-    cert-manager.io/private-key-size: 4096
-  className: traefik
-  hosts:
-    - host: git.dogar.dev
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: gitea-tls
-      hosts:
-        - git.dogar.dev
+  enabled: false
 gitea:
   podAnnotations:
     prometheus.io/scrape: "true"
