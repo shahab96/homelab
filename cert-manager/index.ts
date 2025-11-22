@@ -5,6 +5,8 @@ import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 
+export { CloudflareCertificate } from "./certificate";
+
 type CertManagerOptions = {
   providers: {
     kubernetes: KubernetesProvider;
