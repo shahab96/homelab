@@ -1,7 +1,10 @@
+providers:
+  kubernetesCRD:
+    allowCrossNamespace: true
 ingress:
   ingressClass:
     enabled: true
-    isDefaultClass: false
+    isDefaultClass: true
     name: traefik
 deployment:
   replicas: 3
