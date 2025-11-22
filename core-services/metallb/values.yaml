@@ -1,0 +1,6 @@
+controller:
+  nodeSelector:
+    nodepool: worker
+speaker:
+  nodeSelector:
+    nodepool: worker

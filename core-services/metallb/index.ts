@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
@@ -17,6 +19,7 @@ export class MetalLB extends Construct {
       repository: "https://metallb.github.io/metallb",
       chart: "metallb",
       createNamespace: true,
+      values: [fs.readFileSync(path.join(__dirname, "values.yaml"), "utf8")],
     });
   }
 }
