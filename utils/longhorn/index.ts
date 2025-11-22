@@ -1,0 +1,59 @@
+import { Construct } from "constructs";
+import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
+import { PersistentVolumeClaimV1 } from "@cdktf/provider-kubernetes/lib/persistent-volume-claim-v1";
+
+type LonghornPvcOptions = {
+  provider: KubernetesProvider;
+
+  /** Name of the PVC */
+  name: string;
+
+  /** Namespace of the PVC */
+  namespace: string;
+
+  /** Size, e.g. "10Gi" */
+  size: string;
+
+  /** Access modes (default: ["ReadWriteOnce"]) */
+  accessModes?: string[];
+
+  /** Optional PVC labels */
+  labels?: Record<string, string>;
+
+  /** Add backup annotations */
+  backup?: boolean;
+};
+
+export class LonghornPvc extends Construct {
+  public readonly name: string;
+
+  constructor(scope: Construct, id: string, opts: LonghornPvcOptions) {
+    super(scope, id);
+
+    this.name = opts.name;
+
+    new PersistentVolumeClaimV1(this, id, {
+      provider: opts.provider,
+      metadata: {
+        name: opts.name,
+        namespace: opts.namespace,
+        labels: opts.labels ?? {},
+        annotations: opts.backup
+          ? {
+              "recurring-job.longhorn.io/daily-backup": "enabled",
+              "recurring-job.longhorn.io/source": "enabled",
+            }
+          : {},
+      },
+      spec: {
+        accessModes: opts.accessModes ?? ["ReadWriteOnce"],
+        storageClassName: "longhorn", // HARD-CODED
+        resources: {
+          requests: {
+            storage: opts.size,
+          },
+        },
+      },
+    });
+  }
+}
