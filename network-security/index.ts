@@ -9,6 +9,7 @@ import {
   IpAllowListMiddlewareTCP,
 } from "./traefik";
 import { ValkeyCluster } from "./valkey";
+import { InternalIngressRoute } from "../utils";
 
 export class NetworkSecurity extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -78,6 +79,24 @@ export class NetworkSecurity extends TerraformStack {
       namespace,
       name: "tcp-ip-allow-list",
       sourceRanges: ["192.168.18.0/24", "10.42.0.0/16"],
+    });
+
+    new InternalIngressRoute(this, "longhorn-ui", {
+      provider: kubernetes,
+      namespace: "longhorn-system",
+      name: "longhorn-ui",
+      host: "longhorn.dogar.dev",
+      serviceName: "longhorn-frontend",
+      servicePort: 80,
+    });
+
+    new InternalIngressRoute(this, "grafana-ui", {
+      provider: kubernetes,
+      namespace: "monitoring",
+      name: "grafana-ui",
+      host: "grafana.dogar.dev",
+      serviceName: "prometheus-operator-grafana",
+      servicePort: 80,
     });
   }
 }
