@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { Construct } from "constructs";
-import { CloudflareCertificate, IngressRoute } from "../../utils";
+import { IngressRoute } from "../../utils";
 import { Providers } from "../../types";
 
 type PrometheusOptions = {
@@ -17,14 +17,6 @@ export class Prometheus extends Construct {
     super(scope, id);
 
     const { helm, kubernetes } = options.providers;
-
-    new CloudflareCertificate(this, "certificate", {
-      provider: kubernetes,
-      name: "grafana",
-      namespace: options.namespace,
-      dnsNames: ["grafana.dogar.dev"],
-      secretName: "grafana-tls",
-    });
 
     new IngressRoute(this, "ingress", {
       provider: kubernetes,

@@ -88,7 +88,7 @@ authentik:
 server:
   replicas: 3
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: cloudflare-issuer
       cert-manager.io/acme-challenge-type: dns01
