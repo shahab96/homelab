@@ -71,7 +71,7 @@ export class NetworkSecurity extends TerraformStack {
       provider: kubernetes,
       namespace,
       name: "ip-allow-list",
-      sourceRanges: ["192.168.18.0/24", "10.43.0.0/16"],
+      sourceRanges: ["192.168.18.0/24", "10.42.0.0/16"],
     });
 
     new IpAllowListMiddlewareTCP(this, "tcp-internal-ip-allow-list", {
