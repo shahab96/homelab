@@ -17,21 +17,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gtnh-server
-  namespace: minecraft
-  labels:
-    app: gtnh-server
-spec:
-  type: ClusterIP
-  ports:
-    - name: gtnh
-      port: 25565
-  selector:
-    app: gtnh-server
----
-apiVersion: v1
-kind: Service
-metadata:
   name: atm10-server
   namespace: minecraft
   labels:

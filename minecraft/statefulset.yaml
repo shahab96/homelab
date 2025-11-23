@@ -68,68 +68,6 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: gtnh-server
-  namespace: minecraft
-spec:
-  serviceName: gtnh-server
-  selector:
-    matchLabels:
-      app: gtnh-server
-  template:
-    metadata:
-      labels:
-        app: gtnh-server
-    spec:
-      nodeSelector:
-        nodepool: worker
-      containers:
-        - name: gtnh-server
-          image: itzg/minecraft-server:java25
-          env:
-            - name: EULA
-              value: "TRUE"
-            - name: MODE
-              value: "survival"
-            - name: DIFFICULTY
-              value: "peaceful"
-            - name: TYPE
-              value: "CUSTOM"
-            - name: GENERIC_PACKS
-              value: "GT_New_Horizons_2.8.0_Server_Java_17-25"
-            - name: GENERIC_PACKS_SUFFIX
-              value: ".zip"
-            - name: GENERIC_PACKS_PREFIX
-              value: "https://downloads.gtnewhorizons.com/ServerPacks/"
-            - name: SKIP_GENERIC_PACK_UPDATE_CHECK
-              value: "true"
-            - name: MEMORY
-              value: 12G
-            - name: JVM_OPTS
-              value: "-Dfml.readTimeout=180 -Dfml.queryResult=confirm @java9args.txt"
-            - name: CUSTOM_JAR_EXEC
-              value: "-jar lwjgl3ify-forgePatches.jar nogui"
-            - name: ALLOW_FLIGHT
-              value: "TRUE"
-            - name: ENABLE_ROLLING_LOGS
-              value: "TRUE"
-          ports:
-            - name: gtnh
-              containerPort: 25565
-          resources:
-            limits:
-              cpu: 8
-              memory: "12Gi"
-          volumeMounts:
-          - name: gtnh-data
-            mountPath: /data
-      volumes:
-        - name: gtnh-data
-          persistentVolumeClaim:
-            claimName: gtnh-data
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
   name: atm10-server
   namespace: minecraft
 spec:
