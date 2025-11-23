@@ -6,7 +6,7 @@ import {
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import { IngressRouteTcp, LonghornPvc } from "../../../utils";
+import { IngressRouteTcp } from "../../../utils";
 
 export type MinecraftServerOptions = {
   provider: KubernetesProvider;
@@ -22,13 +22,6 @@ export class MinecraftServer extends Construct {
     super(scope, id);
 
     const { provider, namespace, name, image, env, size = "10Gi" } = opts;
-
-    const pvc = new LonghornPvc(this, "pvc", {
-      provider,
-      namespace,
-      name,
-      size,
-    });
 
     new ServiceV1(this, "service", {
       provider,
@@ -56,14 +49,42 @@ export class MinecraftServer extends Construct {
         name,
         namespace,
       },
+      waitForRollout: false,
       spec: {
         replicas: "1",
         serviceName: name,
+        updateStrategy: [
+          {
+            type: "OnDelete",
+          },
+        ],
         selector: {
           matchLabels: {
             app: name,
           },
         },
+        persistentVolumeClaimRetentionPolicy: [
+          {
+            whenDeleted: "Retain",
+            whenScaled: "Retain",
+          },
+        ],
+        volumeClaimTemplate: [
+          {
+            metadata: {
+              name: `${name}-data`,
+            },
+            spec: {
+              accessModes: ["ReadWriteOnce"],
+              resources: {
+                requests: {
+                  storage: size,
+                },
+              },
+              storageClassName: "longhorn",
+            },
+          },
+        ],
         template: {
           metadata: {
             labels: {
@@ -78,7 +99,7 @@ export class MinecraftServer extends Construct {
               {
                 name: `${name}-data`,
                 persistentVolumeClaim: {
-                  claimName: pvc.name,
+                  claimName: `${name}-data-${name}-0`,
                 },
               },
             ],
