@@ -37,7 +37,7 @@ metadata:
   labels:
     app: atm10-server
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - name: atm10
       port: 25565
