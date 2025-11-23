@@ -6,6 +6,7 @@ import { UtilityServices } from "./utility-services";
 import { K8SOperators } from "./k8s-operators";
 import { CoreServices } from "./core-services";
 import { NetworkSecurity } from "./network-security";
+import { GamingServices } from "./gaming-services/minecraft";
 
 dotenv.config();
 
@@ -34,6 +35,9 @@ utilityServices.node.addDependency(networkSecurity);
 const caches = new CacheInfrastructure(app, "cache-infrastructure");
 caches.node.addDependency(utilityServices);
 
+const gamingServices = new GamingServices(app, "gaming-services");
+gamingServices.node.addDependency(networkSecurity);
+
 const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   stack,
   key,
@@ -60,5 +64,6 @@ deploy(k8sOperators, "k8s-operators");
 deploy(networkSecurity, "network-security");
 deploy(utilityServices, "utility-services");
 deploy(caches, "cache-infrastructure");
+deploy(gamingServices, "gaming-services");
 
 app.synth();
