@@ -31,7 +31,7 @@ gitea:
       LFS_START_SERVER: true
       ROOT_URL: https://git.dogar.dev/
       SSH_DOMAIN: git.dogar.dev
-      START_SSH_SERVER: true
+      DISABLE_SSH: false
       SSH_LISTEN_PORT: 2222
       SSH_PORT: 22
     database:
