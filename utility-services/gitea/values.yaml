@@ -1,5 +1,8 @@
 global:
   storageClass: longhorn
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: "OnRootMismatch"
 image:
   rootless: false
 service:
@@ -28,6 +31,9 @@ gitea:
       LFS_START_SERVER: true
       ROOT_URL: https://git.dogar.dev/
       SSH_DOMAIN: git.dogar.dev
+      START_SSH_SERVER: true
+      SSH_LISTEN_PORT: 2222
+      SSH_PORT: 22
     database:
       DB_TYPE: postgres
       HOST: postgres-cluster-rw
@@ -95,6 +101,20 @@ persistence:
   size: 50Gi
   accessModes:
     - ReadWriteMany
+postExtraInitContainers:
+  - name: fix-gitea-ssh-perms
+    image: alpine:3
+    command:
+      - sh
+      - -c
+      - |
+        echo "Fixing /data/ssh permissions..."
+        mkdir -p /data/ssh
+        chown -R 1000:1000 /data/ssh
+        chmod 700 /data/ssh
+    volumeMounts:
+      - name: data
+        mountPath: /data
 deployment:
   env:
     - name: PGSSLMODE
