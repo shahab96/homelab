@@ -32,21 +32,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tfg-server
-  namespace: minecraft
-  labels:
-    app: tfg-server
-spec:
-  type: ClusterIP
-  ports:
-    - name: tfg
-      port: 25565
-  selector:
-    app: tfg-server
----
-apiVersion: v1
-kind: Service
-metadata:
   name: atm10-server
   namespace: minecraft
   labels:
