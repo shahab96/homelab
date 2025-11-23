@@ -24,23 +24,13 @@ topologySpreadConstraints:
         app: traefik
 additionalArguments:
   - "--entryPoints.ssh.address=:22/tcp"
-  - "--entryPoints.minecraft-monifactory.address=:25565/tcp"
   - "--entryPoints.minecraft-gtnh.address=:25566/tcp"
   - "--entryPoints.minecraft-tfg.address=:25567/tcp"
-  - "--entryPoints.minecraft-atm10.address=:25568/tcp"
-  - "--entryPoints.minecraft-star-technology.address=:25569/tcp"
 ports:
   ssh:
     name: ssh
     port: 22
     exposedPort: 22
-    expose:
-      default: true
-    protocol: TCP
-  minecraft-monifactory:
-    name: minecraft-monifactory
-    port: 25565
-    exposedPort: 25565
     expose:
       default: true
     protocol: TCP
@@ -55,20 +45,6 @@ ports:
     name: minecraft-tfg
     port: 25567
     exposedPort: 25567
-    expose:
-      default: true
-    protocol: TCP
-  minecraft-atm10:
-    name: minecraft-atm10
-    port: 25568
-    exposedPort: 25568
-    expose:
-      default: true
-    protocol: TCP
-  minecraft-star-technology:
-    name: minecraft-star-technology
-    port: 25569
-    exposedPort: 25569
     expose:
       default: true
     protocol: TCP
