@@ -36,7 +36,9 @@ export class MinecraftServer extends Construct {
         port: [
           {
             port: 25565,
-            targetPort: name,
+            targetPort: "25565",
+            protocol: "TCP",
+            name: "minecraft",
           },
         ],
         type: "ClusterIP",
@@ -95,14 +97,6 @@ export class MinecraftServer extends Construct {
             nodeSelector: {
               nodepool: "worker",
             },
-            volume: [
-              {
-                name: `${name}-data`,
-                persistentVolumeClaim: {
-                  claimName: `${name}-data-${name}-0`,
-                },
-              },
-            ],
             container: [
               {
                 name,
@@ -110,7 +104,7 @@ export class MinecraftServer extends Construct {
                 env,
                 port: [
                   {
-                    name: "minecraft",
+                    name,
                     containerPort: 25565,
                   },
                 ],
