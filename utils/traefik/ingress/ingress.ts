@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-import { CloudflareCertificate, PrivateCertificate } from "../../cert-manager";
+import { PrivateCertificate } from "../../cert-manager";
 
 export type IngressRouteOptions = {
   provider: KubernetesProvider;
@@ -110,14 +110,6 @@ export class IngressRoute extends Construct {
       spec.tls = {
         secretName: opts.tlsSecretName,
       };
-
-      new CloudflareCertificate(this, `${name}-cert`, {
-        provider,
-        namespace,
-        name: opts.host,
-        secretName: opts.tlsSecretName,
-        dnsNames: [opts.host],
-      });
     }
 
     this.manifest = new Manifest(this, name, {

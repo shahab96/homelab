@@ -19,13 +19,17 @@ export class CloudflareCertificate extends Certificate {
   constructor(
     scope: Construct,
     id: string,
-    opts: Omit<CertificateOptions, "issuerRef">,
+    opts: Omit<CertificateOptions, "issuerRef" | "privateKey">,
   ) {
     super(scope, id, {
       ...opts,
       issuerRef: {
         name: "cloudflare-issuer",
         kind: "ClusterIssuer",
+      },
+      privateKey: {
+        algorithm: "RSA",
+        size: 4096,
       },
     });
   }

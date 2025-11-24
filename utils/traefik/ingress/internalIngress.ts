@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import { IngressRoute, IngressRouteOptions } from "./ingress";
 import { DataTerraformRemoteStateS3 } from "cdktf";
 import { DataKubernetesNamespaceV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-namespace-v1";
+import { PrivateCertificate } from "../../cert-manager";
 
 type InternalIngressRouteOptions = Omit<
   IngressRouteOptions,
@@ -47,17 +48,31 @@ export class InternalIngressRoute extends Construct {
     );
     const namespace = namespaceResource.metadata.name;
 
+    const { provider, name, host, serviceName, servicePort, serviceProtocol } =
+      opts;
+
+    const tlsSecretName = `${name}-tls`;
+
+    new PrivateCertificate(this, `${name}-cert`, {
+      provider,
+      namespace,
+      name: host,
+      secretName: tlsSecretName,
+      dnsNames: [host],
+    });
+
     new IngressRoute(this, opts.name, {
-      provider: opts.provider,
-      namespace: opts.namespace,
-      host: opts.host,
+      provider,
+      namespace,
+      host,
+      serviceName,
+      servicePort,
+      serviceProtocol,
+      tlsSecretName,
+      name,
       path: opts.path ?? "/",
-      serviceName: opts.serviceName,
-      servicePort: opts.servicePort,
       entryPoints: ["websecure"],
-      tlsSecretName: `${opts.name}-tls`,
       middlewares: [`${namespace}/ip-allow-list`],
-      name: opts.name,
     });
   }
 }

@@ -23,13 +23,17 @@ export class PrivateCertificate extends Certificate {
   constructor(
     scope: Construct,
     id: string,
-    opts: Omit<CertificateOptions, "issuerRef">,
+    opts: Omit<CertificateOptions, "issuerRef" | "privateKey">,
   ) {
     super(scope, id, {
       ...opts,
       issuerRef: {
         name: "cluster-issuer", // internal CA
         kind: "ClusterIssuer",
+      },
+      privateKey: {
+        algorithm: "Ed25519",
+        size: 384,
       },
     });
   }

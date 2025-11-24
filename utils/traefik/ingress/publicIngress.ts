@@ -1,7 +1,6 @@
 import { Construct } from "constructs";
 import { IngressRoute, IngressRouteOptions } from "./ingress";
-import { DataTerraformRemoteStateS3 } from "cdktf";
-import { DataKubernetesNamespaceV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-namespace-v1";
+import { CloudflareCertificate } from "../../cert-manager";
 
 type PublicIngressRouteOptions = Omit<
   IngressRouteOptions,
@@ -12,53 +11,38 @@ export class PublicIngressRoute extends Construct {
   constructor(scope: Construct, id: string, opts: PublicIngressRouteOptions) {
     super(scope, id);
 
-    const r2Endpoint = `${process.env.ACCOUNT_ID!}.r2.cloudflarestorage.com`;
+    const {
+      provider,
+      name,
+      namespace,
+      host,
+      serviceName,
+      servicePort,
+      serviceProtocol,
+    } = opts;
 
-    const coreServicesState = new DataTerraformRemoteStateS3(
-      this,
-      "core-services-state",
-      {
-        usePathStyle: true,
-        skipRegionValidation: true,
-        skipCredentialsValidation: true,
-        skipRequestingAccountId: true,
-        skipS3Checksum: true,
-        encrypt: true,
-        bucket: "terraform-state",
-        key: "core-services/terraform.tfstate",
-        endpoints: {
-          s3: `https://${r2Endpoint}`,
-        },
-        region: "auto",
-        accessKey: process.env.ACCESS_KEY,
-        secretKey: process.env.SECRET_KEY,
-      },
-    );
-    const namespaceName = coreServicesState.getString("namespace-output");
-    const namespaceResource = new DataKubernetesNamespaceV1(
-      this,
-      "core-services-namespace",
-      {
-        provider: opts.provider,
-        metadata: {
-          name: namespaceName,
-        },
-      },
-    );
-    const namespace = namespaceResource.metadata.name;
+    const tlsSecretName = `${name}-tls`;
+
+    new CloudflareCertificate(this, `${name}-cert`, {
+      provider,
+      namespace,
+      name: host,
+      secretName: tlsSecretName,
+      dnsNames: [host],
+    });
 
     new IngressRoute(this, opts.name, {
-      provider: opts.provider,
-      namespace: opts.namespace,
-      host: opts.host,
+      provider,
+      namespace,
+      host,
+      tlsSecretName,
+      serviceName,
+      servicePort,
+      serviceProtocol,
+      name,
       path: opts.path ?? "/",
-      serviceName: opts.serviceName,
-      servicePort: opts.servicePort,
-      serviceProtocol: opts.serviceProtocol,
       entryPoints: ["websecure"],
-      tlsSecretName: `${opts.name}-tls`,
       middlewares: [`${namespace}/rate-limit`],
-      name: opts.name,
     });
   }
 }
