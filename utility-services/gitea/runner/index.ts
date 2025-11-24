@@ -1,9 +1,9 @@
 import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
-
-import { OnePasswordSecret, LonghornPvc } from "../../utils";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { PodDisruptionBudgetV1 } from "@cdktf/provider-kubernetes/lib/pod-disruption-budget-v1";
+
+import { OnePasswordSecret, LonghornPvc } from "../../../utils";
 
 type GiteaRunnerOptions = {
   provider: KubernetesProvider;

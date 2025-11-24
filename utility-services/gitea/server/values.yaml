@@ -24,11 +24,18 @@ gitea:
     enabled: true
     serviceMonitor:
       enabled: true
+      scheme: "https"
+      tlsConfig:
+        insecureSkipVerify: false
+        caFile: /internal-ca/ca.crt
   config:
     server:
       ENABLE_PPROF: true
       ENABLE_GZIP: true
       LFS_START_SERVER: true
+      PROTOCOL: https
+      CERT_FILE: /certs/tls.crt
+      KEY_FILE: /certs/tls.key
       ROOT_URL: https://git.dogar.dev/
       SSH_DOMAIN: git.dogar.dev
       DISABLE_SSH: false
@@ -93,6 +100,27 @@ gitea:
         secretKeyRef:
           name: gitea-cloudflare-token
           key: secret_access_key
+  livenessProbe:
+    httpGet:
+      path: /api/healthz
+      port: 3000
+      scheme: HTTPS
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /api/healthz
+      port: 3000
+      scheme: HTTPS
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  startupProbe:
+    httpGet:
+      path: /api/healthz
+      port: 3000
+      scheme: HTTPS
+    initialDelaySeconds: 5
+    periodSeconds: 10
 persistence:
   labels:
     recurring-job.longhorn.io/source: "enabled"
@@ -149,6 +177,9 @@ extraVolumes:
             items:
               - key: ca.crt
                 path: root.crt
+  - name: gitea-tls-internal
+    secret:
+      secretName: gitea-tls-internal
   - name: gitea-temp
     emptyDir: {}
 extraInitVolumeMounts:
@@ -159,6 +190,8 @@ extraContainerVolumeMounts:
   - name: ssl-bundle
     mountPath: /opt/gitea/.postgresql
     readOnly: true
+  - name: gitea-tls-internal
+    mountPath: /certs
     readOnly: true
   - name: gitea-temp
     mountPath: /tmp/gitea-uploads
