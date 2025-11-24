@@ -5,6 +5,7 @@ import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { OnePasswordSecret } from "../../utils";
 import { TerraFirmaGreg } from "./tfg";
 import { GTNH } from "./gtnh";
+import { StarTechnology } from "./star-technology";
 
 export class GamingServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -31,5 +32,6 @@ export class GamingServices extends TerraformStack {
 
     new TerraFirmaGreg(this, "tfg", provider, namespace);
     new GTNH(this, "gtnh", provider, namespace);
+    new StarTechnology(this, "star-technology", provider, namespace);
   }
 }

@@ -26,6 +26,7 @@ additionalArguments:
   - "--entryPoints.ssh.address=:22/tcp"
   - "--entryPoints.minecraft-gtnh.address=:25566/tcp"
   - "--entryPoints.minecraft-tfg.address=:25567/tcp"
+  - "--entryPoints.minecraft-star-technology.address=:25568/tcp"
 ports:
   ssh:
     name: ssh
@@ -45,6 +46,13 @@ ports:
     name: minecraft-tfg
     port: 25567
     exposedPort: 25567
+    expose:
+      default: true
+    protocol: TCP
+  minecraft-star-technology:
+    name: minecraft-star-technology
+    port: 25568
+    exposedPort: 25568
     expose:
       default: true
     protocol: TCP
