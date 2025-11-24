@@ -43,7 +43,12 @@ export class JellyfinServer extends Construct {
           {
             name: "http",
             port: 80,
-            targetPort: "8096",
+            targetPort: "http",
+          },
+          {
+            name: "discovery",
+            port: 7359,
+            targetPort: "discovery",
           },
         ],
         type: "ClusterIP",
@@ -81,6 +86,10 @@ export class JellyfinServer extends Construct {
                   {
                     containerPort: 8096,
                     name: "http",
+                  },
+                  {
+                    containerPort: 7359,
+                    name: "discovery",
                   },
                 ],
                 env: [
