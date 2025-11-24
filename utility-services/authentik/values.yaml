@@ -87,23 +87,8 @@ authentik:
 
 server:
   replicas: 3
-  ingress:
-    enabled: false
-    annotations:
-      cert-manager.io/cluster-issuer: cloudflare-issuer
-      cert-manager.io/acme-challenge-type: dns01
-      cert-manager.io/private-key-size: "4096"
-    ingressClassName: traefik
-    hosts:
-      - auth.dogar.dev
-    tls:
-      - secretName: authentik-tls
-        hosts:
-          - auth.dogar.dev
-
 worker:
   replicas: 3
-    
 postgresql:
     enabled: false
 redis:
