@@ -7,6 +7,7 @@ import { K8SOperators } from "./k8s-operators";
 import { CoreServices } from "./core-services";
 import { NetworkSecurity } from "./network-security";
 import { GamingServices } from "./gaming-services/minecraft";
+import { MediaServices } from "./media-services";
 import { PKI } from "./pki";
 
 dotenv.config();
@@ -39,6 +40,9 @@ utilityServices.node.addDependency(networkSecurity);
 const gamingServices = new GamingServices(app, "gaming-services");
 gamingServices.node.addDependency(networkSecurity);
 
+const mediaServices = new MediaServices(app, "media-services");
+mediaServices.node.addDependency(networkSecurity);
+
 const caches = new CacheInfrastructure(app, "cache-infrastructure");
 caches.node.addDependency(utilityServices);
 
@@ -70,5 +74,6 @@ deploy(networkSecurity, "network-security");
 deploy(utilityServices, "utility-services");
 deploy(caches, "cache-infrastructure");
 deploy(gamingServices, "gaming-services");
+deploy(mediaServices, "media-services");
 
 app.synth();
