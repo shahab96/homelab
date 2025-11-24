@@ -2,19 +2,6 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: monifactory-data
-  namespace: minecraft
-spec:
-  storageClassName: longhorn
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
   name: atm10-data
   namespace: minecraft
   labels:
@@ -24,22 +11,6 @@ spec:
   storageClassName: longhorn
   accessModes:
     - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: star-technology-data
-  namespace: minecraft
-  labels:
-    recurring-job.longhorn.io/source: "enabled"
-    recurring-job.longhorn.io/daily-backup: "enabled"
-spec:
-  storageClassName: longhorn
-  accessModes:
-    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi

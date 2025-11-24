@@ -51,7 +51,7 @@ export class JellyfinServer extends Construct {
             targetPort: "discovery",
           },
         ],
-        type: "ClusterIP",
+        type: "LoadBalancer",
       },
     });
 
