@@ -18,6 +18,7 @@ export type IngressRouteOptions = {
   /** Backend K8s Service */
   serviceName: string;
   servicePort: number;
+  serviceProtocol?: "http" | "https";
 
   /** EntryPoints (default: ["websecure"]) */
   entryPoints?: string[];
@@ -39,6 +40,31 @@ export class IngressRoute extends Construct {
     const path = opts.path ?? "/";
     const entryPoints = opts.entryPoints ?? ["websecure"];
 
+    const { provider, namespace } = opts;
+
+    if (opts.serviceProtocol === "https") {
+      new Manifest(this, `${name}-https-transport`, {
+        provider,
+        manifest: {
+          apiVersion: "traefik.io/v1alpha1",
+          kind: "ServersTransport",
+          metadata: {
+            name: `${name}-https-transport`,
+            namespace,
+          },
+          spec: {
+            serverName: `${opts.name}.${opts.namespace}.svc.cluster.local`,
+            rootCAs: [
+              {
+                secret: "root-secret",
+              },
+            ],
+            insecureSkipVerify: false,
+          },
+        },
+      });
+    }
+
     const route: any = {
       match: `Host(\`${opts.host}\`) && PathPrefix(\`${path}\`)`,
       kind: "Rule",
@@ -46,6 +72,11 @@ export class IngressRoute extends Construct {
         {
           name: opts.serviceName,
           port: opts.servicePort,
+          scheme: opts.serviceProtocol ?? "http",
+          serversTransport:
+            opts.serviceProtocol === "https"
+              ? `${name}-https-transport`
+              : undefined,
         },
       ],
     };
@@ -68,8 +99,8 @@ export class IngressRoute extends Construct {
       };
 
       new CloudflareCertificate(this, `${name}-cert`, {
-        provider: opts.provider,
-        namespace: opts.namespace,
+        provider,
+        namespace,
         name: opts.host,
         secretName: opts.tlsSecretName,
         dnsNames: [opts.host],
@@ -77,13 +108,13 @@ export class IngressRoute extends Construct {
     }
 
     this.manifest = new Manifest(this, name, {
-      provider: opts.provider,
+      provider,
       manifest: {
         apiVersion: "traefik.io/v1alpha1",
         kind: "IngressRoute",
         metadata: {
           name,
-          namespace: opts.namespace,
+          namespace,
         },
         spec,
       },

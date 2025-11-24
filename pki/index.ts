@@ -1,16 +1,16 @@
-import { Construct } from "constructs";
-import { IngressRoute, IngressRouteOptions } from "./ingress";
-import { DataTerraformRemoteStateS3 } from "cdktf";
 import { DataKubernetesNamespaceV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-namespace-v1";
+import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
+import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
+import { Construct } from "constructs";
+import { PrivateIssuer, PublicIssuer } from "./issuers";
 
-type PublicIngressRouteOptions = Omit<
-  IngressRouteOptions,
-  "entryPoints" | "tlsSecretName" | "middlewares"
->;
-
-export class PublicIngressRoute extends Construct {
-  constructor(scope: Construct, id: string, opts: PublicIngressRouteOptions) {
+export class PKI extends TerraformStack {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
+
+    const kubernetes = new KubernetesProvider(this, "kubernetes", {
+      configPath: "~/.kube/config",
+    });
 
     const r2Endpoint = `${process.env.ACCOUNT_ID!}.r2.cloudflarestorage.com`;
 
@@ -34,12 +34,13 @@ export class PublicIngressRoute extends Construct {
         secretKey: process.env.SECRET_KEY,
       },
     );
+
     const namespaceName = coreServicesState.getString("namespace-output");
     const namespaceResource = new DataKubernetesNamespaceV1(
       this,
-      "core-services-namespace",
+      "homelab-namespace",
       {
-        provider: opts.provider,
+        provider: kubernetes,
         metadata: {
           name: namespaceName,
         },
@@ -47,18 +48,23 @@ export class PublicIngressRoute extends Construct {
     );
     const namespace = namespaceResource.metadata.name;
 
-    new IngressRoute(this, opts.name, {
-      provider: opts.provider,
-      namespace: opts.namespace,
-      host: opts.host,
-      path: opts.path ?? "/",
-      serviceName: opts.serviceName,
-      servicePort: opts.servicePort,
-      serviceProtocol: opts.serviceProtocol,
-      entryPoints: ["websecure"],
-      tlsSecretName: `${opts.name}-tls`,
-      middlewares: [`${namespace}/rate-limit`],
-      name: opts.name,
+    new PrivateIssuer(this, "private-issuer", {
+      provider: kubernetes,
+      namespace,
+      apiVersion: "cert-manager.io/v1",
+      secretName: "root-secret",
+      commonName: "Homelab Root CA",
+      privateKey: {
+        algorithm: "Ed25519",
+        size: 256,
+      },
+    });
+
+    new PublicIssuer(this, "public-issuer", {
+      provider: kubernetes,
+      namespace,
+      apiVersion: "cert-manager.io/v1",
+      server: "https://acme-v02.api.letsencrypt.org/directory",
     });
   }
 }

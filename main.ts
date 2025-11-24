@@ -7,6 +7,7 @@ import { K8SOperators } from "./k8s-operators";
 import { CoreServices } from "./core-services";
 import { NetworkSecurity } from "./network-security";
 import { GamingServices } from "./gaming-services/minecraft";
+import { PKI } from "./pki";
 
 dotenv.config();
 
@@ -26,17 +27,20 @@ const coreServices = new CoreServices(app, "core-services");
 const k8sOperators = new K8SOperators(app, "k8s-operators");
 k8sOperators.node.addDependency(coreServices);
 
+const pki = new PKI(app, "pki");
+pki.node.addDependency(k8sOperators);
+
 const networkSecurity = new NetworkSecurity(app, "network-security");
-networkSecurity.node.addDependency(k8sOperators);
+networkSecurity.node.addDependency(pki);
 
 const utilityServices = new UtilityServices(app, "utility-services");
 utilityServices.node.addDependency(networkSecurity);
 
-const caches = new CacheInfrastructure(app, "cache-infrastructure");
-caches.node.addDependency(utilityServices);
-
 const gamingServices = new GamingServices(app, "gaming-services");
 gamingServices.node.addDependency(networkSecurity);
+
+const caches = new CacheInfrastructure(app, "cache-infrastructure");
+caches.node.addDependency(utilityServices);
 
 const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   stack,
@@ -61,6 +65,7 @@ const deploy: (stack: TerraformStack, key: string) => S3Backend = (
 
 deploy(coreServices, "core-services");
 deploy(k8sOperators, "k8s-operators");
+deploy(pki, "pki");
 deploy(networkSecurity, "network-security");
 deploy(utilityServices, "utility-services");
 deploy(caches, "cache-infrastructure");

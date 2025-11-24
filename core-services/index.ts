@@ -56,14 +56,10 @@ export class CoreServices extends TerraformStack {
     });
 
     new CertManager(this, "cert-manager", {
-      certManagerApiVersion: "cert-manager.io/v1",
+      provider: helm,
       name: "cert-manager",
       namespace,
       version: "1.18.2",
-      providers: {
-        kubernetes,
-        helm,
-      },
     });
   }
 }
