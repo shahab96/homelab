@@ -7,7 +7,6 @@ import {
   OnePasswordSecret,
   PublicIngressRoute,
   IngressRouteTcp,
-  PrivateCertificate,
 } from "../../../utils";
 import type { Providers } from "../../../types";
 
@@ -51,20 +50,6 @@ export class GiteaServer extends Construct {
       name: "gitea-cloudflare-token",
       namespace,
       itemPath: "vaults/Lab/items/cloudflare",
-    });
-
-    new PrivateCertificate(this, "internal-cert", {
-      provider: kubernetes,
-      namespace,
-      name: "gitea-tls-internal",
-      secretName: "gitea-tls-internal",
-      dnsNames: [
-        "git.dogar.dev",
-        "gitea",
-        "gitea.homelab.svc",
-        "gitea.homelab.svc.cluster.local",
-      ],
-      usages: ["digital signature", "key encipherment", "server auth"],
     });
 
     new Release(this, id, {

@@ -2,7 +2,7 @@ import { Construct } from "constructs";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 
-import { CloudflareCertificate } from "../../cert-manager";
+import { CloudflareCertificate, PrivateCertificate } from "../../cert-manager";
 
 export type IngressRouteOptions = {
   provider: KubernetesProvider;
@@ -43,6 +43,19 @@ export class IngressRoute extends Construct {
     const { provider, namespace } = opts;
 
     if (opts.serviceProtocol === "https") {
+      new PrivateCertificate(this, "internal-cert", {
+        provider,
+        namespace,
+        name: `${opts.serviceName}-tls-internal`,
+        secretName: `${opts.serviceName}-tls-internal`,
+        dnsNames: [
+          opts.serviceName,
+          `${opts.serviceName}.${opts.namespace}.svc`,
+          `${opts.serviceName}.${opts.namespace}.svc.cluster.local`,
+        ],
+        usages: ["digital signature", "key encipherment", "server auth"],
+      });
+
       new Manifest(this, `${name}-https-transport`, {
         provider,
         manifest: {
@@ -53,7 +66,7 @@ export class IngressRoute extends Construct {
             namespace,
           },
           spec: {
-            serverName: `${opts.name}.${opts.namespace}.svc.cluster.local`,
+            serverName: `${opts.serviceName}.${opts.namespace}.svc.cluster.local`,
             rootCAs: [
               {
                 secret: "root-secret",
