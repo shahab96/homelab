@@ -7,9 +7,10 @@ import {
   RateLimitMiddleware,
   IpAllowListMiddleware,
   IpAllowListMiddlewareTCP,
+  TLSOptions,
 } from "./traefik";
 import { ValkeyCluster } from "./valkey";
-import { InternalIngressRoute } from "../utils";
+import { InternalIngressRoute, PrivateCertificate } from "../utils";
 
 export class NetworkSecurity extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -67,6 +68,11 @@ export class NetworkSecurity extends TerraformStack {
       name: "rate-limit",
     });
 
+    new TLSOptions(this, "tls-options", {
+      provider: kubernetes,
+      namespace,
+    });
+
     new IpAllowListMiddleware(this, "internal-ip-allow-list", {
       provider: kubernetes,
       namespace,
@@ -81,6 +87,15 @@ export class NetworkSecurity extends TerraformStack {
       sourceRanges: ["192.168.18.0/24", "10.42.0.0/16"],
     });
 
+    new PrivateCertificate(this, "longhorn-cert", {
+      provider: kubernetes,
+      namespace: "longhorn-system",
+      name: "longhorn-ui",
+      dnsNames: ["longhorn.dogar.dev"],
+      commonName: "longhorn.dogar.dev",
+      secretName: "longhorn-tls",
+    });
+
     new InternalIngressRoute(this, "longhorn-ui", {
       provider: kubernetes,
       namespace: "longhorn-system",
@@ -88,6 +103,16 @@ export class NetworkSecurity extends TerraformStack {
       host: "longhorn.dogar.dev",
       serviceName: "longhorn-frontend",
       servicePort: 80,
+      tlsSecretName: "longhorn-tls",
+    });
+
+    new PrivateCertificate(this, "grafana-cert", {
+      provider: kubernetes,
+      namespace: "monitoring",
+      name: "grafana-ui",
+      dnsNames: ["grafana.dogar.dev"],
+      commonName: "grafana.dogar.dev",
+      secretName: "grafana-tls",
     });
 
     new InternalIngressRoute(this, "grafana-ui", {
@@ -97,6 +122,7 @@ export class NetworkSecurity extends TerraformStack {
       host: "grafana.dogar.dev",
       serviceName: "prometheus-operator-grafana",
       servicePort: 80,
+      tlsSecretName: "grafana-tls",
     });
   }
 }
