@@ -46,7 +46,7 @@ export class TerraFirmaGreg extends Construct {
         },
         {
           name: "CF_FILENAME_MATCHER",
-          value: "0.10.17",
+          value: "0.11.8",
         },
         {
           name: "VERSION",
