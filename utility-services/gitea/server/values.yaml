@@ -179,7 +179,7 @@ extraVolumes:
                 path: root.crt
   - name: gitea-tls-internal
     secret:
-      secretName: gitea-tls-internal
+      secretName: gitea-http-tls-internal
   - name: gitea-temp
     emptyDir: {}
 extraInitVolumeMounts:
