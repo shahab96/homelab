@@ -357,6 +357,7 @@ export class PostgresCluster extends Construct {
             {
               name: "barman-cloud.cloudnative-pg.io",
               isWALArchiver: true,
+              enabled: true,
               parameters: {
                 barmanObjectName: barmanStoreName,
                 serverName: backupServerName,
