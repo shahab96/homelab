@@ -9,6 +9,7 @@ import { NetworkSecurity } from "./network-security";
 import { GamingServices } from "./gaming-services/minecraft";
 import { MediaServices } from "./media-services";
 import { PKI } from "./pki";
+import { Netbird } from "./netbird";
 
 dotenv.config();
 
@@ -46,6 +47,9 @@ mediaServices.node.addDependency(networkSecurity);
 const caches = new CacheInfrastructure(app, "cache-infrastructure");
 caches.node.addDependency(utilityServices);
 
+const netbird = new Netbird(app, "netbird");
+netbird.node.addDependency(utilityServices);
+
 const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   stack,
   key,
@@ -75,5 +79,6 @@ deploy(utilityServices, "utility-services");
 deploy(caches, "cache-infrastructure");
 deploy(gamingServices, "gaming-services");
 deploy(mediaServices, "media-services");
+deploy(netbird, "netbird");
 
 app.synth();
