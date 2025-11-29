@@ -76,6 +76,7 @@ export class MediaServices extends TerraformStack {
     new ProwlarrServer(this, "prowlarr", {
       provider,
       namespace,
+      host: "prowlarr.dogar.dev",
     });
   }
 }

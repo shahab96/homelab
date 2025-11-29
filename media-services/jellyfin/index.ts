@@ -2,7 +2,11 @@ import { Construct } from "constructs";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import { InternalIngressRoute, LonghornPvc } from "../../utils";
+import {
+  CloudflareCertificate,
+  InternalIngressRoute,
+  LonghornPvc,
+} from "../../utils";
 import { BaseMediaServiceOptions, getAamil3NodeSelector } from "../types";
 
 type JellyfinServerOptions = BaseMediaServiceOptions & {
@@ -137,6 +141,14 @@ export class JellyfinServer extends Construct {
       },
     });
 
+    new CloudflareCertificate(this, "certificate", {
+      provider,
+      namespace,
+      name,
+      secretName: "jellyfin-tls",
+      dnsNames: [host],
+    });
+
     // Ingress - using internal ingress for secure access
     new InternalIngressRoute(this, "ingress", {
       provider,
@@ -145,6 +157,7 @@ export class JellyfinServer extends Construct {
       host,
       serviceName: name,
       servicePort: 80,
+      tlsSecretName: "jellyfin-tls",
     });
   }
 }

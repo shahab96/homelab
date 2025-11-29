@@ -2,7 +2,11 @@ import { Construct } from "constructs";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import { InternalIngressRoute, LonghornPvc } from "../../utils";
+import {
+  InternalIngressRoute,
+  LonghornPvc,
+  PrivateCertificate,
+} from "../../utils";
 import {
   BaseMediaServiceOptions,
   getAamil3NodeSelector,
@@ -132,6 +136,15 @@ export class SonarrServer extends Construct {
       },
     });
 
+    new PrivateCertificate(this, "certificate", {
+      provider,
+      namespace,
+      name,
+      commonName: host,
+      dnsNames: [host],
+      secretName: `${name}-tls`,
+    });
+
     // Ingress
     new InternalIngressRoute(this, "ingress", {
       provider,
@@ -140,6 +153,7 @@ export class SonarrServer extends Construct {
       host,
       serviceName: name,
       servicePort: 80,
+      tlsSecretName: `${name}-tls`,
     });
   }
 }

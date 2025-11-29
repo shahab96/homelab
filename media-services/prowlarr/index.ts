@@ -2,18 +2,27 @@ import { Construct } from "constructs";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import { LonghornPvc } from "../../utils";
+import {
+  InternalIngressRoute,
+  LonghornPvc,
+  PrivateCertificate,
+} from "../../utils";
 import {
   BaseMediaServiceOptions,
   getWorkerNodeSelector,
   getCommonEnv,
 } from "../types";
 
+type ProwlarrOptions = BaseMediaServiceOptions & {
+  /** Hostname for the ingress */
+  host: string;
+};
+
 export class ProwlarrServer extends Construct {
-  constructor(scope: Construct, id: string, options: BaseMediaServiceOptions) {
+  constructor(scope: Construct, id: string, options: ProwlarrOptions) {
     super(scope, id);
 
-    const { provider, namespace } = options;
+    const { provider, namespace, host } = options;
     const name = "prowlarr";
 
     // Config PVC with backup
@@ -102,6 +111,24 @@ export class ProwlarrServer extends Construct {
       },
     });
 
-    // Note: No ingress - Prowlarr is for internal use only
+    new PrivateCertificate(this, "certificate", {
+      provider,
+      namespace,
+      name,
+      commonName: host,
+      dnsNames: [host],
+      secretName: `${name}-tls`,
+    });
+
+    // Ingress
+    new InternalIngressRoute(this, "ingress", {
+      provider,
+      namespace,
+      name,
+      host,
+      serviceName: name,
+      servicePort: 80,
+      tlsSecretName: `${name}-tls`,
+    });
   }
 }
