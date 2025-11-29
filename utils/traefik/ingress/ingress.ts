@@ -83,6 +83,7 @@ export class IngressRoute extends Construct {
       kind: "Rule",
       services: [
         {
+          namespace,
           name: opts.serviceName,
           port: opts.servicePort,
           scheme: opts.serviceProtocol ?? "http",
@@ -109,6 +110,10 @@ export class IngressRoute extends Construct {
     if (opts.tlsSecretName) {
       spec.tls = {
         secretName: opts.tlsSecretName,
+        options: {
+          name: "tls-options",
+          namespace: "homelab",
+        },
       };
     }
 
