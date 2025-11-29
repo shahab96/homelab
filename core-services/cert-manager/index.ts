@@ -6,7 +6,6 @@ import { Construct } from "constructs";
 
 type CertManagerOptions = {
   provider: HelmProvider;
-  version: string;
   name: string;
   namespace: string;
 };
@@ -15,13 +14,12 @@ export class CertManager extends Construct {
   constructor(scope: Construct, id: string, options: CertManagerOptions) {
     super(scope, id);
 
-    const { namespace, name, version, provider } = options;
+    const { namespace, name, provider } = options;
 
     new Release(this, id, {
       provider,
       name,
       namespace,
-      version,
       repository: "https://charts.jetstack.io",
       chart: "cert-manager",
       createNamespace: true,

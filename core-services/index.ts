@@ -59,7 +59,6 @@ export class CoreServices extends TerraformStack {
       provider: helm,
       name: "cert-manager",
       namespace,
-      version: "1.18.2",
     });
   }
 }

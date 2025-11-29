@@ -52,12 +52,9 @@ export class PKI extends TerraformStack {
       provider: kubernetes,
       namespace,
       apiVersion: "cert-manager.io/v1",
-      secretName: "root-secret",
+      rootSecretName: "root-secret",
+      intermediateSecretName: `${namespace}-ca-secret`,
       commonName: "Homelab Root CA",
-      privateKey: {
-        algorithm: "Ed25519",
-        size: 256,
-      },
     });
 
     new PublicIssuer(this, "public-issuer", {

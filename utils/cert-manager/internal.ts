@@ -32,9 +32,10 @@ export class PrivateCertificate extends Certificate {
         kind: "ClusterIssuer",
       },
       privateKey: {
-        algorithm: "Ed25519",
+        algorithm: "ECDSA",
         size: 384,
       },
+      usages: ["digital signature", "key encipherment", "server auth"],
     });
   }
 }
