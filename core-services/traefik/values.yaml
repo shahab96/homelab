@@ -3,7 +3,7 @@ providers:
     allowCrossNamespace: true
 ingress:
   ingressClass:
-    enabled: true
+    enabled: false
     isDefaultClass: true
     name: traefik
 deployment:
