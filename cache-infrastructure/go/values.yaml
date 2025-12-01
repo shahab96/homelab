@@ -1,0 +1,20 @@
+replicaCount: 3
+image:
+  runAsNonRoot: true
+nodeSelector:
+  nodepool: worker
+strategy:
+  type: Recreate
+storage:
+  disk:
+    persistence:
+      enabled: true
+      accessMode: ReadWriteMany
+      size: 64Gi
+      storageClass: longhorn
+configEnvVars:
+  - name: ATHENS_DOWNLOAD_MODE
+    value: "sync"
+upstreamProxy:
+  enabled: true
+  url: "https://proxy.golang.org"

@@ -5,13 +5,21 @@ import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { NixCache } from "./nix";
 import { NpmCache } from "./npm";
 import { PipCache } from "./pip";
+import { GoCache } from "./go";
+import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 
 export class CacheInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const provider = new KubernetesProvider(this, "kubernetes", {
+    const kubernetes = new KubernetesProvider(this, "kubernetes", {
       configPath: "~/.kube/config",
+    });
+
+    const helm = new HelmProvider(this, "helm", {
+      kubernetes: {
+        configPath: "~/.kube/config",
+      },
     });
 
     const namespace = "package-cache";
@@ -24,24 +32,34 @@ export class CacheInfrastructure extends TerraformStack {
 
     // Add cache-related infrastructure components here
     new NixCache(this, "nix-cache", {
-      provider,
+      provider: kubernetes,
       namespace,
       name: "nix-cache",
       host: "nix.dogar.dev",
     });
 
     new NpmCache(this, "npm-cache", {
-      provider,
+      provider: kubernetes,
       namespace,
       name: "npm-cache",
       host: "npm.dogar.dev",
     });
 
     new PipCache(this, "pip-cache", {
-      provider,
+      provider: kubernetes,
       namespace,
       name: "pip-cache",
       host: "pip.dogar.dev",
+    });
+
+    new GoCache(this, "go-cache", {
+      providers: {
+        kubernetes,
+        helm,
+      },
+      namespace,
+      name: "go-cache",
+      host: "go.dogar.dev",
     });
   }
 }
