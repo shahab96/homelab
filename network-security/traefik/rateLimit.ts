@@ -7,8 +7,8 @@ type RateLimitMiddlewareOptions = {
   namespace: string;
   name: string;
 
-  average?: number; // default 10
-  burst?: number; // default 50
+  average?: number; // default 60
+  burst?: number; // default 120
   period?: string; // default "1s"
 };
 
@@ -18,8 +18,8 @@ export class RateLimitMiddleware extends Construct {
   constructor(scope: Construct, id: string, opts: RateLimitMiddlewareOptions) {
     super(scope, id);
 
-    const average = opts.average ?? 10;
-    const burst = opts.burst ?? 50;
+    const average = opts.average ?? 60;
+    const burst = opts.burst ?? 120;
     const period = opts.period ?? "1s";
 
     this.ref = `${opts.namespace}/${opts.name}`;
