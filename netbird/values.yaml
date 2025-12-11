@@ -1,5 +1,7 @@
 fullnameOverride: netbird
 management:
+  image:
+    tag: latest
   configmap: |-
     {
       "Stuns": [
@@ -137,8 +139,12 @@ management:
 
 signal:
   enabled: true
+  image:
+    tag: latest
 
 relay:
+  image:
+    tag: latest
   envFromSecret:
     NB_AUTH_SECRET: netbird/relayPassword
   env:
@@ -148,6 +154,8 @@ relay:
 
 dashboard:
   enabled: true
+  image:
+    tag: "v2.23.0"
   env:
     # Endpoints
     NETBIRD_MGMT_API_ENDPOINT: https://vpn.dogar.dev:443

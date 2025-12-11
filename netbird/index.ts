@@ -9,6 +9,7 @@ import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { SecretV1 } from "@cdktf/provider-kubernetes/lib/secret-v1";
 import { Release } from "@cdktf/provider-helm/lib/release";
 import { CloudflareCertificate, OnePasswordSecret } from "../utils";
+import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 
 export class Netbird extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -91,5 +92,71 @@ export class Netbird extends TerraformStack {
       chart: "netbird",
       values: [fs.readFileSync(path.join(__dirname, "values.yaml"), "utf8")],
     }).importFrom("netbird/netbird");
+
+    new OnePasswordSecret(this, "netbird-setup-key", {
+      name: "netbird-setup-key",
+      namespace,
+      provider: kubernetes,
+      itemPath: "vaults/Lab/items/netbird-setup-key",
+    });
+
+    new DeploymentV1(this, "netbird-routing-peers", {
+      provider: kubernetes,
+      metadata: {
+        name: "netbird-routing-peer",
+        namespace,
+      },
+      spec: {
+        replicas: "3",
+        selector: {
+          matchLabels: {
+            app: "netbird-routing-peers",
+          },
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: "netbird-routing-peers",
+            },
+          },
+          spec: {
+            container: [
+              {
+                name: "netbird-routing-peers",
+                image: "netbirdio/netbird:latest",
+                env: [
+                  {
+                    name: "NB_SETUP_KEY",
+                    valueFrom: {
+                      secretKeyRef: {
+                        name: "netbird-setup-key",
+                        key: "credential",
+                      },
+                    },
+                  },
+                  {
+                    name: "NB_MANAGEMENT_URL",
+                    value: "https://vpn.dogar.dev",
+                  },
+                  {
+                    name: "NB_HOSTNAME",
+                    value: "netbird-k8s-router",
+                  },
+                  {
+                    name: "NB_LOG_LEVEL",
+                    value: "info",
+                  },
+                ],
+                securityContext: {
+                  capabilities: {
+                    add: ["NET_ADMIN", "SYS_RESOURCE", "SYS_ADMIN"],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
   }
 }
