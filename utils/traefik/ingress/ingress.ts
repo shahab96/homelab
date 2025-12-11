@@ -110,6 +110,10 @@ export class IngressRoute extends Construct {
     if (opts.tlsSecretName) {
       spec.tls = {
         secretName: opts.tlsSecretName,
+        options: {
+          name: "tls-options",
+          namespace: "homelab",
+        },
       };
     }
 
