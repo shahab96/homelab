@@ -1,3 +1,5 @@
+image:
+  tag: "v3.6.4"
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
@@ -7,7 +9,7 @@ ingress:
     isDefaultClass: true
     name: traefik
 deployment:
-  replicas: 3
+  replicas: 1
   podLabels:
     app: traefik
 nodeSelector:

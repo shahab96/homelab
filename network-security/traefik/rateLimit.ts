@@ -38,11 +38,6 @@ export class RateLimitMiddleware extends Construct {
             average,
             burst,
             period,
-            redis: {
-              endpoints: [`valkey.${opts.namespace}.svc.cluster.local:6379`],
-              secret: "valkey",
-              db: 5,
-            },
           },
         },
       },
