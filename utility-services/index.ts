@@ -70,6 +70,7 @@ export class UtilityServices extends TerraformStack {
         "nix.dogar.dev",
         "pip.dogar.dev",
         "npm.dogar.dev",
+        "go.dogar.dev",
       ],
     });
 
