@@ -29,7 +29,7 @@ export class CoreServices extends TerraformStack {
       metadata: {
         name: namespace,
       },
-    }).importFrom("homelab");
+    });
 
     new TerraformOutput(this, "namespace-output", {
       value: namespace,

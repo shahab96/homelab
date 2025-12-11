@@ -91,7 +91,7 @@ export class Netbird extends TerraformStack {
       repository: "https://netbirdio.github.io/helms",
       chart: "netbird",
       values: [fs.readFileSync(path.join(__dirname, "values.yaml"), "utf8")],
-    }).importFrom("netbird/netbird");
+    });
 
     new OnePasswordSecret(this, "netbird-setup-key", {
       name: "netbird-setup-key",
