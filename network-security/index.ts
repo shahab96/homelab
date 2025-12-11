@@ -7,7 +7,6 @@ import {
   RateLimitMiddleware,
   IpAllowListMiddleware,
   IpAllowListMiddlewareTCP,
-  TLSOptions,
 } from "./traefik";
 import { ValkeyCluster } from "./valkey";
 import { InternalIngressRoute, PrivateCertificate } from "../utils";
@@ -66,11 +65,6 @@ export class NetworkSecurity extends TerraformStack {
       provider: kubernetes,
       namespace,
       name: "rate-limit",
-    });
-
-    new TLSOptions(this, "tls-options", {
-      provider: kubernetes,
-      namespace,
     });
 
     new IpAllowListMiddleware(this, "internal-ip-allow-list", {
