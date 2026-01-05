@@ -70,7 +70,7 @@ export class NpmCache extends Construct {
         namespace,
       },
       spec: {
-        replicas: "3",
+        replicas: "1",
         selector: {
           matchLabels: {
             app: name,
