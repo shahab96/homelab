@@ -25,28 +25,11 @@ topologySpreadConstraints:
       matchLabels:
         app: traefik
 additionalArguments:
-  - "--entryPoints.ssh.address=:22/tcp"
-  - "--entryPoints.minecraft-gtnh.address=:25566/tcp"
-  - "--entryPoints.minecraft-tfg.address=:25567/tcp"
+  - "--entryPoints.ssh.address=:2222/tcp"
 ports:
   ssh:
-    name: ssh
-    port: 22
-    exposedPort: 22
-    expose:
-      default: true
-    protocol: TCP
-  minecraft-gtnh:
-    name: minecraft-gtnh
-    port: 25566
-    exposedPort: 25566
-    expose:
-      default: true
-    protocol: TCP
-  minecraft-tfg:
-    name: minecraft-tfg
-    port: 25567
-    exposedPort: 25567
+    port: 2222
+    exposedPort: 2222
     expose:
       default: true
     protocol: TCP

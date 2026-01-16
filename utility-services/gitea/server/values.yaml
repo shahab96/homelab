@@ -12,6 +12,7 @@ service:
   ssh:
     annotations:
       metallb.universe.tf/allow-shared-ip: gitea
+    port: 2222
 ingress:
   enabled: false
 gitea:
@@ -40,7 +41,7 @@ gitea:
       SSH_DOMAIN: git.dogar.dev
       DISABLE_SSH: false
       SSH_LISTEN_PORT: 2222
-      SSH_PORT: 22
+      SSH_PORT: 2222
     database:
       DB_TYPE: postgres
       HOST: postgres-cluster-rw

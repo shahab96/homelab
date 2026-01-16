@@ -79,7 +79,7 @@ export class GiteaServer extends Construct {
       match: "HostSNI(`*`)",
       entryPoint: "ssh",
       serviceName: `${name}-ssh`,
-      servicePort: 22,
+      servicePort: 2222,
     });
 
     new PublicIngressRoute(this, "http-ingress", {
