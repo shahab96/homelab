@@ -53,7 +53,7 @@ export class MinecraftServer extends Construct {
       },
       waitForRollout: false,
       spec: {
-        replicas: "1",
+        replicas: "0",
         serviceName: name,
         updateStrategy: [
           {
@@ -75,10 +75,6 @@ export class MinecraftServer extends Construct {
           {
             metadata: {
               name: `${name}-data`,
-              labels: {
-                "recurring-job.longhorn.io/source": "enabled",
-                "recurring-job.longhorn.io/daily-backup": "enabled",
-              },
             },
             spec: {
               accessModes: ["ReadWriteOnce"],
