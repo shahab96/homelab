@@ -48,7 +48,7 @@ export class K8SOperators extends TerraformStack {
       repository: "https://helm.elastic.co",
       chart: "eck-operator",
       name: "elasticsearch",
-      namespace: "elastic",
+      namespace: "elastic-system",
       createNamespace: true,
     });
   }
