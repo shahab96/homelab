@@ -42,5 +42,14 @@ export class K8SOperators extends TerraformStack {
     });
 
     barman.node.addDependency(cnpg);
+
+    new Release(this, "elasticsearch", {
+      provider: helm,
+      repository: "https://helm.elastic.co",
+      chart: "eck-operator",
+      name: "elasticsearch",
+      namespace: "elastic",
+      createNamespace: true,
+    });
   }
 }
