@@ -3,8 +3,8 @@ import { TerraformStack } from "cdktf";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { OnePasswordSecret } from "../../utils";
-import { TerraFirmaGreg } from "./tfg";
-import { GTNH } from "./gtnh";
+// import { TerraFirmaGreg } from "./tfg";
+// import { GTNH } from "./gtnh";
 
 export class GamingServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -29,7 +29,7 @@ export class GamingServices extends TerraformStack {
       itemPath: "vaults/Lab/items/curseforge",
     });
 
-    new TerraFirmaGreg(this, "tfg", provider, namespace);
-    new GTNH(this, "gtnh", provider, namespace);
+    // new TerraFirmaGreg(this, "tfg", provider, namespace);
+    // new GTNH(this, "gtnh", provider, namespace);
   }
 }
