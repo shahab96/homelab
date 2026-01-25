@@ -8,6 +8,7 @@ import { GiteaRunner, GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
+import { PublicIngressRoute } from "../utils";
 
 export class UtilityServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -114,6 +115,16 @@ export class UtilityServices extends TerraformStack {
       namespace,
       name: "gitea-runner",
       replicas: 3,
+    });
+
+    new PublicIngressRoute(this, "elasticsearch", {
+      provider: kubernetes,
+      namespace: "elastic-system",
+      name: "elasticsearch",
+      host: "elastic.dogar.dev",
+      serviceName: "elasticsearch-es-http",
+      servicePort: 9200,
+      serviceProtocol: "https",
     });
   }
 }

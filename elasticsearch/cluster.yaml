@@ -1,23 +1,4 @@
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: elasticsearch-cert
-  namespace: elastic-system
-spec:
-  secretName: elasticsearch-cert
-  privateKey:
-    algorithm: ECDSA
-    size: 384
-  usages:
-    - server auth
-  dnsNames:
-    - elastic.dogar.dev
-  issuerRef:
-    name: cloudflare-issuer
-    kind: ClusterIssuer
-    group: cert-manager.io
----
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
@@ -26,18 +7,12 @@ metadata:
 spec:
   version: 8.15.2
   http:
-    service:
-      spec:
-        type: LoadBalancer
-      metadata:
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: elastic.dogar.dev
     tls:
       certificate:
-        secretName: elasticsearch-cert
+        secretName: elasticsearch-es-http-tls-internal
   nodeSets:
   - name: master
-    count: 1
+    count: 3
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -47,6 +22,20 @@ spec:
         resources:
           requests:
             storage: 10Gi
-        storageClassName: longhorn-crypto
+        storageClassName: longhorn
     config:
-      node.roles: ["master", "data"]
+      node.roles: ["master"]
+  - name: data
+    count: 3
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: longhorn
+    config:
+      node.roles: ["data", "ingest"]
