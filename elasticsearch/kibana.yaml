@@ -1,0 +1,16 @@
+---
+apiVersion: kibana.k8s.elastic.co/v1beta1
+kind: Kibana
+metadata:
+  name: kibana
+  namespace: elastic-system
+spec:
+  version: 8.15.2
+  count: 1
+  elasticsearchRef:
+    name: elasticsearch
+  http:
+    tls:
+      certificate:
+        secretName: kibana-kb-http-tls-internal
+
