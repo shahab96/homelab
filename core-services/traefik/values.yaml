@@ -3,9 +3,6 @@ image:
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
-ingress:
-  ingressClass:
-    enabled: false
 deployment:
   replicas: 1
   podLabels:
