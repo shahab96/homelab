@@ -73,6 +73,7 @@ export class UtilityServices extends TerraformStack {
         "npm.dogar.dev",
         "go.dogar.dev",
         "elastic.dogar.dev",
+        "kibana.dogar.dev",
       ],
     });
 
@@ -124,6 +125,16 @@ export class UtilityServices extends TerraformStack {
       host: "elastic.dogar.dev",
       serviceName: "elasticsearch-es-http",
       servicePort: 9200,
+      serviceProtocol: "https",
+    });
+
+    new PublicIngressRoute(this, "kibana", {
+      provider: kubernetes,
+      namespace: "elastic-system",
+      name: "kibana",
+      host: "kibana.dogar.dev",
+      serviceName: "kibana-kb-http",
+      servicePort: 5601,
       serviceProtocol: "https",
     });
   }
