@@ -13,6 +13,13 @@ spec:
   nodeSets:
   - name: master
     count: 3
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            limits:
+              memory: 8Gi
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -27,6 +34,13 @@ spec:
       node.roles: ["master"]
   - name: data
     count: 3
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            limits:
+              memory: 8Gi
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
