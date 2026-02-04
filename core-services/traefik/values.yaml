@@ -6,8 +6,6 @@ providers:
 ingress:
   ingressClass:
     enabled: false
-    isDefaultClass: true
-    name: traefik
 deployment:
   replicas: 1
   podLabels:
