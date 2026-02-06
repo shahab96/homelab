@@ -310,6 +310,7 @@ export class PostgresCluster extends Construct {
           minSyncReplicas: 1,
           maxSyncReplicas: 2,
           primaryUpdateStrategy: "unsupervised",
+          enablePDB: true,
           certificates: {
             serverCASecret: certNames.server,
             serverTLSSecret: certNames.server,
