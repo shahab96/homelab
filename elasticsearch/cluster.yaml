@@ -1,4 +1,14 @@
 ---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: kibana-authentik
+  namespace: elastic-system
+  annotations:
+    operator.1password.io/auto-restart: "true"
+spec:
+  itemPath: "vaults/Lab/items/kibana-authentik"
+---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
@@ -10,6 +20,11 @@ spec:
     tls:
       certificate:
         secretName: elasticsearch-es-http-tls-internal
+  secureSettings:
+  - secretName: kibana-authentik
+    entries:
+    - key: client-secret
+      path: "xpack.security.authc.realms.oidc.authentik.rp.client_secret"
   nodeSets:
   - name: master
     count: 3
@@ -32,6 +47,21 @@ spec:
         storageClassName: longhorn
     config:
       node.roles: ["master"]
+      xpack.security.authc.token.enabled: true
+      xpack.security.authc.realms.oidc.authentik:
+        order: 2
+        rp.client_id: "atlY82FGIBYvUg87cnENzks5ft1AUUtIfQsXSDog"
+        rp.response_type: code
+        rp.redirect_uri: "https://kibana.dogar.dev/api/security/oidc/callback"
+        op.issuer: "https://auth.dogar.dev/application/o/kibana/"
+        op.authorization_endpoint: "https://auth.dogar.dev/application/o/authorize/"
+        op.token_endpoint: "https://auth.dogar.dev/application/o/token/"
+        op.jwkset_path: "https://auth.dogar.dev/application/o/kibana/jwks/"
+        op.userinfo_endpoint: "https://auth.dogar.dev/application/o/userinfo/"
+        op.endsession_endpoint: "https://auth.dogar.dev/application/o/kibana/end-session/"
+        rp.post_logout_redirect_uri: "https://kibana.dogar.dev/security/logged_out"
+        claims.principal: sub
+        claims.groups: groups
   - name: data
     count: 3
     podTemplate:
@@ -53,3 +83,18 @@ spec:
         storageClassName: longhorn
     config:
       node.roles: ["data", "ingest"]
+      xpack.security.authc.token.enabled: true
+      xpack.security.authc.realms.oidc.authentik:
+        order: 2
+        rp.client_id: "atlY82FGIBYvUg87cnENzks5ft1AUUtIfQsXSDog"
+        rp.response_type: code
+        rp.redirect_uri: "https://kibana.dogar.dev/api/security/oidc/callback"
+        op.issuer: "https://auth.dogar.dev/application/o/kibana/"
+        op.authorization_endpoint: "https://auth.dogar.dev/application/o/authorize/"
+        op.token_endpoint: "https://auth.dogar.dev/application/o/token/"
+        op.jwkset_path: "https://auth.dogar.dev/application/o/kibana/jwks/"
+        op.userinfo_endpoint: "https://auth.dogar.dev/application/o/userinfo/"
+        op.endsession_endpoint: "https://auth.dogar.dev/application/o/kibana/end-session/"
+        rp.post_logout_redirect_uri: "https://kibana.dogar.dev/security/logged_out"
+        claims.principal: sub
+        claims.groups: groups
