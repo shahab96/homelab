@@ -1,6 +1,8 @@
 image:
   tag: "v3.6.4"
 providers:
+  kubernetesGateway:
+    enabled: true
   kubernetesCRD:
     allowCrossNamespace: true
 deployment:
