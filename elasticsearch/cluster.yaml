@@ -82,7 +82,7 @@ spec:
             storage: 50Gi
         storageClassName: longhorn
     config:
-      node.roles: ["data", "ingest"]
+      node.roles: ["data"]
       xpack.security.authc.token.enabled: true
       xpack.security.authc.realms.oidc.authentik:
         order: 2
