@@ -10,7 +10,7 @@ import {
   TLSOptions,
 } from "./traefik";
 import { ValkeyCluster } from "./valkey";
-import { InternalIngressRoute, PrivateCertificate } from "../utils";
+import { CloudflareCertificate, InternalIngressRoute } from "../utils";
 
 export class NetworkSecurity extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -87,7 +87,7 @@ export class NetworkSecurity extends TerraformStack {
       sourceRanges: ["192.168.18.0/24", "10.42.0.0/16"],
     });
 
-    new PrivateCertificate(this, "longhorn-cert", {
+    new CloudflareCertificate(this, "longhorn-cert", {
       provider: kubernetes,
       namespace: "longhorn-system",
       name: "longhorn-ui",
@@ -106,7 +106,7 @@ export class NetworkSecurity extends TerraformStack {
       tlsSecretName: "longhorn-tls",
     });
 
-    new PrivateCertificate(this, "grafana-cert", {
+    new CloudflareCertificate(this, "grafana-cert", {
       provider: kubernetes,
       namespace: "monitoring",
       name: "grafana-ui",
