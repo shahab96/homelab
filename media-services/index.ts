@@ -3,7 +3,7 @@ import { TerraformStack } from "cdktf";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 
-import { LonghornPvc } from "../utils";
+import { CloudflareCertificate, LonghornPvc } from "../utils";
 import { JellyfinServer } from "./jellyfin";
 import { SonarrServer } from "./sonarr";
 import { RadarrServer } from "./radarr";
@@ -42,10 +42,28 @@ export class MediaServices extends TerraformStack {
       size: "450Gi",
     });
 
+    const certificateSecretName = "media-services-tls";
+
+    new CloudflareCertificate(this, "cloudflare-certificate", {
+      provider,
+      namespace,
+      name: "media-services",
+      dnsNames: [
+        "media.dogar.dev",
+        "sonarr.dogar.dev",
+        "radarr.dogar.dev",
+        "torrent.dogar.dev",
+        "prowlarr.dogar.dev",
+      ],
+      secretName: certificateSecretName,
+      commonName: "media.dogar.dev",
+    });
+
     // Deploy media services
     new JellyfinServer(this, "jellyfin", {
       provider,
       namespace,
+      certificateSecretName,
       mediaPvcName: mediaPvc.name,
       host: "media.dogar.dev",
     });
@@ -53,6 +71,7 @@ export class MediaServices extends TerraformStack {
     new SonarrServer(this, "sonarr", {
       provider,
       namespace,
+      certificateSecretName,
       mediaPvcName: mediaPvc.name,
       downloadsPvcName: downloadsPvc.name,
       host: "sonarr.dogar.dev",
@@ -61,6 +80,7 @@ export class MediaServices extends TerraformStack {
     new RadarrServer(this, "radarr", {
       provider,
       namespace,
+      certificateSecretName,
       mediaPvcName: mediaPvc.name,
       downloadsPvcName: downloadsPvc.name,
       host: "radarr.dogar.dev",
@@ -69,6 +89,7 @@ export class MediaServices extends TerraformStack {
     new QBittorrentServer(this, "qbittorrent", {
       provider,
       namespace,
+      certificateSecretName,
       downloadsPvcName: downloadsPvc.name,
       host: "torrent.dogar.dev",
     });
@@ -76,6 +97,7 @@ export class MediaServices extends TerraformStack {
     new ProwlarrServer(this, "prowlarr", {
       provider,
       namespace,
+      certificateSecretName,
       host: "prowlarr.dogar.dev",
     });
   }

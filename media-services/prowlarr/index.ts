@@ -2,11 +2,7 @@ import { Construct } from "constructs";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import {
-  InternalIngressRoute,
-  LonghornPvc,
-  PrivateCertificate,
-} from "../../utils";
+import { InternalIngressRoute, LonghornPvc } from "../../utils";
 import {
   BaseMediaServiceOptions,
   getWorkerNodeSelector,
@@ -16,6 +12,8 @@ import {
 type ProwlarrOptions = BaseMediaServiceOptions & {
   /** Hostname for the ingress */
   host: string;
+  /** Secret name for the TLS certificate */
+  certificateSecretName: string;
 };
 
 export class ProwlarrServer extends Construct {
@@ -111,15 +109,6 @@ export class ProwlarrServer extends Construct {
       },
     });
 
-    new PrivateCertificate(this, "certificate", {
-      provider,
-      namespace,
-      name,
-      commonName: host,
-      dnsNames: [host],
-      secretName: `${name}-tls`,
-    });
-
     // Ingress
     new InternalIngressRoute(this, "ingress", {
       provider,
@@ -128,7 +117,7 @@ export class ProwlarrServer extends Construct {
       host,
       serviceName: name,
       servicePort: 80,
-      tlsSecretName: `${name}-tls`,
+      tlsSecretName: options.certificateSecretName,
     });
   }
 }
