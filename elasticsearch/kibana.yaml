@@ -16,9 +16,9 @@ spec:
   config:
     server.publicBaseUrl: "https://kibana.dogar.dev"
     xpack.security.authc.providers:
-      oidc.authentik:
-        order: 0
-        realm: authentik
-        description: "Log in with Authentik"
+      # oidc.authentik:
+      #   order: 0
+      #   realm: authentik
+      #   description: "Log in with Authentik"
       basic.basic1:
         order: 1
