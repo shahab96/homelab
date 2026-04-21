@@ -8,7 +8,7 @@ import { GiteaRunner, GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
-import { PublicIngressRoute } from "../utils";
+import { OnePasswordSecret, PublicIngressRoute } from "../utils";
 
 export class UtilityServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -75,6 +75,13 @@ export class UtilityServices extends TerraformStack {
         "elastic.dogar.dev",
         "kibana.dogar.dev",
       ],
+    });
+
+    new OnePasswordSecret(this, "backups-secret", {
+      namespace: "longhorn-system",
+      provider: kubernetes,
+      name: "cloudflare-token",
+      itemPath: "vaults/Lab/items/cloudflare",
     });
 
     const postgres = new PostgresCluster(this, "postgres-cluster", {
