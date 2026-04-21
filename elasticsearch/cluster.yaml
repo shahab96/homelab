@@ -16,10 +16,10 @@ metadata:
   namespace: elastic-system
 spec:
   version: 8.15.2
-  http:
-    tls:
-      certificate:
-        secretName: elasticsearch-es-http-tls-internal
+  # http:
+  #   tls:
+  #     certificate:
+  #       secretName: elasticsearch-es-http-tls-internal
   # secureSettings:
   # - secretName: kibana-authentik
   #   entries:
