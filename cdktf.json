@@ -3,7 +3,7 @@
   "app": "npx ts-node main.ts",
   "projectId": "ba1e0717-f034-4554-b39f-a05d4326cbf8",
   "sendCrashReports": "true",
-  "terraformProviders": [],
+  "terraformProviders": ["goauthentik/authentik@~> 2026.2.0"],
   "terraformModules": [],
   "context": {
 

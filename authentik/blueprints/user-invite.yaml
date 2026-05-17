@@ -1,0 +1,124 @@
+version: 1
+metadata:
+  name: user-invite
+entries:
+  - model: authentik_flows.flow
+    id: invitation-flow
+    identifiers:
+      slug: invitation-flow
+    attrs:
+      name: Invitation Registration
+      title: Invitation Registration
+      designation: enrollment
+      authentication: require_unauthenticated
+
+  - model: authentik_stages_invitation.invitationstage
+    id: invitation-stage
+    identifiers:
+      name: invitation-stage
+    attrs:
+      continue_flow_without_invitation: false
+
+  - model: authentik_stages_identification.identificationstage
+    id: identification-stage
+    identifiers:
+      name: identification-stage
+    attrs:
+      user_fields:
+        - email
+
+  - model: authentik_stages_user_write.userwritestage
+    id: user-write-stage
+    identifiers:
+      name: user-write-stage
+    attrs:
+      user_creation_mode: never_create
+      user_type: internal
+
+  - model: authentik_stages_prompt.prompt
+    id: password-field
+    identifiers:
+      name: password-field
+    attrs:
+      field_key: password
+      label: Password
+      type: password
+      required: true
+      order: 0
+
+  - model: authentik_stages_prompt.promptstage
+    id: password-prompt-stage
+    identifiers:
+      name: password-prompt-stage
+    attrs:
+      fields:
+        - !KeyOf password-field
+
+  - model: authentik_stages_authenticator_totp.authenticatortotpstage
+    id: totp-setup-stage
+    identifiers:
+      name: totp-setup-stage
+    attrs:
+      digits: 6
+      friendly_name: Authentik TOTP
+
+  - model: authentik_stages_authenticator_webauthn.authenticatorwebauthnstage
+    id: webauthn-setup-stage
+    identifiers:
+      name: webauthn-setup-stage
+    attrs: {}
+
+  - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+    id: authenticator-stage
+    identifiers:
+      name: 2fa-enroll-stage
+    attrs:
+      not_configured_action: configure
+      configuration_stages:
+        - !KeyOf totp-setup-stage
+        - !KeyOf webauthn-setup-stage
+      device_classes:
+        - totp
+        - webauthn
+
+  - model: authentik_stages_user_login.userloginstage
+    id: login-stage
+    identifiers:
+      name: login-stage
+    attrs: {}
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      order: 0
+      stage: !KeyOf invitation-stage
+      target: !KeyOf invitation-flow
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      order: 10
+      stage: !KeyOf identification-stage
+      target: !KeyOf invitation-flow
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      order: 20
+      stage: !KeyOf password-prompt-stage
+      target: !KeyOf invitation-flow
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      order: 30
+      stage: !KeyOf user-write-stage
+      target: !KeyOf invitation-flow
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      order: 40
+      stage: !KeyOf authenticator-stage
+      target: !KeyOf invitation-flow
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      order: 100
+      stage: !KeyOf login-stage
+      target: !KeyOf invitation-flow

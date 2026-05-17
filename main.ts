@@ -10,6 +10,7 @@ import { GamingServices } from "./gaming-services/minecraft";
 import { MediaServices } from "./media-services";
 import { PKI } from "./pki";
 import { Netbird } from "./netbird";
+import { Authentik } from "./authentik";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const env = cleanEnv(process.env, {
   ACCESS_KEY: str({ desc: "Access key ID for R2 storage." }),
   SECRET_KEY: str({ desc: "Secret access key for R2 storage." }),
   VALKEY_PASSWORD: str({ desc: "Password for Valkey database." }),
+  AUTHENTIK_TOKEN: str({ desc: "Authentik API token from op://Lab/authentik-terraform-token/token" }),
 });
 
 const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
@@ -50,6 +52,9 @@ caches.node.addDependency(utilityServices);
 const netbird = new Netbird(app, "netbird");
 netbird.node.addDependency(utilityServices);
 
+const authentik = new Authentik(app, "authentik");
+authentik.node.addDependency(utilityServices);
+
 const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   stack,
   key,
@@ -80,5 +85,6 @@ deploy(caches, "cache-infrastructure");
 deploy(gamingServices, "gaming-services");
 deploy(mediaServices, "media-services");
 deploy(netbird, "netbird");
+deploy(authentik, "authentik");
 
 app.synth();
