@@ -8,7 +8,7 @@ import { GiteaRunner, GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
-import { OnePasswordSecret, PublicIngressRoute } from "../utils";
+import { OnePasswordSecret } from "../utils";
 
 export class UtilityServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -72,8 +72,7 @@ export class UtilityServices extends TerraformStack {
         "pip.dogar.dev",
         "npm.dogar.dev",
         "go.dogar.dev",
-        "elastic.dogar.dev",
-        "kibana.dogar.dev",
+        "pos.omf.dogar.dev",
       ],
     });
 
@@ -123,26 +122,6 @@ export class UtilityServices extends TerraformStack {
       namespace,
       name: "gitea-runner",
       replicas: 3,
-    });
-
-    new PublicIngressRoute(this, "elasticsearch", {
-      provider: kubernetes,
-      namespace: "elastic-system",
-      name: "elasticsearch",
-      host: "elastic.dogar.dev",
-      serviceName: "elasticsearch-es-http",
-      servicePort: 9200,
-      serviceProtocol: "https",
-    });
-
-    new PublicIngressRoute(this, "kibana", {
-      provider: kubernetes,
-      namespace: "elastic-system",
-      name: "kibana",
-      host: "kibana.dogar.dev",
-      serviceName: "kibana-kb-http",
-      servicePort: 5601,
-      serviceProtocol: "https",
     });
   }
 }
