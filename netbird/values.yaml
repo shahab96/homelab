@@ -154,8 +154,6 @@ relay:
 
 dashboard:
   enabled: true
-  image:
-    tag: "v2.23.0"
   env:
     # Endpoints
     NETBIRD_MGMT_API_ENDPOINT: https://vpn.dogar.dev:443
@@ -176,6 +174,14 @@ dashboard:
     AUTH_AUDIENCE: netbird/idpClientID
 
 extraManifests:
+  - apiVersion: traefik.io/v1alpha1
+    kind: ServersTransport
+    metadata:
+      name: netbird-h2c
+      namespace: netbird
+    spec:
+      respondTimeouts:
+        idleTimeout: "0s"
   - apiVersion: traefik.io/v1alpha1
     kind: IngressRoute
     metadata:
@@ -214,6 +220,7 @@ extraManifests:
           passHostHeader: true
           port: 80
           scheme: h2c
+          serversTransport: netbird-h2c
       - kind: Rule
         match: Host(`vpn.dogar.dev`) && PathPrefix(`/signalexchange`)
         services:
@@ -222,5 +229,6 @@ extraManifests:
           passHostHeader: true
           port: 80
           scheme: h2c
+          serversTransport: netbird-h2c
       tls:
         secretName: netbird-tls
