@@ -5,6 +5,7 @@ import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 
 import { GiteaRunner, GiteaServer } from "./gitea";
+import { ForgejoServer } from "./forgejo";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
@@ -90,7 +91,7 @@ export class UtilityServices extends TerraformStack {
       name: "postgres-cluster",
       namespace,
       provider: kubernetes,
-      users: ["shahab", "budget-tracker", "authentik", "gitea", "netbird"],
+      users: ["shahab", "budget-tracker", "authentik", "gitea", "forgejo", "netbird"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
       backupR2EndpointURL: `https://${r2Endpoint}`,
@@ -118,6 +119,14 @@ export class UtilityServices extends TerraformStack {
     });
 
     gitea.node.addDependency(authentik);
+
+    const forgejo = new ForgejoServer(this, "forgejo-server", {
+      provider: kubernetes,
+      namespace,
+      name: "forgejo",
+    });
+
+    forgejo.node.addDependency(authentik);
 
     new GiteaRunner(this, "gitea-runner", {
       provider: kubernetes,

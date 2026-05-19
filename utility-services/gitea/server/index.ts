@@ -5,8 +5,6 @@ import { Construct } from "constructs";
 
 import {
   OnePasswordSecret,
-  PublicIngressRoute,
-  IngressRouteTcp,
 } from "../../../utils";
 import type { Providers } from "../../../types";
 
@@ -22,7 +20,7 @@ export class GiteaServer extends Construct {
     super(scope, id);
 
     const { kubernetes, helm } = options.providers;
-    const { name, namespace, r2Endpoint } = options;
+    const { namespace, r2Endpoint } = options;
 
     new OnePasswordSecret(this, "admin", {
       provider: kubernetes,
@@ -70,26 +68,6 @@ export class GiteaServer extends Construct {
           encoding: "utf8",
         }),
       ],
-    });
-
-    new IngressRouteTcp(this, "ssh-ingress", {
-      provider: kubernetes,
-      namespace,
-      name,
-      match: "HostSNI(`*`)",
-      entryPoint: "ssh",
-      serviceName: `${name}-ssh`,
-      servicePort: 2222,
-    });
-
-    new PublicIngressRoute(this, "http-ingress", {
-      provider: kubernetes,
-      namespace,
-      name,
-      host: "git.dogar.dev",
-      serviceName: `${name}-http`,
-      servicePort: 3000,
-      serviceProtocol: "https",
     });
   }
 }
