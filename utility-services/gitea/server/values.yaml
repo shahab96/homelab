@@ -34,10 +34,8 @@ gitea:
       ENABLE_PPROF: true
       ENABLE_GZIP: true
       LFS_START_SERVER: true
-      PROTOCOL: https
-      CERT_FILE: /certs/tls.crt
-      KEY_FILE: /certs/tls.key
-      ROOT_URL: https://git.dogar.dev/
+      PROTOCOL: http
+      ROOT_URL: http://git.dogar.dev/
       SSH_DOMAIN: git.dogar.dev
       DISABLE_SSH: false
       SSH_LISTEN_PORT: 2222
@@ -74,13 +72,6 @@ gitea:
       FROM: git@dogar.dev
     picture:
       GRAVATAR_SOURCE: gravatar
-  oauth:
-    - name: "authentik"
-      provider: "openidConnect"
-      existingSecret: gitea-oauth
-      autoDiscoverUrl: "https://auth.dogar.dev/application/o/gitea/.well-known/openid-configuration"
-      iconUrl: "https://goauthentik.io/img/icon.png"
-      scopes: "email profile"
   additionalConfigFromEnvs:
     - name: GITEA__MAILER__PASSWD
       valueFrom:
@@ -178,9 +169,6 @@ extraVolumes:
             items:
               - key: ca.crt
                 path: root.crt
-  - name: gitea-tls-internal
-    secret:
-      secretName: gitea-http-tls-internal
   - name: gitea-temp
     emptyDir: {}
 extraInitVolumeMounts:
@@ -190,9 +178,6 @@ extraInitVolumeMounts:
 extraContainerVolumeMounts:
   - name: ssl-bundle
     mountPath: /opt/gitea/.postgresql
-    readOnly: true
-  - name: gitea-tls-internal
-    mountPath: /certs
     readOnly: true
   - name: gitea-temp
     mountPath: /tmp/gitea-uploads
