@@ -28,6 +28,9 @@ export type IngressRouteOptions = {
 
   /** Extra middlewares (traefik format: namespace/name) */
   middlewares?: string[];
+
+  /** Enable sticky sessions via cookie (required for stateful backends like OIDC) */
+  sticky?: boolean;
 };
 
 export class IngressRoute extends Construct {
@@ -81,21 +84,31 @@ export class IngressRoute extends Construct {
       });
     }
 
+    const service: any = {
+      namespace,
+      name: opts.serviceName,
+      port: opts.servicePort,
+      scheme: opts.serviceProtocol ?? "http",
+      serversTransport:
+        opts.serviceProtocol === "https"
+          ? `${name}-https-transport`
+          : undefined,
+    };
+    if (opts.sticky) {
+      service.sticky = {
+        cookie: {
+          name: `${opts.name}-session`,
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+        },
+      };
+    }
+
     const route: any = {
       match: `Host(\`${opts.host}\`) && PathPrefix(\`${path}\`)`,
       kind: "Rule",
-      services: [
-        {
-          namespace,
-          name: opts.serviceName,
-          port: opts.servicePort,
-          scheme: opts.serviceProtocol ?? "http",
-          serversTransport:
-            opts.serviceProtocol === "https"
-              ? `${name}-https-transport`
-              : undefined,
-        },
-      ],
+      services: [service],
     };
 
     if (opts.middlewares?.length) {

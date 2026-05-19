@@ -8,6 +8,7 @@ import { GiteaRunner, GiteaServer } from "./gitea";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
+import { RustFS } from "./rustfs";
 import { OnePasswordSecret } from "../utils";
 
 export class UtilityServices extends TerraformStack {
@@ -73,6 +74,7 @@ export class UtilityServices extends TerraformStack {
         "npm.dogar.dev",
         "go.dogar.dev",
         "pos.omf.dogar.dev",
+        "blob.dogar.dev",
       ],
     });
 
@@ -110,9 +112,9 @@ export class UtilityServices extends TerraformStack {
         helm,
         kubernetes,
       },
-      name: "gitea",
       namespace,
-      r2Endpoint: r2Endpoint,
+      r2Endpoint,
+      name: "gitea",
     });
 
     gitea.node.addDependency(authentik);
@@ -122,6 +124,12 @@ export class UtilityServices extends TerraformStack {
       namespace,
       name: "gitea-runner",
       replicas: 3,
+    });
+
+    new RustFS(this, "rustfs-tenant", {
+      provider: kubernetes,
+      name: "rustfs-tenant",
+      namespace: "homelab",
     });
   }
 }
