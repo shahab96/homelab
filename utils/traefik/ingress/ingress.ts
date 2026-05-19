@@ -58,6 +58,9 @@ export class IngressRoute extends Construct {
 
       new Manifest(this, `${name}-https-transport`, {
         provider,
+        fieldManager: {
+          forceConflicts: true,
+        },
         manifest: {
           apiVersion: "traefik.io/v1alpha1",
           kind: "ServersTransport",
