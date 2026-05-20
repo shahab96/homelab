@@ -243,20 +243,21 @@ export class ForgejoServer extends Construct {
 
     new ServiceV1(this, "http-service", {
       provider,
-      metadata: { name: `${name}-http`, namespace },
+      metadata: { name, namespace },
       spec: {
         selector: { app: name },
-        port: [{ name: "http", port: 3000, targetPort: "3000" }],
-        type: "ClusterIP",
-      },
-    });
-
-    new ServiceV1(this, "ssh-service", {
-      provider,
-      metadata: { name: `${name}-ssh`, namespace },
-      spec: {
-        selector: { app: name },
-        port: [{ name: "ssh", port: 2222, targetPort: "2222" }],
+        port: [
+          {
+            name: "http",
+            port: 3000,
+            targetPort: "3000",
+          },
+          {
+            name: "ssh",
+            port: 2222,
+            targetPort: "2222",
+          },
+        ],
         type: "ClusterIP",
       },
     });
@@ -402,7 +403,7 @@ export class ForgejoServer extends Construct {
       name,
       match: "HostSNI(`*`)",
       entryPoint: "ssh",
-      serviceName: `${name}-ssh`,
+      serviceName: name,
       servicePort: 2222,
     });
 
@@ -411,7 +412,7 @@ export class ForgejoServer extends Construct {
       namespace,
       name,
       host: "git.dogar.dev",
-      serviceName: `${name}-http`,
+      serviceName: name,
       servicePort: 3000,
       serviceProtocol: "http",
     });
