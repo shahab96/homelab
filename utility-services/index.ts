@@ -107,6 +107,12 @@ export class UtilityServices extends TerraformStack {
 
     authentik.node.addDependency(postgres);
 
+    const rustfs = new RustFS(this, "rustfs-tenant", {
+      provider: kubernetes,
+      name: "rustfs-tenant",
+      namespace: "homelab",
+    });
+
     const forgejo = new ForgejoServer(this, "forgejo-server", {
       provider: kubernetes,
       namespace,
@@ -114,11 +120,6 @@ export class UtilityServices extends TerraformStack {
     });
 
     forgejo.node.addDependency(authentik);
-
-    new RustFS(this, "rustfs-tenant", {
-      provider: kubernetes,
-      name: "rustfs-tenant",
-      namespace: "homelab",
-    });
+    forgejo.node.addDependency(rustfs);
   }
 }
