@@ -15,6 +15,10 @@ import { Authentik } from "./authentik";
 dotenv.config();
 
 const env = cleanEnv(process.env, {
+  S3_ENDPOINT: str({ desc: "Blob storage endpoint." }),
+  S3_BUCKET: str({ desc: "Bucket name." }),
+  S3_ACCESS_KEY: str({ desc: "Access key ID for blob storage." }),
+  S3_SECRET_KEY: str({ desc: "Secret access key for blob storage." }),
   ACCOUNT_ID: str({ desc: "Cloudflare account id." }),
   OP_CONNECT_TOKEN: str({ desc: "1Password Connect token." }),
   ACCESS_KEY: str({ desc: "Access key ID for R2 storage." }),
@@ -22,8 +26,6 @@ const env = cleanEnv(process.env, {
   VALKEY_PASSWORD: str({ desc: "Password for Valkey database." }),
   AUTHENTIK_TOKEN: str({ desc: "Authentik API token from op://Lab/authentik-terraform-token/token" }),
 });
-
-const r2Endpoint = `https://${env.ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
 const app = new App();
 const coreServices = new CoreServices(app, "core-services");
@@ -60,14 +62,14 @@ const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   key,
 ) =>
   new S3Backend(stack, {
-    bucket: "terraform-state",
+    bucket: env.S3_BUCKET,
     key: `${key}/terraform.tfstate`,
     region: "auto",
     endpoints: {
-      s3: r2Endpoint,
+      s3: env.S3_ENDPOINT,
     },
-    accessKey: env.ACCESS_KEY,
-    secretKey: env.SECRET_KEY,
+    accessKey: env.S3_ACCESS_KEY,
+    secretKey: env.S3_SECRET_KEY,
     encrypt: true,
     usePathStyle: true,
     skipRegionValidation: true,
