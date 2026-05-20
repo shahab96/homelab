@@ -4,7 +4,6 @@ import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 
-import { GiteaRunner, GiteaServer } from "./gitea";
 import { ForgejoServer } from "./forgejo";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
@@ -108,18 +107,6 @@ export class UtilityServices extends TerraformStack {
 
     authentik.node.addDependency(postgres);
 
-    const gitea = new GiteaServer(this, "gitea-server", {
-      providers: {
-        helm,
-        kubernetes,
-      },
-      namespace,
-      r2Endpoint,
-      name: "gitea",
-    });
-
-    gitea.node.addDependency(authentik);
-
     const forgejo = new ForgejoServer(this, "forgejo-server", {
       provider: kubernetes,
       namespace,
@@ -127,13 +114,6 @@ export class UtilityServices extends TerraformStack {
     });
 
     forgejo.node.addDependency(authentik);
-
-    new GiteaRunner(this, "gitea-runner", {
-      provider: kubernetes,
-      namespace,
-      name: "gitea-runner",
-      replicas: 3,
-    });
 
     new RustFS(this, "rustfs-tenant", {
       provider: kubernetes,
