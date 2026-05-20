@@ -319,7 +319,7 @@ export class ForgejoServer extends Construct {
                   },
                 ],
                 resources: {
-                  requests: { cpu: "100m", memory: "128Mi" },
+                  requests: { cpu: "1", memory: "128Mi" },
                   limits: { cpu: "6", memory: "6Gi" },
                 },
                 livenessProbe: {
