@@ -86,9 +86,9 @@ authentik:
     host: valkey
 
 server:
-  replicas: 3
+  replicas: 1
 worker:
-  replicas: 3
+  replicas: 1
 postgresql:
     enabled: false
 redis:
