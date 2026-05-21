@@ -31,7 +31,8 @@
     "cdktf-cli": "^0.21.0",
     "constructs": "^10.6.0",
     "dotenv": "^17.4.2",
-    "envalid": "^8.1.1"
+    "envalid": "^8.1.1",
+    "yn": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
