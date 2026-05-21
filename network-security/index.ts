@@ -9,7 +9,6 @@ import {
   IpAllowListMiddlewareTCP,
   TLSOptions,
 } from "./traefik";
-import { ValkeyCluster } from "./valkey";
 import { CloudflareCertificate, InternalIngressRoute } from "../utils";
 
 export class NetworkSecurity extends TerraformStack {
@@ -19,8 +18,6 @@ export class NetworkSecurity extends TerraformStack {
     const kubernetes = new KubernetesProvider(this, "kubernetes", {
       configPath: "~/.kube/config",
     });
-
-    const r2Endpoint = `${process.env.ACCOUNT_ID!}.r2.cloudflarestorage.com`;
 
     const coreServicesState = new DataTerraformRemoteStateS3(
       this,
@@ -32,14 +29,14 @@ export class NetworkSecurity extends TerraformStack {
         skipRequestingAccountId: true,
         skipS3Checksum: true,
         encrypt: true,
-        bucket: "terraform-state",
+        bucket: process.env.S3_BUCKET!,
         key: "core-services/terraform.tfstate",
-        endpoints: {
-          s3: `https://${r2Endpoint}`,
-        },
         region: "auto",
-        accessKey: process.env.ACCESS_KEY,
-        secretKey: process.env.SECRET_KEY,
+        endpoints: {
+          s3: process.env.S3_ENDPOINT,
+        },
+        accessKey: process.env.S3_ACCESS_KEY,
+        secretKey: process.env.S3_SECRET_KEY,
       },
     );
 
@@ -55,12 +52,6 @@ export class NetworkSecurity extends TerraformStack {
       },
     );
     const namespace = namespaceResource.metadata.name;
-
-    new ValkeyCluster(this, "valkey-cluster", {
-      provider: kubernetes,
-      name: "valkey",
-      namespace,
-    });
 
     new RateLimitMiddleware(this, "rate-limit", {
       provider: kubernetes,
