@@ -10,8 +10,8 @@ defaultSettings:
   replicaReplenishmentWaitInterval: "600"
   disableSchdedulingOnCordonedNode: "true"
 defaultBackupStore:
-  backupTarget: "s3://longhorn-backups@auto/"
-  backupTargetCredentialSecret: cloudflare-token
+  backupTarget: "s3://shahab-longhorn-backups@sgp1/"
+  backupTargetCredentialSecret: digital-ocean-spaces
 metrics:
   serviceMonitor:
     enabled: true

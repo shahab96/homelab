@@ -81,8 +81,8 @@ export class UtilityServices extends TerraformStack {
     new OnePasswordSecret(this, "backups-secret", {
       namespace: "longhorn-system",
       provider: kubernetes,
-      name: "cloudflare-token",
-      itemPath: "vaults/Lab/items/cloudflare",
+      name: "digital-ocean-spaces",
+      itemPath: "vaults/Lab/items/digital-ocean-spaces",
     });
 
     const postgres = new PostgresCluster(this, "postgres-cluster", {
