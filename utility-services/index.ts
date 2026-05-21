@@ -4,7 +4,7 @@ import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { DataTerraformRemoteStateS3, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 
-import { ForgejoServer } from "./forgejo";
+import { ForgejoServer, ForgejoRunner } from "./forgejo";
 import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
@@ -37,14 +37,14 @@ export class UtilityServices extends TerraformStack {
         skipRequestingAccountId: true,
         skipS3Checksum: true,
         encrypt: true,
-        bucket: "terraform-state",
+        bucket: process.env.S3_BUCKET!,
         key: "core-services/terraform.tfstate",
-        endpoints: {
-          s3: `https://${r2Endpoint}`,
-        },
         region: "auto",
-        accessKey: process.env.ACCESS_KEY,
-        secretKey: process.env.SECRET_KEY,
+        endpoints: {
+          s3: process.env.S3_ENDPOINT,
+        },
+        accessKey: process.env.S3_ACCESS_KEY,
+        secretKey: process.env.S3_SECRET_KEY,
       },
     );
 
@@ -121,5 +121,15 @@ export class UtilityServices extends TerraformStack {
 
     forgejo.node.addDependency(authentik);
     forgejo.node.addDependency(rustfs);
+
+    const forgejoRunner = new ForgejoRunner(this, "forgejo-runner", {
+      provider: kubernetes,
+      namespace,
+      name: "forgejo-runner",
+      replicas: 1,
+      runnerUuid: "d23d6d11-cd39-486c-8078-7ce671902933",
+    });
+
+    forgejoRunner.node.addDependency(forgejo);
   }
 }
