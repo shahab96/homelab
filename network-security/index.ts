@@ -9,6 +9,7 @@ import {
   IpAllowListMiddlewareTCP,
   TLSOptions,
 } from "./traefik";
+import { ValkeyCluster } from "./valkey";
 import { CloudflareCertificate, InternalIngressRoute } from "../utils";
 
 export class NetworkSecurity extends TerraformStack {
@@ -52,6 +53,12 @@ export class NetworkSecurity extends TerraformStack {
       },
     );
     const namespace = namespaceResource.metadata.name;
+
+    new ValkeyCluster(this, "valkey-cluster", {
+      provider: kubernetes,
+      name: "valkey",
+      namespace,
+    });
 
     new RateLimitMiddleware(this, "rate-limit", {
       provider: kubernetes,
