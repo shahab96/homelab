@@ -39,7 +39,7 @@ export class NpmCache extends Construct {
       provider,
       namespace,
       name,
-      size: "128Gi",
+      size: "16Gi",
       accessModes: ["ReadWriteMany"],
     });
 

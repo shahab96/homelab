@@ -26,7 +26,7 @@ export class NixCache extends Construct {
       name,
       namespace,
       accessModes: ["ReadWriteMany"],
-      size: "256Gi",
+      size: "16Gi",
     });
 
     const nginxConfig = fs.readFileSync(

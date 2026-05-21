@@ -33,7 +33,7 @@ export class PipCache extends Construct {
       provider,
       namespace,
       name,
-      size: "128Gi",
+      size: "16Gi",
     });
 
     new DeploymentV1(this, "deployment", {

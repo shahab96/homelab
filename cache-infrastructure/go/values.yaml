@@ -10,7 +10,7 @@ storage:
     persistence:
       enabled: true
       accessMode: ReadWriteMany
-      size: 64Gi
+      size: 16Gi
       storageClass: longhorn
 configEnvVars:
   - name: ATHENS_DOWNLOAD_MODE
