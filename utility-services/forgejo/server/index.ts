@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
@@ -36,6 +38,14 @@ export class ForgejoServer extends Construct {
       data: {
         FORGEJO__APP_NAME: "Forgejo: Beyond coding. We forge.",
         FORGEJO__RUN_MODE: "prod",
+      },
+    });
+
+    new ConfigMapV1(this, "git-config", {
+      provider,
+      metadata: { name: `${name}-git-config`, namespace },
+      data: {
+        FORGEJO__git_0X2E_timeout__MIGRATE: "86400",
       },
     });
 
@@ -224,6 +234,17 @@ export class ForgejoServer extends Construct {
       },
     });
 
+    new ConfigMapV1(this, "anubis-policy", {
+      provider,
+      metadata: { name: `${name}-anubis-policy`, namespace },
+      data: {
+        "botPolicy.yaml": fs.readFileSync(
+          path.resolve(__dirname, "botPolicy.yaml"),
+          "utf8"
+        ),
+      },
+    });
+
     new PersistentVolumeClaimV1(this, "data", {
       provider,
       metadata: {
@@ -248,6 +269,11 @@ export class ForgejoServer extends Construct {
         selector: { app: name },
         port: [
           {
+            name: "anubis",
+            port: 8080,
+            targetPort: "8080",
+          },
+          {
             name: "http",
             port: 3000,
             targetPort: "3000",
@@ -267,6 +293,9 @@ export class ForgejoServer extends Construct {
       metadata: { name, namespace, labels: { app: name } },
       spec: {
         replicas: "1",
+        strategy: {
+          type: "Recreate",
+        },
         selector: { matchLabels: { app: name } },
         template: {
           metadata: { labels: { app: name } },
@@ -275,10 +304,73 @@ export class ForgejoServer extends Construct {
             securityContext: { fsGroup: "1000" },
             container: [
               {
+                name: "anubis",
+                image: "ghcr.io/techarohq/anubis:latest",
+                imagePullPolicy: "Always",
+                env: [{
+                  name: "BIND",
+                  value: ":8080"
+                }, {
+                  name: "DIFFICULTY",
+                  value: "4"
+                }, {
+                  name: "ED25519_PRIVATE_KEY_HEX",
+                  valueFrom: {
+                    secretKeyRef: {
+                      name: "anubis-key",
+                      key: "ED25519_PRIVATE_KEY_HEX"
+                    },
+                  },
+                }, {
+                  name: "TARGET",
+                  value: "http://localhost:3000"
+                }, {
+                  name: "OG_PASSTHROUGH",
+                  value: "true"
+                }, {
+                  name: "OG_EXPIRY_TIME",
+                  value: "24h"
+                }, {
+                  name: "POLICY_FNAME",
+                  value: "/data/cfg/botPolicy.yaml"
+                }],
+                resources: {
+                  limits: {
+                    cpu: "750m",
+                    memory: "256Mi"
+                  },
+                  requests: {
+                    cpu: "250m",
+                  },
+                },
+                securityContext: {
+                  runAsUser: "1000",
+                  runAsGroup: "1000",
+                  runAsNonRoot: true,
+                  allowPrivilegeEscalation: false,
+                  capabilities: {
+                    drop: [
+                      "ALL",
+                    ],
+                  },
+                  seccompProfile: {
+                    type: "RuntimeDefault",
+                  },
+                },
+                volumeMount: [
+                  {
+                    name: "anubis-policy",
+                    mountPath: "/data/cfg",
+                    readOnly: true,
+                  },
+                ],
+              },
+              {
                 name: "forgejo",
                 image: "codeberg.org/forgejo/forgejo:15-rootless",
                 envFrom: [
                   { configMapRef: { name: `${name}-global-config` } },
+                  { configMapRef: { name: `${name}-git-config` } },
                   { configMapRef: { name: `${name}-security-config` } },
                   { configMapRef: { name: `${name}-cors-config` } },
                   { configMapRef: { name: `${name}-repository-config` } },
@@ -390,6 +482,10 @@ export class ForgejoServer extends Construct {
                   },
                 ],
               },
+              {
+                name: "anubis-policy",
+                configMap: { name: `${name}-anubis-policy` },
+              },
               { name: "temp", emptyDir: {} },
             ],
           },
@@ -413,7 +509,7 @@ export class ForgejoServer extends Construct {
       name,
       host: "git.dogar.dev",
       serviceName: name,
-      servicePort: 3000,
+      servicePort: 8080,
       serviceProtocol: "http",
     });
   }

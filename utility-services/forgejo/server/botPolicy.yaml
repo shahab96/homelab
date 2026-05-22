@@ -1,0 +1,6 @@
+bots:
+  - name: api-v1-allow
+    path_regex: ^/api/v1(/.*)?$
+    action: ALLOW
+
+  - import: (data)/meta/default-config.yaml
