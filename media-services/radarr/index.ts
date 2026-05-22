@@ -33,7 +33,7 @@ export class RadarrServer extends Construct {
       provider,
       name: "radarr-config",
       namespace,
-      size: "512Mi",
+      size: "1Gi",
       backup: true,
     });
 

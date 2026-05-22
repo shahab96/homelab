@@ -33,7 +33,7 @@ export class SonarrServer extends Construct {
       provider,
       name: "sonarr-config",
       namespace,
-      size: "512Mi",
+      size: "1Gi",
       backup: true,
     });
 
