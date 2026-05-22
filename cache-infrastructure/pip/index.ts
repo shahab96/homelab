@@ -163,8 +163,10 @@ export class PipCache extends Construct {
                 args: [
                   "--request-timeout",
                   "30",
-                  "--connection-limit",
+                  "--threads",
                   "1000",
+                  "--outside-url",
+                  "https://pip.dogar.dev",
                 ],
                 port: [
                   {

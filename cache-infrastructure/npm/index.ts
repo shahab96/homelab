@@ -89,6 +89,9 @@ export class NpmCache extends Construct {
             nodeSelector: {
               nodepool: "worker",
             },
+            securityContext: {
+              fsGroup: "10001",
+            },
             topologySpreadConstraint: [
               {
                 maxSkew: 1,
