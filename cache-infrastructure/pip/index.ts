@@ -85,12 +85,24 @@ export class PipCache extends Construct {
                     },
                   },
                 ],
+                args: [
+                  "--request-timeout",
+                  "30",
+                  "--connection-limit",
+                  "1000",
+                ],
                 port: [
                   {
                     name,
                     containerPort: 3141,
                   },
                 ],
+                resources: {
+                  limits: {
+                    cpu: "1",
+                    memory: "2Gi"
+                  },
+                },
                 volumeMount: [
                   {
                     name: "data",
