@@ -274,6 +274,11 @@ export class ForgejoServer extends Construct {
             targetPort: "8080",
           },
           {
+            name: "http",
+            port: 3000,
+            targetPort: "3000",
+          },
+          {
             name: "ssh",
             port: 2222,
             targetPort: "2222",
