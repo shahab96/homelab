@@ -1,6 +1,9 @@
+import * as fs from "fs";
+import * as path from "path";
 import { Construct } from "constructs";
-import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
+import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
+import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
 import {
@@ -27,6 +30,17 @@ export class PipCache extends Construct {
       namespace,
       name: "devpi",
       itemPath: "vaults/Lab/items/devpi",
+    });
+
+    new ConfigMapV1(this, "anubis-policy", {
+      provider,
+      metadata: { name: `${name}-anubis-policy`, namespace },
+      data: {
+        "botPolicy.yaml": fs.readFileSync(
+          path.resolve(__dirname, "botPolicy.yaml"),
+          "utf8"
+        ),
+      },
     });
 
     const pvc = new LonghornPvc(this, "pvc", {
@@ -62,7 +76,14 @@ export class PipCache extends Construct {
             nodeSelector: {
               nodepool: "worker",
             },
+            securityContext: {
+              fsGroup: "1000",
+            },
             volume: [
+              {
+                name: "anubis-policy",
+                configMap: { name: `${name}-anubis-policy` },
+              },
               {
                 name: "data",
                 persistentVolumeClaim: {
@@ -71,6 +92,60 @@ export class PipCache extends Construct {
               },
             ],
             container: [
+              {
+                name: "anubis",
+                image: "ghcr.io/techarohq/anubis:latest",
+                imagePullPolicy: "Always",
+                env: [{
+                  name: "BIND",
+                  value: ":8080"
+                }, {
+                  name: "DIFFICULTY",
+                  value: "4"
+                }, {
+                  name: "ED25519_PRIVATE_KEY_HEX",
+                  valueFrom: {
+                    secretKeyRef: {
+                      name: "anubis-key",
+                      key: "ED25519_PRIVATE_KEY_HEX"
+                    },
+                  },
+                }, {
+                  name: "TARGET",
+                  value: "http://localhost:3141"
+                }, {
+                  name: "POLICY_FNAME",
+                  value: "/data/cfg/botPolicy.yaml"
+                }],
+                resources: {
+                  limits: {
+                    cpu: "750m",
+                    memory: "256Mi"
+                  },
+                  requests: {
+                    cpu: "250m",
+                  },
+                },
+                securityContext: {
+                  runAsUser: "1000",
+                  runAsGroup: "1000",
+                  runAsNonRoot: true,
+                  allowPrivilegeEscalation: false,
+                  capabilities: {
+                    drop: ["ALL"],
+                  },
+                  seccompProfile: {
+                    type: "RuntimeDefault",
+                  },
+                },
+                volumeMount: [
+                  {
+                    name: "anubis-policy",
+                    mountPath: "/data/cfg",
+                    readOnly: true,
+                  },
+                ],
+              },
               {
                 name,
                 image: "jonasal/devpi-server:latest",
@@ -128,8 +203,8 @@ export class PipCache extends Construct {
         },
         port: [
           {
-            port: 3141,
-            targetPort: name,
+            port: 8080,
+            targetPort: "8080",
           },
         ],
         type: "ClusterIP",
@@ -142,7 +217,7 @@ export class PipCache extends Construct {
       name,
       host,
       serviceName: name,
-      servicePort: 3141,
+      servicePort: 8080,
     });
   }
 }

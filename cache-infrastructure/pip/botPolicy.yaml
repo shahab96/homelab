@@ -1,0 +1,6 @@
+bots:
+  - name: pypi-mirror-allow
+    path_regex: ^/root/pypi(/.*)?$
+    action: ALLOW
+
+  - import: (data)/meta/default-config.yaml
