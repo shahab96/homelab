@@ -77,7 +77,7 @@ export class ForgejoRunner extends Construct {
           "    max_delay: 30s",
           "cache:",
           "  enabled: true",
-          "  external_server: https://git.dogar.dev/",
+          "  external_server: http://forgejo.homelab.svc.cluster.local:3000/",
           "  secret: TOKEN_PLACEHOLDER",
           "container:",
           "  docker_host: tcp://localhost:2375",
@@ -95,7 +95,7 @@ export class ForgejoRunner extends Construct {
           "server:",
           "  connections:",
           "    default:",
-          "      url: https://git.dogar.dev/",
+          "      url: http://forgejo.homelab.svc.cluster.local:3000/",
           `      uuid: ${runnerUuid}`,
           "      token: TOKEN_PLACEHOLDER",
         ].join("\n"),
@@ -179,8 +179,8 @@ export class ForgejoRunner extends Construct {
                   },
                 ],
                 volumeMount: [
-              {
-                name: "runner-config",
+                  {
+                    name: "runner-config",
                     mountPath: "/config-in",
                     readOnly: true,
                   },
