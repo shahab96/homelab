@@ -25,7 +25,7 @@ export class NixCache extends Construct {
       provider,
       name,
       namespace,
-      accessModes: ["ReadWriteMany"],
+      accessModes: ["ReadWriteOnce"],
       size: "16Gi",
     });
 
@@ -74,6 +74,9 @@ export class NixCache extends Construct {
       },
       spec: {
         replicas: "1",
+        strategy: {
+          type: "Recreate",
+        },
         selector: {
           matchLabels: {
             app: name,

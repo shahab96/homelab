@@ -9,7 +9,7 @@ storage:
   disk:
     persistence:
       enabled: true
-      accessMode: ReadWriteMany
+      accessMode: ReadWriteOnce
       size: 16Gi
       storageClass: longhorn
 configEnvVars:

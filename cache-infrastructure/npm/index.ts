@@ -40,7 +40,7 @@ export class NpmCache extends Construct {
       namespace,
       name,
       size: "16Gi",
-      accessModes: ["ReadWriteMany"],
+      accessModes: ["ReadWriteOnce"],
     });
 
     new ServiceV1(this, "service", {
@@ -71,6 +71,9 @@ export class NpmCache extends Construct {
       },
       spec: {
         replicas: "1",
+        strategy: {
+          type: "Recreate",
+        },
         selector: {
           matchLabels: {
             app: name,
