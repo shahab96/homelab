@@ -19,6 +19,8 @@ topologySpreadConstraints:
         app: traefik
 additionalArguments:
   - "--entryPoints.ssh.address=:2222/tcp"
+  - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=300s"
+  - "--entryPoints.websecure.transport.respondingTimeouts.writeTimeout=300s"
 ports:
   ssh:
     port: 2222
