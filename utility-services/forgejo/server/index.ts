@@ -257,7 +257,7 @@ export class ForgejoServer extends Construct {
       },
       spec: {
         accessModes: ["ReadWriteOnce"],
-        resources: { requests: { storage: "10Gi" } },
+        resources: { requests: { storage: "50Gi" } },
         storageClassName: "longhorn",
       },
     });
