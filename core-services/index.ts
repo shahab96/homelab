@@ -3,10 +3,11 @@ import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { TerraformOutput, TerraformStack } from "cdktf";
 import { Construct } from "constructs";
+import { CertManager } from "./cert-manager";
+import { Cilium } from "./cilium";
 import { Longhorn } from "./longhorn";
 import { MetalLB } from "./metallb";
 import { Traefik } from "./traefik";
-import { CertManager } from "./cert-manager";
 
 export class CoreServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -33,6 +34,12 @@ export class CoreServices extends TerraformStack {
 
     new TerraformOutput(this, "namespace-output", {
       value: namespace,
+    });
+
+    new Cilium(this, "cilium", {
+      provider: helm,
+      name: "cilium",
+      namespace: "kube-system",
     });
 
     new Longhorn(this, "longhorn", {

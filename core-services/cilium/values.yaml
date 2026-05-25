@@ -1,0 +1,16 @@
+kubeProxyReplacement: true
+cluster:
+  name: omf
+  id: 1
+cni:
+  chainingMode: none
+routingMode: native
+ipv4NativeRoutingCIDR: 10.42.0.0/16
+ipam:
+  mode: kubernetes
+autoDirectNodeRoutes: true
+bpf:
+  masquerade: true
+resources:
+  requests:
+    memory: 128Mi
