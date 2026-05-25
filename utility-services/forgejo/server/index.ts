@@ -146,7 +146,8 @@ export class ForgejoServer extends Construct {
       provider,
       metadata: { name: `${name}-service-config`, namespace },
       data: {
-        FORGEJO__service__DISABLE_REGISTRATION: "true",
+        FORGEJO__service__DISABLE_REGISTRATION: "false",
+        FORGEJO__service__ALLOW_ONLY_EXTERNAL_REGISTRATION: "true",
       },
     });
 
