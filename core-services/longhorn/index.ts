@@ -48,7 +48,7 @@ export class Longhorn extends Construct {
           cron: "0 0 * * *",
           task: "backup",
           retain: 7,
-          concurrency: 3,
+          concurrency: 10,
         },
       },
     });
