@@ -39,7 +39,7 @@ export class CacheInfrastructure extends TerraformStack {
     });
 
     new NpmCache(this, "npm-cache", {
-      provider: kubernetes,
+      providers: { kubernetes, helm },
       namespace,
       name: "npm-cache",
       host: "npm.dogar.dev",

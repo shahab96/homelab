@@ -1,0 +1,51 @@
+fullnameOverride: npm-cache
+
+configMap: |
+  web:
+    enable: false
+  storage: /verdaccio/storage/data
+  uplinks:
+    npmjs:
+      url: https://registry.npmjs.org/
+  packages:
+    "@*/*":
+      access: $all
+      publish: never
+      proxy: npmjs
+    "**":
+      access: $all
+      publish: never
+      proxy: npmjs
+  middlewares:
+    audit:
+      enabled: true
+  log: { type: stdout, format: pretty, level: http }
+
+persistence:
+  size: 16Gi
+  storageClass: longhorn
+
+ingress:
+  enabled: false
+
+nodeSelector:
+  nodepool: worker
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/instance: npm-cache
+
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: kubernetes.io/hostname
+        labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: In
+              values:
+                - npm-cache
