@@ -68,6 +68,7 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "docker-cache",
       host: "docker.dogar.dev",
+      upstreamUrl: "https://registry-1.docker.io",
       bucket: "docker-cache",
     });
 

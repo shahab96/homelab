@@ -4,7 +4,8 @@ log:
 storage:
   s3:
     region: us-east-1
-    regionendpoint: http://rustfs-tenant-io.homelab.svc.cluster.local:9000
+    regionendpoint: https://rustfs-tenant-io.homelab.svc.cluster.local:9000
+    skipverify: true
 http:
   addr: :5000
   headers:
