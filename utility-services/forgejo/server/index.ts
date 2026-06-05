@@ -136,9 +136,10 @@ export class ForgejoServer extends Construct {
       metadata: { name: `${name}-storage-config`, namespace },
       data: {
         FORGEJO__storage__STORAGE_TYPE: "minio",
-        FORGEJO__storage__MINIO_USE_SSL: "true",
+        FORGEJO__storage__MINIO_USE_SSL: "false",
         FORGEJO__storage__MINIO_BUCKET: "forgejo",
-        FORGEJO__storage__MINIO_ENDPOINT: "blob.dogar.dev:443",
+        FORGEJO__storage__MINIO_ENDPOINT: "rustfs-tenant-io.homelab.svc.cluster.local:9000",
+        FORGEJO__storage__MINIO_INSECURE_SKIP_VERIFY: "true",
       },
     });
 
@@ -263,7 +264,7 @@ export class ForgejoServer extends Construct {
       },
     });
 
-    new ServiceV1(this, "http-service", {
+    new ServiceV1(this, "service", {
       provider,
       metadata: { name, namespace },
       spec: {
