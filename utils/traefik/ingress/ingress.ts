@@ -31,6 +31,14 @@ export type IngressRouteOptions = {
 
   /** Enable sticky sessions via cookie (required for stateful backends like OIDC) */
   sticky?: boolean;
+
+  /** Skip creating a PrivateCertificate for backend HTTPS.
+   *
+   *  Set to true when the backend already manages its own TLS cert
+   *  (e.g. RustFS operator-managed servers). The ServersTransport
+   *  and verification against root-secret are still created.
+   */
+  skipBackendCertificate?: boolean;
 };
 
 export class IngressRoute extends Construct {
@@ -46,18 +54,20 @@ export class IngressRoute extends Construct {
     const { provider, namespace } = opts;
 
     if (opts.serviceProtocol === "https") {
-      new PrivateCertificate(this, "internal-cert", {
-        provider,
-        namespace,
-        name: `${opts.serviceName}-tls-internal`,
-        secretName: `${opts.serviceName}-tls-internal`,
-        dnsNames: [
-          opts.serviceName,
-          `${opts.serviceName}.${opts.namespace}.svc`,
-          `${opts.serviceName}.${opts.namespace}.svc.cluster.local`,
-        ],
-        usages: ["digital signature", "key encipherment", "server auth"],
-      });
+      if (!opts.skipBackendCertificate) {
+        new PrivateCertificate(this, "internal-cert", {
+          provider,
+          namespace,
+          name: `${opts.serviceName}-tls-internal`,
+          secretName: `${opts.serviceName}-tls-internal`,
+          dnsNames: [
+            opts.serviceName,
+            `${opts.serviceName}.${opts.namespace}.svc`,
+            `${opts.serviceName}.${opts.namespace}.svc.cluster.local`,
+          ],
+          usages: ["digital signature", "key encipherment", "server auth"],
+        });
+      }
 
       new Manifest(this, `${name}-https-transport`, {
         provider,

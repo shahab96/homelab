@@ -36,6 +36,27 @@ export class RustFS extends Construct {
           credsSecret: {
             name: "rustfs-credentials",
           },
+          tls: {
+            mode: "certManager",
+            mountPath: "/var/run/rustfs/tls",
+            rotationStrategy: "Rollout",
+            requireSanMatch: true,
+            enableInternodeHttps: true,
+            certManager: {
+              manageCertificate: true,
+              secretName: "rustfs-tenant-tls",
+              issuerRef: {
+                group: "cert-manager.io",
+                kind: "ClusterIssuer",
+                name: "cluster-issuer",
+              },
+              dnsNames: [
+                "rustfs-tenant-console.homelab.svc",
+                "rustfs-tenant-console.homelab.svc.cluster.local",
+              ],
+              includeGeneratedDnsNames: true,
+            },
+          },
           env: [{
             name: "RUSTFS_IDENTITY_OPENID_ENABLE",
             value: "on",
@@ -73,6 +94,12 @@ export class RustFS extends Construct {
           }, {
             name: "RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS",
             value: "https://blob.dogar.dev"
+          }, {
+            name: "RUSTFS_OBJECT_LOCK_ACQUIRE_TIMEOUT",
+            value: "30",
+          }, {
+            name: "RUSTFS_LOCK_ACQUIRE_TIMEOUT",
+            value: "30",
           }],
           pools: [{
             name: "primary",
@@ -100,11 +127,13 @@ export class RustFS extends Construct {
 
     new PublicIngressRoute(this, "ingress", {
       provider,
-      name,
+      name: `${name}-public`,
       namespace,
       host: "blob.dogar.dev",
       serviceName: `rustfs-tenant-console`,
       servicePort: 9001,
+      serviceProtocol: "https",
+      skipBackendCertificate: true,
       sticky: true,
     });
   }
