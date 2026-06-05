@@ -6,15 +6,35 @@ nodeSelector:
 strategy:
   type: Recreate
 storage:
-  disk:
-    persistence:
-      enabled: true
-      accessMode: ReadWriteOnce
-      size: 16Gi
-      storageClass: longhorn
+  type: minio
+  minio:
+    endpoint: "rustfs-tenant-io.homelab.svc.cluster.local:9000"
+    bucket: "go-cache"
+extraVolumes:
+  - name: rustfs-ca
+    configMap:
+      name: rustfs-ca
+extraVolumeMounts:
+  - name: rustfs-ca
+    mountPath: /etc/ssl/certs/rustfs-ca.crt
+    subPath: ca.crt
 configEnvVars:
   - name: ATHENS_DOWNLOAD_MODE
     value: "sync"
+  - name: ATHENS_MINIO_USE_SSL
+    value: "true"
+  - name: ATHENS_MINIO_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: rustfs-credentials
+        key: accesskey
+  - name: ATHENS_MINIO_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: rustfs-credentials
+        key: secretkey
+  - name: SSL_CERT_FILE
+    value: /etc/ssl/certs/rustfs-ca.crt
 upstreamProxy:
   enabled: true
   url: "https://proxy.golang.org"

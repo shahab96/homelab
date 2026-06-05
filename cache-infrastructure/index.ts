@@ -8,6 +8,7 @@ import { PipCache } from "./pip";
 import { GoCache } from "./go";
 import { DockerRegistryCache } from "./docker";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
+import { OnePasswordSecret } from "../utils";
 
 export class CacheInfrastructure extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -26,9 +27,17 @@ export class CacheInfrastructure extends TerraformStack {
     const namespace = "package-cache";
 
     new NamespaceV1(this, "package-cache-namespace", {
+      provider: kubernetes,
       metadata: {
         name: namespace,
       },
+    });
+
+    new OnePasswordSecret(this, "s3-creds", {
+      provider: kubernetes,
+      namespace,
+      name: "rustfs-credentials",
+      itemPath: "vaults/Lab/items/rustfs-credentials",
     });
 
     // Add cache-related infrastructure components here

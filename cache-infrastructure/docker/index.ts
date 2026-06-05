@@ -6,7 +6,7 @@ import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
-import { PublicIngressRoute, OnePasswordSecret } from "../../utils";
+import { PublicIngressRoute } from "../../utils";
 
 type DockerRegistryCacheOptions = {
   provider: KubernetesProvider;
@@ -22,13 +22,6 @@ export class DockerRegistryCache extends Construct {
     super(scope, id);
 
     const { provider, name, namespace, host, upstreamUrl, bucket } = options;
-
-    new OnePasswordSecret(this, "s3-creds", {
-      provider,
-      namespace,
-      name: "rustfs-credentials",
-      itemPath: "vaults/Lab/items/rustfs-credentials",
-    });
 
     const registryConfig = fs.readFileSync(
       path.join(__dirname, "./config.yml"),
