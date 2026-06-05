@@ -6,6 +6,7 @@ import { NixCache } from "./nix";
 import { NpmCache } from "./npm";
 import { PipCache } from "./pip";
 import { GoCache } from "./go";
+import { DockerRegistryCache } from "./docker";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 
 export class CacheInfrastructure extends TerraformStack {
@@ -60,6 +61,32 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "go-cache",
       host: "go.dogar.dev",
+    });
+
+    new DockerRegistryCache(this, "docker-cache", {
+      provider: kubernetes,
+      namespace,
+      name: "docker-cache",
+      host: "docker.dogar.dev",
+      bucket: "docker-cache",
+    });
+
+    new DockerRegistryCache(this, "ghcr-cache", {
+      provider: kubernetes,
+      namespace,
+      name: "ghcr-cache",
+      host: "ghcr.dogar.dev",
+      upstreamUrl: "https://ghcr.io",
+      bucket: "ghcr-cache",
+    });
+
+    new DockerRegistryCache(this, "quay-cache", {
+      provider: kubernetes,
+      namespace,
+      name: "quay-cache",
+      host: "quay.dogar.dev",
+      upstreamUrl: "https://quay.io",
+      bucket: "quay-cache",
     });
   }
 }

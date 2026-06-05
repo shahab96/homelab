@@ -1,0 +1,14 @@
+version: 0.1
+log:
+  level: info
+storage:
+  s3:
+    region: us-east-1
+    regionendpoint: https://rustfs-tenant-io.homelab.svc.cluster.local:9000
+    skipverify: true
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+proxy:
+  remoteurl: https://registry-1.docker.io
