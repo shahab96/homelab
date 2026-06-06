@@ -17,3 +17,5 @@ metrics:
     enabled: true
 ingress:
   enabled: false
+persistence:
+  reclaimPolicy: Retain
