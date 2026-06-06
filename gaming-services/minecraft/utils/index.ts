@@ -53,7 +53,7 @@ export class MinecraftServer extends Construct {
       },
       waitForRollout: false,
       spec: {
-        replicas: "0",
+        replicas: "1",
         serviceName: name,
         updateStrategy: [
           {

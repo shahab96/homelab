@@ -19,12 +19,19 @@ topologySpreadConstraints:
         app: traefik
 additionalArguments:
   - "--entryPoints.ssh.address=:2222/tcp"
+  - "--entryPoints.tfg.address=:25565/tcp"
   - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=300s"
   - "--entryPoints.websecure.transport.respondingTimeouts.writeTimeout=300s"
 ports:
   ssh:
     port: 2222
     exposedPort: 2222
+    expose:
+      default: true
+    protocol: TCP
+  tfg:
+    port: 25565
+    exposedPort: 25565
     expose:
       default: true
     protocol: TCP
