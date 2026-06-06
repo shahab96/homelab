@@ -100,10 +100,25 @@ export class RustFS extends Construct {
           }, {
             name: "RUSTFS_LOCK_ACQUIRE_TIMEOUT",
             value: "30",
+          }, {
+            name: "RUSTFS_OBJECT_DEADLOCK_DETECTION_ENABLE",
+            value: "true",
+          }, {
+            name: "RUSTFS_OBJECT_LOCK_DIAG_ENABLE",
+            value: "true",
           }],
           pools: [{
             name: "primary",
             servers: 2,
+            resources: {
+              requests: {
+                cpu: "500m",
+                memory: "512Mi",
+              },
+              limits: {
+                memory: "1Gi",
+              },
+            },
             persistence: {
               labels: {
                 "recurring-job.longhorn.io/daily-backup": "enabled",
