@@ -2,7 +2,7 @@ global:
   nodeSelector:
     nodepool: worker
 defaultSettings:
-  defaultReplicaCount: "3"
+  defaultReplicaCount: "1"
   storageOverProvisioningPercentage: "100"
   backupCompressionMethod: "gzip"
   replicaSoftAntiAffinity: "true"
