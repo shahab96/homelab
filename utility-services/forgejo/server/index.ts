@@ -3,7 +3,6 @@ import * as path from "path";
 import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
-import { PersistentVolumeClaimV1 } from "@cdktf/provider-kubernetes/lib/persistent-volume-claim-v1";
 import { DeploymentV1 } from "@cdktf/provider-kubernetes/lib/deployment-v1";
 import { ServiceV1 } from "@cdktf/provider-kubernetes/lib/service-v1";
 
@@ -11,6 +10,7 @@ import {
   OnePasswordSecret,
   PublicIngressRoute,
   IngressRouteTcp,
+  LonghornPvc,
 } from "../../../utils";
 
 type ForgejoServerOptions = {
@@ -247,21 +247,12 @@ export class ForgejoServer extends Construct {
       },
     });
 
-    new PersistentVolumeClaimV1(this, "data", {
+    new LonghornPvc(this, "data", {
       provider,
-      metadata: {
-        name: `${name}-data`,
-        namespace,
-        labels: {
-          "recurring-job.longhorn.io/source": "enabled",
-          "recurring-job.longhorn.io/daily-backup": "enabled",
-        },
-      },
-      spec: {
-        accessModes: ["ReadWriteOnce"],
-        resources: { requests: { storage: "50Gi" } },
-        storageClassName: "longhorn",
-      },
+      backup: true,
+      name: `${name}-data`,
+      namespace,
+      size: "50Gi",
     });
 
     new ServiceV1(this, "service", {

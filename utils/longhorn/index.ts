@@ -1,6 +1,7 @@
 import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { PersistentVolumeClaimV1 } from "@cdktf/provider-kubernetes/lib/persistent-volume-claim-v1";
+import { namespace } from "@cdktf/provider-kubernetes";
 
 type LonghornPvcOptions = {
   provider: KubernetesProvider;
@@ -35,11 +36,12 @@ export class LonghornPvc extends Construct {
 
     this.name = opts.name;
 
+    const labels: Record<string, string> = opts.labels ?? {};
     const annotations: Record<string, string> = opts.annotations ?? {};
 
     if (opts.backup) {
-      annotations["recurring-job.longhorn.io/daily-backup"] = "enabled";
-      annotations["recurring-job.longhorn.io/source"] = "enabled";
+      labels["recurring-job.longhorn.io/daily-backup"] = "enabled";
+      labels["recurring-job.longhorn.io/source"] = "enabled";
     }
 
     new PersistentVolumeClaimV1(this, id, {
@@ -47,7 +49,7 @@ export class LonghornPvc extends Construct {
       metadata: {
         name: opts.name,
         namespace: opts.namespace,
-        labels: opts.labels ?? {},
+        labels,
         annotations,
       },
       spec: {
@@ -59,6 +61,6 @@ export class LonghornPvc extends Construct {
           },
         },
       },
-    });
+    }).importFrom(`${opts.namespace}/${opts.name}`);
   }
 }
