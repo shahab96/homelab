@@ -20,6 +20,9 @@ type LonghornPvcOptions = {
   /** Optional PVC labels */
   labels?: Record<string, string>;
 
+  /** Optional PVC annotations */
+  annotations?: Record<string, string>;
+
   /** Add backup annotations */
   backup?: boolean;
 };
@@ -32,22 +35,24 @@ export class LonghornPvc extends Construct {
 
     this.name = opts.name;
 
+    const annotations: Record<string, string> = opts.annotations ?? {};
+
+    if (opts.backup) {
+      annotations["recurring-job.longhorn.io/daily-backup"] = "enabled";
+      annotations["recurring-job.longhorn.io/source"] = "enabled";
+    }
+
     new PersistentVolumeClaimV1(this, id, {
       provider: opts.provider,
       metadata: {
         name: opts.name,
         namespace: opts.namespace,
         labels: opts.labels ?? {},
-        annotations: opts.backup
-          ? {
-              "recurring-job.longhorn.io/daily-backup": "enabled",
-              "recurring-job.longhorn.io/source": "enabled",
-            }
-          : {},
+        annotations,
       },
       spec: {
         accessModes: opts.accessModes ?? ["ReadWriteOnce"],
-        storageClassName: "longhorn", // HARD-CODED
+        storageClassName: "longhorn",
         resources: {
           requests: {
             storage: opts.size,
