@@ -21,6 +21,10 @@ extraVolumeMounts:
 configEnvVars:
   - name: ATHENS_DOWNLOAD_MODE
     value: "sync"
+  - name: ATHENS_GLOBAL_ENDPOINT
+    value: "https://proxy.golang.org"
+  - name: ATHENS_PROTOCOL_WORKERS
+    value: "12"
   - name: ATHENS_MINIO_USE_SSL
     value: "true"
   - name: ATHENS_MINIO_ACCESS_KEY_ID
@@ -36,5 +40,4 @@ configEnvVars:
   - name: SSL_CERT_FILE
     value: /etc/ssl/certs/rustfs-ca.crt
 upstreamProxy:
-  enabled: true
-  url: "https://proxy.golang.org"
+  enabled: false

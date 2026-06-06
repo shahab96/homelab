@@ -37,7 +37,7 @@ export class GoCache extends Construct {
         namespace,
       },
       data: {
-        "ca.crt": caSecret.data.lookup("tls.crt"),
+        "ca.crt": caSecret.data.lookup("ca.crt"),
       },
     });
 
