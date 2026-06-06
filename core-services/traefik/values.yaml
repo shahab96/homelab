@@ -19,7 +19,7 @@ topologySpreadConstraints:
         app: traefik
 additionalArguments:
   - "--entryPoints.ssh.address=:2222/tcp"
-  - "--entryPoints.atm9.address=:25565/tcp"
+  - "--entryPoints.minecraft-atm9.address=:25565/tcp"
   - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=300s"
   - "--entryPoints.websecure.transport.respondingTimeouts.writeTimeout=300s"
 ports:
@@ -29,7 +29,7 @@ ports:
     expose:
       default: true
     protocol: TCP
-  atm9:
+  minecraft-atm9:
     port: 25565
     exposedPort: 25565
     expose:
