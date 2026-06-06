@@ -12,7 +12,8 @@
 
 - **`.env`** is gitignored but required. Validated by `envalid` in `main.ts`. Source secrets from 1Password (`op://`).
 - **`npm run get`** generates `.gen/` (cdktf provider bindings). This directory is gitignored. Must run after clone and after any provider changes.
-- **`npm run build`** (or `compile`) runs `tsc`. Compiled `.js`/`.d.ts` output is gitignored. Required before `cdktf synth` or `cdktf deploy`.
+- **`npm run build`** (or `compile`) runs `tsc`. It may emit compiled `.js`/`.d.ts` files. Agents must prefer `npx tsc --noEmit` for verification unless the user explicitly asks for emitted build output.
+- **Agents must NEVER create, emit, generate, or leave behind `.js` or `.d.ts` files.** If any command would produce them, use a no-emit equivalent or do not run it. If generated accidentally, remove only the generated files from the agent's own command before finishing.
 
 ## Commands
 
@@ -78,7 +79,7 @@ All Terraform state is stored in **S3-compatible storage** (DigitalOcean Spaces)
 - **Homelab namespace is imported** (`importFrom("homelab")` in core-services). If it doesn't exist on the cluster, deploy fails.
 - **Elasticsearch and Minecraft modpacks (TFG, GTNH)** exist as source files but are commented out in their index files. Do not uncomment unless intentionally deploying them.
 - **Gitea → Forgejo migration in progress** — both source dirs exist. Forgejo is the active one in `utility-services/index.ts`.
-- Some `.js`/`.d.ts` files are committed despite `.gitignore` — these pre-date the ignore rule. Safe to leave as-is.
+- Some `.js`/`.d.ts` files are committed despite `.gitignore` — these pre-date the ignore rule. Safe to leave as-is, but agents must never produce new ones.
 - **`cdktf.out/`** is gitignored. CDKTF synth output is ephemeral.
 
 ## Key env vars (from `main.ts` envalid)
