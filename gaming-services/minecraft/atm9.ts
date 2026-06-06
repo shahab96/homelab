@@ -46,7 +46,7 @@ export class AllTheMods9 extends Construct {
         },
         {
           name: "CF_FILENAME_MATCHER",
-          value: "9-1.1.1",
+          value: "1.1.1",
         },
         {
           name: "VERSION",
