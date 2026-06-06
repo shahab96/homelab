@@ -97,6 +97,10 @@ export class QBittorrentServer extends Construct {
                     name: "bt-udp",
                   },
                 ],
+                command: ["/bin/sh", "-c"],
+                args: [
+                  "rm -f /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket && exec /init",
+                ],
                 env: [
                   ...getCommonEnv(),
                   {
