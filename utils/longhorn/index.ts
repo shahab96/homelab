@@ -61,6 +61,6 @@ export class LonghornPvc extends Construct {
           },
         },
       },
-    }).importFrom(`${opts.namespace}/${opts.name}`);
+    });
   }
 }
