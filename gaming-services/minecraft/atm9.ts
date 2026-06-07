@@ -28,6 +28,10 @@ export class AllTheMods9 extends Construct {
           value: "survival",
         },
         {
+          name: "DIFFICULTY",
+          value: "peaceful",
+        },
+        {
           name: "MODPACK_PLATFORM",
           value: "AUTO_CURSEFORGE",
         },
@@ -45,32 +49,12 @@ export class AllTheMods9 extends Construct {
           value: "https://www.curseforge.com/minecraft/modpacks/all-the-mods-9",
         },
         {
-          name: "CF_FILENAME_MATCHER",
-          value: "1.1.1",
+          name: "REMOVE_MODS",
+          value: "mekalus",
         },
         {
-          name: "VERSION",
-          value: "1.20.1",
-        },
-        {
-          name: "INIT_MEMORY",
-          value: "2G",
-        },
-        {
-          name: "MAX_MEMORY",
+          name: "MEMORY",
           value: "10G",
-        },
-        {
-          name: "ALLOW_FLIGHT",
-          value: "TRUE",
-        },
-        {
-          name: "ENABLE_ROLLING_LOGS",
-          value: "TRUE",
-        },
-        {
-          name: "USE_MEOWICE_FLAGS",
-          value: "TRUE",
         },
       ],
     });

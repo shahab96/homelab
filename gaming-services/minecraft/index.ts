@@ -4,7 +4,7 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { OnePasswordSecret } from "../../utils";
 import { AllTheMods9 } from "./atm9";
-// import { TerraFirmaGreg } from "./tfg";
+import { TerraFirmaGreg } from "./tfg";
 // import { GTNH } from "./gtnh";
 
 export class GamingServices extends TerraformStack {
@@ -34,7 +34,7 @@ export class GamingServices extends TerraformStack {
     const atm9 = new AllTheMods9(this, "atm9", provider, namespace);
     atm9.node.addDependency(curseforge);
 
-    // new TerraFirmaGreg(this, "tfg", provider, namespace);
+    new TerraFirmaGreg(this, "tfg", provider, namespace);
     // new GTNH(this, "gtnh", provider, namespace);
   }
 }
