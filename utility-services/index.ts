@@ -75,6 +75,9 @@ export class UtilityServices extends TerraformStack {
         "go.dogar.dev",
         "pos.omf.dogar.dev",
         "blob.dogar.dev",
+        "docker.dogar.dev",
+        "ghcr.dogar.dev",
+        "quay.dogar.dev",
       ],
     });
 
