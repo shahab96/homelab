@@ -51,6 +51,7 @@ Each layer is a `TerraformStack` class in `main.ts`. Dependencies are enforced v
 - **Top-level stacks** extend `TerraformStack` (one per layer directory).
 - **Services within a stack** extend `Construct` and are instantiated inside the stack's constructor.
 - **Reusable constructs** live in `utils/`: cert-manager wrappers, 1Password secrets, Traefik IngressRoutes, Longhorn PVCs.
+- **`LonghornPvc` creates PVCs** with `storageClassName: "longhorn"`; it does not import existing PVCs automatically.
 - Shared types in `types.ts` → `Providers` (KubernetesProvider + HelmProvider pair).
 
 ### Namespaces
@@ -58,6 +59,12 @@ Each layer is a `TerraformStack` class in `main.ts`. Dependencies are enforced v
 - `homelab` — core namespace, **imported** (must pre-exist on the cluster), not created by this code.
 - `media`, `minecraft`, `package-cache` — created by their respective stacks.
 - `kube-system`, `metallb-system` — system namespaces used by operators.
+
+### Scheduling assumptions
+
+- Many workloads require nodes labeled `nodepool=worker`.
+- Media workloads also target `kubernetes.io/hostname=aamil-3`.
+- These labels are runtime cluster requirements. Keep Nix/node config and live cluster labels in sync before applying infra changes.
 
 ### Kubernetes providers
 
@@ -77,8 +84,12 @@ All Terraform state is stored in **S3-compatible storage** (DigitalOcean Spaces)
 
 - **TypeScript 6.x** and **cdktf 0.21.x** — very recent versions. Some cdktf provider packages (`@cdktf/provider-kubernetes`, `@cdktf/provider-helm`) are pinned to exact versions.
 - **Homelab namespace is imported** (`importFrom("homelab")` in core-services). If it doesn't exist on the cluster, deploy fails.
-- **Elasticsearch and Minecraft modpacks (TFG, GTNH)** exist as source files but are commented out in their index files. Do not uncomment unless intentionally deploying them.
+- **Minecraft ATM9 and TFG are active** in `gaming-services/minecraft/index.ts`. GTNH exists as source but is commented out.
 - **Gitea → Forgejo migration in progress** — both source dirs exist. Forgejo is the active one in `utility-services/index.ts`.
+- **Traefik Minecraft ports need care**: `core-services/traefik/values.yaml` currently has duplicate `minecraft-atm9` port keys; the second entry is likely intended for TFG.
+- **Barman plugin install is imperative** via `kubectl apply` in a `local-exec`; treat it as drift-prone compared to Terraform-managed Kubernetes resources.
+- **Several images use `latest` tags** across utility, cache, media, and Netbird services. Pin before expecting reproducible rollouts.
+- **Live clusters may have both `local-path` and `longhorn` marked default**. Critical PVCs should set `storageClassName` explicitly.
 - Some `.js`/`.d.ts` files are committed despite `.gitignore` — these pre-date the ignore rule. Safe to leave as-is, but agents must never produce new ones.
 - **`cdktf.out/`** is gitignored. CDKTF synth output is ephemeral.
 
