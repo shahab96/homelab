@@ -8,6 +8,8 @@ import { PipCache } from "./pip";
 import { GoCache } from "./go";
 import { DockerRegistryCache } from "./docker";
 import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
+import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
+import { DataKubernetesSecretV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-secret-v1";
 import { OnePasswordSecret } from "../utils";
 
 export class CacheInfrastructure extends TerraformStack {
@@ -38,6 +40,25 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "rustfs-credentials",
       itemPath: "vaults/Lab/items/rustfs-credentials",
+    });
+
+    const caSecret = new DataKubernetesSecretV1(this, "ca-secret", {
+      provider: kubernetes,
+      metadata: {
+        name: "homelab-ca-secret",
+        namespace: "homelab",
+      },
+    });
+
+    new ConfigMapV1(this, "ca-configmap", {
+      provider: kubernetes,
+      metadata: {
+        name: "rustfs-ca",
+        namespace,
+      },
+      data: {
+        "ca.crt": caSecret.data.lookup("ca.crt"),
+      },
     });
 
     // Add cache-related infrastructure components here

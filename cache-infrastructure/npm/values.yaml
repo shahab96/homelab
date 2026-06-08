@@ -1,9 +1,30 @@
 fullnameOverride: npm-cache
 
+image:
+  tag: "7.x-next"
+  pullPolicy: IfNotPresent
+
+strategy:
+  type: Recreate
+
 configMap: |
+  storage: /verdaccio/storage
+  plugins: /verdaccio/plugins/node_modules
+
   web:
     enable: false
-  storage: /verdaccio/storage/data
+
+  store:
+    aws-s3-storage:
+      bucket: AWS_S3_BUCKET
+      keyPrefix: AWS_S3_KEY_PREFIX
+      endpoint: AWS_S3_ENDPOINT
+      s3ForcePathStyle: true
+      dynamoTableName: none
+      accessKeyId: AWS_ACCESS_KEY_ID
+      secretAccessKey: AWS_SECRET_ACCESS_KEY
+      region: AWS_DEFAULT_REGION
+
   uplinks:
     npmjs:
       url: https://registry.npmjs.org/
@@ -21,9 +42,61 @@ configMap: |
       enabled: true
   log: { type: stdout, format: pretty, level: http }
 
+extraEnvVars:
+  - name: AWS_S3_BUCKET
+    value: npm-cache
+  - name: AWS_S3_KEY_PREFIX
+    value: packages
+  - name: AWS_S3_ENDPOINT
+    value: https://rustfs-tenant-io.homelab.svc.cluster.local:9000
+  - name: AWS_DEFAULT_REGION
+    value: us-east-1
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: rustfs-credentials
+        key: accesskey
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: rustfs-credentials
+        key: secretkey
+  - name: NODE_EXTRA_CA_CERTS
+    value: /etc/ssl/certs/rustfs-ca.crt
+
+extraInitContainers:
+  - name: install-plugins
+    image: node:24-alpine
+    env:
+      - name: HOME
+        value: /verdaccio/plugins
+    securityContext:
+      runAsUser: 10001
+    command:
+      - sh
+      - -c
+      - |
+        cd /verdaccio/plugins
+        npm init -y
+        npm install verdaccio-aws-s3-storage@12
+    volumeMounts:
+      - name: plugins
+        mountPath: /verdaccio/plugins
+
 persistence:
-  size: 16Gi
-  storageClass: longhorn
+  enabled: false
+  volumes:
+    - name: plugins
+      emptyDir: {}
+    - name: rustfs-ca
+      configMap:
+        name: rustfs-ca
+  mounts:
+    - name: plugins
+      mountPath: /verdaccio/plugins
+    - name: rustfs-ca
+      mountPath: /etc/ssl/certs/rustfs-ca.crt
+      subPath: ca.crt
 
 ingress:
   enabled: false

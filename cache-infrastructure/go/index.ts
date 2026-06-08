@@ -1,8 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Release } from "@cdktf/provider-helm/lib/release";
-import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
-import { DataKubernetesSecretV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-secret-v1";
 import { Construct } from "constructs";
 
 import { PublicIngressRoute } from "../../utils";
@@ -21,25 +19,6 @@ export class GoCache extends Construct {
 
     const { namespace, name, host } = opts;
     const { helm, kubernetes } = opts.providers;
-
-    const caSecret = new DataKubernetesSecretV1(this, "ca-secret", {
-      provider: kubernetes,
-      metadata: {
-        name: "homelab-ca-secret",
-        namespace: "homelab",
-      },
-    });
-
-    new ConfigMapV1(this, "ca-configmap", {
-      provider: kubernetes,
-      metadata: {
-        name: "rustfs-ca",
-        namespace,
-      },
-      data: {
-        "ca.crt": caSecret.data.lookup("ca.crt"),
-      },
-    });
 
     new Release(this, "helm-release", {
       provider: helm,
