@@ -24,7 +24,7 @@ const env = cleanEnv(process.env, {
   ACCESS_KEY: str({ desc: "Access key ID for R2 storage." }),
   SECRET_KEY: str({ desc: "Secret access key for R2 storage." }),
   VALKEY_PASSWORD: str({ desc: "Password for Valkey database." }),
-  AUTHENTIK_TOKEN: str({ desc: "Authentik API token from op://Lab/authentik-terraform-token/token" }),
+  AUTHENTIK_TOKEN: str({ desc: "Authentik API token." }),
 });
 
 const app = new App();
