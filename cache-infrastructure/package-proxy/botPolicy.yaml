@@ -4,7 +4,7 @@ bots:
     action: ALLOW
 
   - name: package-proxy-ui
-    path_regex: ^/$|^/ui(/.*)?$
+    path_regex: ^/$|^/ui(/.*)?$|^/api(/.*)?$|^/stats$|^/metrics$
     action: CHALLENGE
 
   - import: (data)/meta/default-config.yaml
