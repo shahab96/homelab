@@ -3,8 +3,6 @@ import { TerraformStack } from "cdktf";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { NixCache } from "./nix";
-import { NpmCache } from "./npm";
-import { PipCache } from "./pip";
 import { PackageProxy } from "./package-proxy";
 import { GoCache } from "./go";
 import { DockerRegistryCache } from "./docker";
@@ -68,20 +66,6 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "nix-cache",
       host: "nix.dogar.dev",
-    });
-
-    new NpmCache(this, "npm-cache", {
-      providers: { kubernetes, helm },
-      namespace,
-      name: "npm-cache",
-      host: "npm.dogar.dev",
-    });
-
-    new PipCache(this, "pip-cache", {
-      provider: kubernetes,
-      namespace,
-      name: "pip-cache",
-      host: "pip.dogar.dev",
     });
 
     new PackageProxy(this, "package-proxy", {

@@ -1,0 +1,10 @@
+bots:
+  - name: package-endpoints
+    path_regex: ^/(npm|pypi|cargo|go|gem|hex|pub|maven|gradle|nuget|composer|conan|conda|cran|julia|v2|debian|rpm)(/.*)?$
+    action: ALLOW
+
+  - name: package-proxy-ui
+    path_regex: ^/$|^/ui(/.*)?$
+    action: CHALLENGE
+
+  - import: (data)/meta/default-config.yaml
