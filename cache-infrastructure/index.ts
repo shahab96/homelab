@@ -4,9 +4,7 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { NixCache } from "./nix";
 import { PackageProxy } from "./package-proxy";
-import { GoCache } from "./go";
 import { DockerRegistryCache } from "./docker";
-import { HelmProvider } from "@cdktf/provider-helm/lib/provider";
 import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
 import { DataKubernetesSecretV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-secret-v1";
 import { OnePasswordSecret } from "../utils";
@@ -17,12 +15,6 @@ export class CacheInfrastructure extends TerraformStack {
 
     const kubernetes = new KubernetesProvider(this, "kubernetes", {
       configPath: "~/.kube/config",
-    });
-
-    const helm = new HelmProvider(this, "helm", {
-      kubernetes: {
-        configPath: "~/.kube/config",
-      },
     });
 
     const namespace = "package-cache";
@@ -73,16 +65,6 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "package-proxy",
       host: "pkgs.dogar.dev",
-    });
-
-    new GoCache(this, "go-cache", {
-      providers: {
-        kubernetes,
-        helm,
-      },
-      namespace,
-      name: "go-cache",
-      host: "go.dogar.dev",
     });
 
     new DockerRegistryCache(this, "docker-cache", {
