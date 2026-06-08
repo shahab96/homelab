@@ -93,7 +93,7 @@ export class UtilityServices extends TerraformStack {
       name: "postgres-cluster",
       namespace,
       provider: kubernetes,
-      users: ["shahab", "budget-tracker", "authentik", "gitea", "forgejo", "netbird"],
+      users: ["shahab", "budget-tracker", "authentik", "gitea", "forgejo", "netbird", "package-proxy"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
       backupR2EndpointURL: `https://${r2Endpoint}`,
