@@ -36,7 +36,7 @@ ports:
     expose:
       default: true
     protocol: TCP
-  minecraft-atm9:
+  minecraft-tfg:
     port: 25566
     exposedPort: 25566
     expose:
