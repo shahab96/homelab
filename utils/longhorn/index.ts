@@ -1,7 +1,6 @@
 import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { PersistentVolumeClaimV1 } from "@cdktf/provider-kubernetes/lib/persistent-volume-claim-v1";
-import { namespace } from "@cdktf/provider-kubernetes";
 
 type LonghornPvcOptions = {
   provider: KubernetesProvider;
