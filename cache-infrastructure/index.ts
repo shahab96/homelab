@@ -67,15 +67,6 @@ export class CacheInfrastructure extends TerraformStack {
       host: "pkgs.dogar.dev",
     });
 
-    new DockerRegistryCache(this, "docker-cache", {
-      provider: kubernetes,
-      namespace,
-      name: "docker-cache",
-      host: "docker.dogar.dev",
-      upstreamUrl: "https://registry-1.docker.io",
-      bucket: "docker-cache",
-    });
-
     new DockerRegistryCache(this, "ghcr-cache", {
       provider: kubernetes,
       namespace,
