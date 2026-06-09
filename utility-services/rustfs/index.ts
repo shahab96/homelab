@@ -113,10 +113,11 @@ export class RustFS extends Construct {
             resources: {
               requests: {
                 cpu: "500m",
-                memory: "512Mi",
+                memory: "1Gi",
               },
               limits: {
-                memory: "1Gi",
+                cpu: "2",
+                memory: "4Gi",
               },
             },
             persistence: {
