@@ -12,6 +12,7 @@ defaultSettings:
 defaultBackupStore:
   backupTarget: "s3://shahab-longhorn-backups@sgp1/"
   backupTargetCredentialSecret: digital-ocean-spaces
+  pollInterval: "3600"
 metrics:
   serviceMonitor:
     enabled: true
