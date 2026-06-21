@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { Manifest } from "@cdktf/provider-kubernetes/lib/manifest";
 import { PublicIngressRoute, OnePasswordSecret } from "../../utils";
+import { pool } from "./pool";
 
 type RustFSOptions = {
   provider: KubernetesProvider;
@@ -107,36 +108,9 @@ export class RustFS extends Construct {
             name: "RUSTFS_OBJECT_LOCK_DIAG_ENABLE",
             value: "true",
           }],
-          pools: [{
-            name: "primary",
-            servers: 2,
-            resources: {
-              requests: {
-                cpu: "500m",
-                memory: "1Gi",
-              },
-              limits: {
-                cpu: "2",
-                memory: "4Gi",
-              },
-            },
-            persistence: {
-              labels: {
-                "recurring-job.longhorn.io/daily-backup": "enabled",
-                "recurring-job.longhorn.io/source": "enabled",
-              },
-              volumesPerServer: 2,
-              volumeClaimTemplate: {
-                accessModes: ["ReadWriteOnce"],
-                storageClassName: "longhorn",
-                resources: {
-                  requests: {
-                    storage: "10Gi",
-                  },
-                },
-              },
-            },
-          }],
+          pools: [
+            pool({ name: "primary", servers: 2, storage: "100Gi", volumesPerServer: 2 }),
+          ],
         },
       },
     });
