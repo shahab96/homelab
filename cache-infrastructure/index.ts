@@ -4,7 +4,6 @@ import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
 import { NamespaceV1 } from "@cdktf/provider-kubernetes/lib/namespace-v1";
 import { NixCache } from "./nix";
 import { PackageProxy } from "./package-proxy";
-import { DockerRegistryCache } from "./docker";
 import { ConfigMapV1 } from "@cdktf/provider-kubernetes/lib/config-map-v1";
 import { DataKubernetesSecretV1 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-secret-v1";
 import { OnePasswordSecret } from "../utils";
@@ -65,24 +64,6 @@ export class CacheInfrastructure extends TerraformStack {
       namespace,
       name: "package-proxy",
       host: "pkgs.dogar.dev",
-    });
-
-    new DockerRegistryCache(this, "ghcr-cache", {
-      provider: kubernetes,
-      namespace,
-      name: "ghcr-cache",
-      host: "ghcr.dogar.dev",
-      upstreamUrl: "https://ghcr.io",
-      bucket: "ghcr-cache",
-    });
-
-    new DockerRegistryCache(this, "quay-cache", {
-      provider: kubernetes,
-      namespace,
-      name: "quay-cache",
-      host: "quay.dogar.dev",
-      upstreamUrl: "https://quay.io",
-      bucket: "quay-cache",
     });
   }
 }
