@@ -11,7 +11,7 @@
   "main": "main.js",
   "types": "main.ts",
   "engines": {
-    "node": ">=24"
+    "node": "26"
   },
   "scripts": {
     "get": "cdktf get",
