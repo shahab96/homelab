@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import { Construct } from "constructs";
 import { TerraformStack } from "cdktf";
 import { KubernetesProvider } from "@cdktf/provider-kubernetes/lib/provider";
@@ -36,6 +38,10 @@ export class Netbird extends TerraformStack {
       name: "netbird",
       repository: "oci://ghcr.io/netbirdio/helm-charts",
       chart: "netbird-operator",
+      upgradeInstall: true,
+      values: [
+        fs.readFileSync(path.join(__dirname, "values.yaml"), "utf-8"),
+      ],
     });
 
     new OnePasswordSecret(this, "netbird-mgmt-api-key", {

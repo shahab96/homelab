@@ -1,0 +1,12 @@
+managementURL: https://netbird.dogar.dev
+
+gatewayAPI:
+  enabled: true
+
+webhook:
+  enableCertManager: false
+
+netbirdAPI:
+  keyFromSecret:
+    name: "netbird-mgmt-api-key"
+    key: "NB_API_KEY"

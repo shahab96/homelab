@@ -10,6 +10,7 @@ import { GamingServices } from "./gaming-services/minecraft";
 import { MediaServices } from "./media-services";
 import { PKI } from "./pki";
 import { Netbird } from "./netbird";
+import { NetbirdResources } from "./netbird-resources";
 import { Authentik } from "./authentik";
 
 dotenv.config();
@@ -57,6 +58,8 @@ netbird.node.addDependency(utilityServices);
 const authentik = new Authentik(app, "authentik");
 authentik.node.addDependency(utilityServices);
 
+const netbirdResources = new NetbirdResources(app, "netbird-resources");
+
 const deploy: (stack: TerraformStack, key: string) => S3Backend = (
   stack,
   key,
@@ -80,13 +83,14 @@ const deploy: (stack: TerraformStack, key: string) => S3Backend = (
 
 deploy(coreServices, "core-services");
 deploy(k8sOperators, "k8s-operators");
+deploy(netbird, "netbird");
+deploy(netbirdResources, "netbird-resources");
 deploy(pki, "pki");
 deploy(networkSecurity, "network-security");
 deploy(utilityServices, "utility-services");
 deploy(caches, "cache-infrastructure");
 deploy(gamingServices, "gaming-services");
 deploy(mediaServices, "media-services");
-deploy(netbird, "netbird");
 deploy(authentik, "authentik");
 
 app.synth();
