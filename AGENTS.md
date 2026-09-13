@@ -88,6 +88,7 @@ All Terraform state is stored in **S3-compatible storage** (DigitalOcean Spaces)
 - **Gitea → Forgejo migration in progress** — both source dirs exist. Forgejo is the active one in `utility-services/index.ts`.
 - **Traefik Minecraft ports need care**: `core-services/traefik/values.yaml` currently has duplicate `minecraft-atm9` port keys; the second entry is likely intended for TFG.
 - **Barman plugin install is imperative** via `kubectl apply` in a `local-exec`; treat it as drift-prone compared to Terraform-managed Kubernetes resources.
+- **`kubernetes_manifest` cannot reconcile the `OpenTelemetryCollector` CRD** ("wrong final value type" provider bug, even with `computedFields`). The otel collector is deployed via the `opentelemetry-collector` Helm chart instead; don't try to manage that CR with `kubernetes_manifest`.
 - **Several images use `latest` tags** across utility, cache, media, and Netbird services. Pin before expecting reproducible rollouts.
 - **Live clusters may have both `local-path` and `longhorn` marked default**. Critical PVCs should set `storageClassName` explicitly.
 - Some `.js`/`.d.ts` files are committed despite `.gitignore` — these pre-date the ignore rule. Safe to leave as-is, but agents must never produce new ones.
