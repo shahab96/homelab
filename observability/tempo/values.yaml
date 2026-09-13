@@ -1,0 +1,44 @@
+tempo:
+  reportingEnabled: false
+  retention: 744h
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo
+        endpoint: blob.dogar.dev
+        access_key: ${RUSTFS_ACCESS_KEY}
+        secret_key: ${RUSTFS_SECRET_KEY}
+        insecure: false
+      wal:
+        path: /var/tempo/wal
+  extraArgs:
+    config.expand-env: "true"
+  extraEnv:
+    - name: RUSTFS_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: rustfs-credentials
+          key: accesskey
+    - name: RUSTFS_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: rustfs-credentials
+          key: secretkey
+
+persistence:
+  enabled: true
+  storageClassName: longhorn
+  size: 10Gi
+
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: prometheus-operator

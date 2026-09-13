@@ -1,4 +1,0 @@
-grafana:
-  enabled: true
-  ingress:
-    enabled: false

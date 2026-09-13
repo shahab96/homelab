@@ -12,6 +12,7 @@ import { PKI } from "./pki";
 import { Netbird } from "./netbird";
 import { NetbirdResources } from "./netbird-resources";
 import { Authentik } from "./authentik";
+import { Observability } from "./observability";
 
 dotenv.config();
 
@@ -39,6 +40,9 @@ pki.node.addDependency(k8sOperators);
 
 const networkSecurity = new NetworkSecurity(app, "network-security");
 networkSecurity.node.addDependency(pki);
+
+const observability = new Observability(app, "observability");
+observability.node.addDependency(networkSecurity);
 
 const utilityServices = new UtilityServices(app, "utility-services");
 utilityServices.node.addDependency(networkSecurity);
@@ -84,6 +88,7 @@ const deploy: (stack: TerraformStack, key: string) => S3Backend = (
 
 deploy(coreServices, "core-services");
 deploy(k8sOperators, "k8s-operators");
+deploy(observability, "observability");
 deploy(netbird, "netbird");
 deploy(netbirdResources, "netbird-resources");
 deploy(pki, "pki");

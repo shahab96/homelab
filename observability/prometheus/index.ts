@@ -12,10 +12,12 @@ type PrometheusOptions = {
 };
 
 export class Prometheus extends Construct {
+  public readonly release: Release;
+
   constructor(scope: Construct, id: string, options: PrometheusOptions) {
     super(scope, id);
 
-    new Release(this, id, {
+    this.release = new Release(this, id, {
       ...options,
       repository: "https://prometheus-community.github.io/helm-charts",
       chart: "kube-prometheus-stack",
