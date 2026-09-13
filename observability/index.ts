@@ -54,9 +54,11 @@ export class Observability extends TerraformStack {
     });
 
     new OtelCollector(this, "otel-collector", {
-      provider: kubernetes,
-      namespace: "monitoring",
+      provider: helm,
       name: "otel-collector",
+      namespace: "monitoring",
+      version: "0.173.1",
+      dependsOn: [prometheus.release],
     });
   }
 }
