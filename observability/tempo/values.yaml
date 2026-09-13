@@ -14,8 +14,8 @@ tempo:
       s3:
         bucket: tempo
         endpoint: blob.dogar.dev
-        access_key: ${RUSTFS_ACCESS_KEY}
-        secret_key: ${RUSTFS_SECRET_KEY}
+        access_key: $${RUSTFS_ACCESS_KEY}
+        secret_key: $${RUSTFS_SECRET_KEY}
         insecure: false
       wal:
         path: /var/tempo/wal
