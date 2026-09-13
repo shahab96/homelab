@@ -4,9 +4,9 @@ import { TerraformStack } from "cdktf";
 import { Construct } from "constructs";
 import { OnePasswordSecret } from "../utils";
 import { Prometheus } from "./prometheus";
-import { OpenTelemetry } from "./otel";
 import { Loki } from "./loki";
 import { Tempo } from "./tempo";
+import { OtelCollector } from "./otel-collector";
 
 export class Observability extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -27,12 +27,6 @@ export class Observability extends TerraformStack {
       namespace: "monitoring",
       name: "prometheus-operator",
       version: "75.10.0",
-    });
-
-    new OpenTelemetry(this, "otel", {
-      provider: helm,
-      name: "otel-operator",
-      version: "0.119.0",
     });
 
     new OnePasswordSecret(this, "rustfs-credentials", {
@@ -57,6 +51,12 @@ export class Observability extends TerraformStack {
       namespace: "monitoring",
       version: "1.24.4",
       dependsOn: [prometheus.release],
+    });
+
+    new OtelCollector(this, "otel-collector", {
+      provider: kubernetes,
+      namespace: "monitoring",
+      name: "otel-collector",
     });
   }
 }
