@@ -5,6 +5,7 @@ import { Construct } from "constructs";
 import { BarmanCloudPluginInstall } from "./barman";
 import { Prometheus } from "./prometheus";
 import { OnePassword } from "./1password";
+import { OpenTelemetry } from "./otel";
 
 export class K8SOperators extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -26,6 +27,12 @@ export class K8SOperators extends TerraformStack {
     new OnePassword(this, "onepassword", {
       provider: helm,
       name: "onepassword",
+    });
+
+    new OpenTelemetry(this, "otel", {
+      provider: helm,
+      name: "otel-operator",
+      version: "0.119.0",
     });
 
     const cnpg = new Release(this, "cnpg-operator", {

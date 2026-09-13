@@ -5,18 +5,20 @@ import { Construct } from "constructs";
 type OpenTelemetryOptions = {
   provider: HelmProvider;
   name: string;
+  version: string;
 };
 
 export class OpenTelemetry extends Construct {
   constructor(scope: Construct, id: string, options: OpenTelemetryOptions) {
     super(scope, id);
 
-    const { provider } = options;
+    const { provider, name, version } = options;
 
     new Release(this, "otel-operator", {
       provider,
-      name: "otel-operator",
-      chart: "open-telemetry",
+      name,
+      chart: "opentelemetry-operator",
+      version,
       repository: "https://open-telemetry.github.io/opentelemetry-helm-charts",
       namespace: "monitoring",
       createNamespace: true,
