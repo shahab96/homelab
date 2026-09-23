@@ -9,6 +9,7 @@ import { SonarrServer } from "./sonarr";
 import { RadarrServer } from "./radarr";
 import { QBittorrentServer } from "./qbittorrent";
 import { ProwlarrServer } from "./prowlarr";
+import { AudiobookshelfServer } from "./audiobookshelf";
 
 export class MediaServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -54,6 +55,7 @@ export class MediaServices extends TerraformStack {
         "radarr.dogar.dev",
         "torrent.dogar.dev",
         "prowlarr.dogar.dev",
+        "audio.dogar.dev",
       ],
       secretName: certificateSecretName,
       commonName: "media.dogar.dev",
@@ -99,6 +101,13 @@ export class MediaServices extends TerraformStack {
       namespace,
       certificateSecretName,
       host: "prowlarr.dogar.dev",
+    });
+
+    new AudiobookshelfServer(this, "audiobookshelf", {
+      provider,
+      namespace,
+      certificateSecretName,
+      host: "audio.dogar.dev",
     });
   }
 }
