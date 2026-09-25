@@ -9,33 +9,43 @@ import {
   getCommonEnv,
 } from "../types";
 
-type AudiobookshelfOptions = BaseMediaServiceOptions & {
+type ChaptarrServerOptions = BaseMediaServiceOptions & {
+  /** Name of the shared downloads PVC */
+  downloadsPvcName: string;
   /** Hostname for the ingress */
   host: string;
   /** Secret name for the TLS certificate */
   certificateSecretName: string;
 };
 
-export class AudiobookshelfServer extends Construct {
-  constructor(scope: Construct, id: string, options: AudiobookshelfOptions) {
+export class ChaptarrServer extends Construct {
+  constructor(scope: Construct, id: string, options: ChaptarrServerOptions) {
     super(scope, id);
 
-    const { provider, namespace, host } = options;
-    const name = "audiobookshelf";
+    const { provider, namespace, downloadsPvcName, host } = options;
+    const name = "chaptarr";
 
     // Config PVC with backup
     const configPvc = new LonghornPvc(this, "config", {
       provider,
-      name: "audiobookshelf-config",
+      name: "chaptarr-config",
       namespace,
       size: "1Gi",
       backup: true,
     });
 
-    // Dedicated media PVC for audiobooks/podcasts
-    const mediaPvc = new LonghornPvc(this, "media-pvc", {
+    // Dedicated audiobooks PVC
+    const audiobooksPvc = new LonghornPvc(this, "audiobooks-pvc", {
       provider,
-      name: "audiobookshelf-media",
+      name: "chaptarr-audiobooks",
+      namespace,
+      size: "1Gi",
+    });
+
+    // Dedicated ebooks PVC
+    const ebooksPvc = new LonghornPvc(this, "ebooks-pvc", {
+      provider,
+      name: "chaptarr-ebooks",
       namespace,
       size: "1Gi",
     });
@@ -55,7 +65,7 @@ export class AudiobookshelfServer extends Construct {
           {
             name: "http",
             port: 80,
-            targetPort: "80",
+            targetPort: "8789",
           },
         ],
         type: "ClusterIP",
@@ -87,11 +97,11 @@ export class AudiobookshelfServer extends Construct {
             container: [
               {
                 name,
-                image: "ghcr.io/advplyr/audiobookshelf:latest",
+                image: "chaptarr/chaptarr:latest",
                 imagePullPolicy: "IfNotPresent",
                 port: [
                   {
-                    containerPort: 80,
+                    containerPort: 8789,
                     name: "http",
                   },
                 ],
@@ -102,8 +112,16 @@ export class AudiobookshelfServer extends Construct {
                     mountPath: "/config",
                   },
                   {
-                    name: "media",
-                    mountPath: "/media",
+                    name: "audiobooks",
+                    mountPath: "/audiobooks",
+                  },
+                  {
+                    name: "ebooks",
+                    mountPath: "/ebooks",
+                  },
+                  {
+                    name: "downloads",
+                    mountPath: "/downloads",
                   },
                 ],
               },
@@ -116,9 +134,21 @@ export class AudiobookshelfServer extends Construct {
                 },
               },
               {
-                name: "media",
+                name: "audiobooks",
                 persistentVolumeClaim: {
-                  claimName: mediaPvc.name,
+                  claimName: audiobooksPvc.name,
+                },
+              },
+              {
+                name: "ebooks",
+                persistentVolumeClaim: {
+                  claimName: ebooksPvc.name,
+                },
+              },
+              {
+                name: "downloads",
+                persistentVolumeClaim: {
+                  claimName: downloadsPvcName,
                 },
               },
             ],

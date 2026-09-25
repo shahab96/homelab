@@ -10,6 +10,7 @@ import { RadarrServer } from "./radarr";
 import { QBittorrentServer } from "./qbittorrent";
 import { ProwlarrServer } from "./prowlarr";
 import { AudiobookshelfServer } from "./audiobookshelf";
+import { ChaptarrServer } from "./chaptarr";
 
 export class MediaServices extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -56,6 +57,7 @@ export class MediaServices extends TerraformStack {
         "torrent.dogar.dev",
         "prowlarr.dogar.dev",
         "audio.dogar.dev",
+        "chaptarr.dogar.dev",
       ],
       secretName: certificateSecretName,
       commonName: "media.dogar.dev",
@@ -108,6 +110,14 @@ export class MediaServices extends TerraformStack {
       namespace,
       certificateSecretName,
       host: "audio.dogar.dev",
+    });
+
+    new ChaptarrServer(this, "chaptarr", {
+      provider,
+      namespace,
+      certificateSecretName,
+      downloadsPvcName: downloadsPvc.name,
+      host: "chaptarr.dogar.dev",
     });
   }
 }
