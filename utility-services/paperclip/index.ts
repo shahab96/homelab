@@ -137,7 +137,7 @@ export class Paperclip extends Construct {
         name: `${sa.metadata.name}-token`,
         namespace,
         annotations: {
-          "kubernetes.io/service-account-name": sa.metadata.name,
+          "kubernetes.io/service-account.name": sa.metadata.name,
         },
       },
       type: "kubernetes.io/service-account-token",
