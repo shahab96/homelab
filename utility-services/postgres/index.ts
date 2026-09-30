@@ -8,6 +8,9 @@ type PostgresClusterOptions = {
   name: string;
   namespace: string;
   users: string[];
+  /** Users that authenticate over TLS with a password instead of client certs
+   *  (adds a scram-sha-256 pg_hba line; db name = user name). */
+  passwordUsers?: string[];
   primaryUser: string;
   initSecretName: string;
   certManagerApiVersion: string;
@@ -351,6 +354,9 @@ export class PostgresCluster extends Construct {
             },
             pg_hba: [
               `hostssl all      ${options.primaryUser}   all          cert`,
+              ...(options.passwordUsers ?? []).map(
+                (user) => `hostssl ${user} ${user} all scram-sha-256`,
+              ),
               "hostssl sameuser all      all          cert",
             ],
           },

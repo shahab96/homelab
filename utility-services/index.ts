@@ -9,6 +9,7 @@ import { AuthentikServer } from "./authentik";
 import { PostgresCluster } from "./postgres";
 import { DynamicDNS } from "./dynamic-dns";
 import { RustFS } from "./rustfs";
+import { Paperclip } from "./paperclip";
 import { OnePasswordSecret } from "../utils";
 
 export class UtilityServices extends TerraformStack {
@@ -73,6 +74,7 @@ export class UtilityServices extends TerraformStack {
         "pkgs.dogar.dev",
         "pos.omf.dogar.dev",
         "blob.dogar.dev",
+        "paperclip.dogar.dev",
       ],
     });
 
@@ -88,7 +90,8 @@ export class UtilityServices extends TerraformStack {
       name: "postgres-cluster",
       namespace,
       provider: kubernetes,
-      users: ["shahab", "budget-tracker", "authentik", "gitea", "forgejo", "netbird", "package-proxy"],
+      users: ["shahab", "budget-tracker", "authentik", "forgejo", "package-proxy", "paperclip"],
+      passwordUsers: ["paperclip"],
       primaryUser: "shahab",
       initSecretName: "postgres-password",
       backupR2EndpointURL: `https://${r2Endpoint}`,
@@ -130,5 +133,15 @@ export class UtilityServices extends TerraformStack {
     });
 
     forgejoRunner.node.addDependency(forgejo);
+
+    const paperclip = new Paperclip(this, "paperclip", {
+      provider: kubernetes,
+      namespace,
+      name: "paperclip",
+      host: "paperclip.dogar.dev",
+    });
+
+    paperclip.node.addDependency(postgres);
+    paperclip.node.addDependency(rustfs);
   }
 }
