@@ -155,6 +155,7 @@ export class Paperclip extends Construct {
         template: {
           metadata: { labels: { app: name } },
           spec: {
+            serviceAccountName: sa.metadata.name,
             nodeSelector: { nodepool: "worker" },
             securityContext: { fsGroup: "1000" },
             container: [
