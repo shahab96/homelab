@@ -241,7 +241,7 @@ fi`,
               },
               {
                 name,
-                image: "ghcr.io/git-pkgs/proxy:v0.5.0",
+                image: "ghcr.io/git-pkgs/proxy:v0.9.1",
                 env: [
                   { name: "PROXY_LISTEN", value: ":3141" },
                   {
