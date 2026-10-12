@@ -69,6 +69,10 @@ export class Paperclip extends Construct {
 
         // Trust the homelab internal CA for the Postgres TLS certificate
         NODE_EXTRA_CA_CERTS: "/etc/paperclip/postgres/ca.crt",
+
+        // Global npm installs land on the PVC (container runs as UID 1000,
+        // the image default prefix is root-owned)
+        PATH: "/paperclip/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       },
     });
 
@@ -81,6 +85,7 @@ export class Paperclip extends Construct {
           "audit=false",
           "registry=https://pkgs.dogar.dev/npm/",
           "install-links=false",
+          "prefix=/paperclip/.npm-global",
         ].join("\n"),
       },
     });
