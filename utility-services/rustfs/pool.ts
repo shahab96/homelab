@@ -15,8 +15,8 @@ export function pool(config: PoolConfig) {
         memory: "1Gi",
       },
       limits: {
-        cpu: "2",
-        memory: "4Gi",
+        cpu: "4",
+        memory: "8Gi",
       },
     },
     persistence: {
