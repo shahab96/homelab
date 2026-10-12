@@ -311,6 +311,7 @@ fi`,
                   httpGet: { path: "/health", port: "3141" },
                   initialDelaySeconds: 5,
                   periodSeconds: 10,
+                  failureThreshold: 10,
                 },
                 readinessProbe: {
                   httpGet: { path: "/health", port: "3141" },
