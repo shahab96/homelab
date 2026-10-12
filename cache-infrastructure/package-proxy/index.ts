@@ -293,7 +293,7 @@ fi`,
                   },
                 ],
                 resources: {
-                  limits: { cpu: "1", memory: "2Gi" },
+                  limits: { cpu: "1", memory: "4Gi" },
                 },
                 volumeMount: [
                   {
