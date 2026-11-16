@@ -261,7 +261,7 @@ fi`,
                     value: "s3://package-proxy?region=us-east-1&endpoint=https://rustfs-tenant-io.homelab.svc.cluster.local:9000&s3ForcePathStyle=true",
                   },
                   { name: "PROXY_CACHE_METADATA", value: "true" },
-                  { name: "PROXY_METADATA_TTL", value: "168h" },
+                  { name: "PROXY_METADATA_TTL", value: "6h" },
                   { name: "AWS_REGION", value: "us-east-1" },
                   {
                     name: "AWS_ACCESS_KEY_ID",
