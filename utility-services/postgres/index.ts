@@ -421,11 +421,11 @@ export class PostgresCluster extends Construct {
             ],
           },
           storage: {
-            size: "10Gi",
+            size: "30Gi",
             storageClass: "longhorn",
           },
           walStorage: {
-            size: "2Gi",
+            size: "10Gi",
             storageClass: "longhorn",
           },
         },
