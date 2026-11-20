@@ -127,7 +127,7 @@ export class UtilityServices extends TerraformStack {
       provider: kubernetes,
       namespace,
       name: "forgejo-runner",
-      replicas: 1,
+      replicas: 3,
       runnerUuid: "d23d6d11-cd39-486c-8078-7ce671902933",
       registryMirror: "https://pkgs.dogar.dev",
     });
